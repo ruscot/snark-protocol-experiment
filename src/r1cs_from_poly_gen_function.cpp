@@ -11,6 +11,7 @@ vector<libff::Fr<FieldT>> create_polynomials(uint64_t degree){
     vector<libff::Fr<FieldT>> poly;
     for(size_t i = 0; i <= degree; ++i) {
         poly.push_back(libff::Fr<FieldT>::random_element());
+        //poly.push_back(3);
     }
     return poly;
 }
@@ -43,6 +44,22 @@ pb_variable<FieldT> create_constraint_for_x_exponent_horner(libff::Fr<ppT> x_exp
     return last_var_2;
 }
 
+template<typename FieldT, typename ppT>
+void create_constraint_for_x_exponent_horner_out(libff::Fr<ppT> x_exponent, protoboard<FieldT> *pb, 
+    pb_variable<FieldT> x, pb_variable<FieldT> last_var, string *last_var_name, pb_variable<FieldT> out)
+{
+    int name_value = stoi(*last_var_name);
+    pb_variable<FieldT> last_var_1;
+    *last_var_name = std::to_string(name_value + 1);
+    last_var_1.allocate(*pb, *last_var_name);
+    (*pb).add_r1cs_constraint(r1cs_constraint<FieldT>(x, last_var, last_var_1));
+    //pb_variable<FieldT> last_var_2;
+    //*last_var_name = std::to_string(name_value + 2);
+    //last_var_2.allocate(*pb, *last_var_name);
+    (*pb).add_r1cs_constraint(r1cs_constraint<FieldT>(x_exponent + last_var_1, 1, out));
+    //return last_var_2;
+}
+
 /**
  * @brief Create the R1CS constraint for a given polynomial "poly" with the horner method (https://en.wikipedia.org/wiki/Horner%27s_method)
  * Defined as follow 
@@ -61,25 +78,45 @@ pb_variable<FieldT> create_constraint_for_x_exponent_horner(libff::Fr<ppT> x_exp
  * @return pb_variable<FieldT> 
  */
 template<typename FieldT, typename ppT>
-pb_variable<FieldT> create_constraint_horner_method(vector<libff::Fr<ppT>> poly, protoboard<FieldT> *pb, uint64_t degree)
+std::tuple<pb_variable<FieldT>,pb_variable<FieldT>> create_constraint_horner_method(vector<libff::Fr<ppT>> poly, protoboard<FieldT> *pb, uint64_t degree)
 {
     libff::enter_block("Create constraint");
+    std::tuple<pb_variable<FieldT>,pb_variable<FieldT>> return_value;
+    pb_variable<FieldT> out;
+    out.allocate(*pb, "out");
     pb_variable<FieldT> x;
     x.allocate(*pb, "x");
+    
     if(degree == 0){
         printf("Not a polynomial\n");
     } else {
         pb_variable<FieldT> last_var_1;
         last_var_1.allocate(*pb, "0");
         (*pb).add_r1cs_constraint(r1cs_constraint<FieldT>(x, poly[degree], last_var_1));
-        pb_variable<FieldT> last_var_2;
-        last_var_2.allocate(*pb, "1");
-        (*pb).add_r1cs_constraint(r1cs_constraint<FieldT>(last_var_1 + poly[degree-1], 1, last_var_2));
-        string last_var_name = "2";
-        for(uint64_t i = degree-1; i > 0; i-=1){
-            last_var_2 = create_constraint_for_x_exponent_horner<FieldT, ppT>(poly[i-1], pb, x, last_var_2, &last_var_name);
+        if(degree == 1){
+            //pb_variable<FieldT> last_var_2;
+            //last_var_2.allocate(*pb, "1");
+            //out.allocate(*pb, "out");
+            (*pb).add_r1cs_constraint(r1cs_constraint<FieldT>(last_var_1 + poly[degree-1], 1, out));
+        } else {
+            pb_variable<FieldT> last_var_2;
+            last_var_2.allocate(*pb, "1");
+            (*pb).add_r1cs_constraint(r1cs_constraint<FieldT>(last_var_1 + poly[degree-1], 1, last_var_2));
+            string last_var_name = "2";
+            for(uint64_t i = degree-1; i > 0; i-=1){
+                if(i == 1){
+                    //out.allocate(*pb, "out");
+                    //printf("On est la *--------------------------------------\n");
+                    create_constraint_for_x_exponent_horner_out<FieldT, ppT>(poly[i-1], pb, x, last_var_2, &last_var_name, out);
+                } else {
+                    last_var_2 = create_constraint_for_x_exponent_horner<FieldT, ppT>(poly[i-1], pb, x, last_var_2, &last_var_name);
+                }
+                
+            }
         }
     }
     libff::leave_block("Create constraint");
-    return x;
+    std::get<0>(return_value) = x;
+    std::get<1>(return_value) = out;
+    return return_value;
 }
