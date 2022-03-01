@@ -35,3 +35,33 @@ libff::Fr<FieldT> evaluation_polynomial_horner(vector<libff::Fr<FieldT>> poly, u
     }
     return res;
 }
+
+template<typename FieldT>
+libff::Fr<FieldT> naive_evaluation_polynomial_M(libff::Fr<FieldT> M, uint64_t degree, libff::Fr<FieldT> x_value) {
+    libff::Fr<FieldT> res = 1;
+    libff::Fr<FieldT> valM = M;
+    libff::Fr<FieldT> valX = x_value;
+    for(uint64_t i = 0; i < degree; i++){
+        res += valM * valX;
+        valX *= x_value;
+        valM *= M;
+    }
+    return res;
+}
+
+template<typename FieldT>
+libff::Fr<FieldT> evaluation_polynomial_M(libff::Fr<FieldT> M, uint64_t degree, libff::Fr<FieldT> x_value) {
+    libff::Fr<FieldT> One = 1;
+    libff::Fr<FieldT> Mx = M*x_value;
+    cout << "Mx = " << Mx << endl;
+    libff::Fr<FieldT> Mx_degree = (Mx)^(degree+1);
+    cout << "Mx_degree = " << Mx_degree << endl;
+    libff::Fr<FieldT> Mx_degree_minus_one = Mx_degree - One ;
+    cout << "Mx_degree_minus_one = " << Mx_degree_minus_one << endl;
+    libff::Fr<FieldT> Mx_minus_one = Mx - One ;
+    cout << "Mx_minus_one = " << Mx_minus_one << endl;
+    libff::Fr<FieldT> Mx_minus_one_inv = Mx_minus_one * (-1) ;
+    cout << "Mx_minus_one_inv = " << Mx_minus_one_inv << endl;
+    libff::Fr<FieldT> res = Mx_degree_minus_one * Mx_minus_one_inv;
+    return res;
+}
