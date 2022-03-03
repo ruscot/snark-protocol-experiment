@@ -16,17 +16,6 @@ vector<libff::Fr<FieldT>> create_polynomials(uint64_t degree){
     return poly;
 }
 
-template<typename FieldT>
-vector<libff::Fr<FieldT>> polynomials_add_M(uint64_t degree, vector<libff::Fr<FieldT>> polynomial, libff::Fr<FieldT> M){
-    vector<libff::Fr<FieldT>> poly;
-    libff::Fr<FieldT> val = 1;
-    for(size_t i = 0; i <= degree; ++i) {
-        poly.push_back(polynomial[i] + val);
-        val *= M;
-    }
-    return poly;
-}
-
 
 /**
  * @brief An annex function to create our R1CS constraint with the horner method

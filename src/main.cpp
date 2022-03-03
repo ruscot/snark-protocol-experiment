@@ -47,7 +47,7 @@ void test_polynomial_in_zk(uint64_t degree){
     double time_i=0., time_client=0., time_server=0. ;
 
     typedef libff::Fr<default_r1cs_ppzksnark_pp> FieldT;
-    libff::enter_block("test_polynomial_in_zk");
+    libff::enter_block("test_polynomial_in_clear");
 
     // Initialize the curve parameters
     default_r1cs_ppzksnark_pp::init_public_params();
@@ -56,8 +56,6 @@ void test_polynomial_in_zk(uint64_t degree){
     protoboard<FieldT> protoboard_for_poly;
     //Creation of the polynomial
     vector<libff::Fr<default_r1cs_ppzksnark_pp>> polynomial = create_polynomials<default_r1cs_ppzksnark_pp>(degree);
-    libff::Fr<default_r1cs_ppzksnark_pp> M = 2;//libff::Fr<default_r1cs_ppzksnark_pp>::random_element();
-    vector<libff::Fr<default_r1cs_ppzksnark_pp>> polynomial_M = polynomials_add_M<default_r1cs_ppzksnark_pp>(degree, polynomial, M);
 
     //Timer setup 
     Chrono c_setup; 
@@ -67,9 +65,9 @@ void test_polynomial_in_zk(uint64_t degree){
     //Start the timer for the setup phase
     c_setup.start();
     //Create our R1CS constraint and get our input variable x
-    std::tuple<pb_variable<FieldT>,pb_variable<FieldT>> x_and_out = create_constraint_horner_method<FieldT, default_r1cs_ppzksnark_pp>(polynomial_M, &protoboard_for_poly, degree);
+    std::tuple<pb_variable<FieldT>,pb_variable<FieldT>> x_and_out = create_constraint_horner_method<FieldT, default_r1cs_ppzksnark_pp>(polynomial, &protoboard_for_poly, degree);
     //Choose a random x on which we want to eval our polynomial
-    protoboard_for_poly.val(std::get<0>(x_and_out)) = 2;// libff::Fr<default_r1cs_ppzksnark_pp>::random_element();
+    protoboard_for_poly.val(std::get<0>(x_and_out)) = libff::Fr<default_r1cs_ppzksnark_pp>::random_element();
     protoboard_for_poly.val(std::get<1>(x_and_out)) = 0;
     protoboard_for_poly.set_input_sizes(1);
     const r1cs_constraint_system<FieldT> constraint_system = protoboard_for_poly.get_constraint_system();
@@ -130,20 +128,13 @@ void test_polynomial_in_zk(uint64_t degree){
     printf("[TIMINGS ] | %lu | setup : %f | audit-client : %f | audit-server : %f \n=== end ===\n\n", 
         degree+1, time_i, time_client, time_server);
     libff::Fr<default_r1cs_ppzksnark_pp> res = evaluation_polynomial_horner<default_r1cs_ppzksnark_pp>(polynomial, degree, protoboard_for_poly.auxiliary_input()[0]);
-    libff::Fr<default_r1cs_ppzksnark_pp> resM = naive_evaluation_polynomial_M<default_r1cs_ppzksnark_pp>(M, degree, protoboard_for_poly.auxiliary_input()[0]);
-    cout << "resM = " << resM << endl;
-    cout << "polynomial " << polynomial << endl;
-    libff::Fr<default_r1cs_ppzksnark_pp> resMEval = evaluation_polynomial_M<default_r1cs_ppzksnark_pp>(M, degree, protoboard_for_poly.auxiliary_input()[0]);
-    cout << "resMEval = " << resMEval << endl;
-    cout << "degree = " << degree << endl;
     cout << "res = " << res <<endl;
-    libff::Fr<default_r1cs_ppzksnark_pp> resPoly = protoboard_for_poly.primary_input()[0] - resM;
-    bool test = res == resPoly;
+    bool test = res == protoboard_for_poly.primary_input()[0];
     cout << "verif poly eval is correct = " << test << endl;
     if(test == 0) {
         throw std::runtime_error("Result for the polynomial didn't match");
     }
-    libff::leave_block("test_polynomial_in_zk");
+    libff::leave_block("test_polynomial_in_clear");
 
 }
 
