@@ -3,4 +3,123 @@
 This project give a simulation of a polynomial evaluation on a remote server with a proof of the result based on zkSNARK.
 Some time computation of the evaluation are given in order to compare with some other methods. 
 
-You can see the following links for the installation steps https://github.com/howardwu/libsnark-tutorial/blob/master/README.md
+## Table of Contents
+
+- [Build Guide](#build-guide)
+  - [Installation](#installation)
+- [Development Environment](#development-environment)
+  - [Directory Structure](#directory-structure)
+  - [Compilation Framework](#compilation-framework)
+- [Compilation](#compilation)
+- [Further Resources](#further-resources)
+- [License](#license)
+
+## Build Guide
+
+This repository has the following dependencies, which come from `libsnark`:
+
+- C++ build environment
+- CMake build infrastructure
+- GMP for certain bit-integer arithmetic
+- libprocps for reporting memory usage
+- Fetched and compiled via Git submodules:
+    - [libff](https://github.com/scipr-lab/libff) for finite fields and elliptic curves
+    - [libfqfft](https://github.com/scipr-lab/libfqfft) for fast polynomial evaluation and interpolation in various finite domains
+    - [Google Test](https://github.com/google/googletest) (GTest) for unit tests
+    - [ate-pairing](https://github.com/herumi/ate-pairing) for the BN128 elliptic curve
+    - [xbyak](https://github.com/herumi/xbyak) just-in-time assembler, for the BN128 elliptic curve
+    - [Subset of SUPERCOP](https://github.com/mbbarbosa/libsnark-supercop) for crypto primitives needed by ADSNARK
+
+### Installation
+
+* On Ubuntu 16.04 LTS:
+
+        $ sudo apt-get install build-essential cmake git libgmp3-dev libprocps4-dev python-markdown libboost-all-dev libssl-dev pkg-config
+
+* On Ubuntu 14.04 LTS:
+
+        $ sudo apt-get install build-essential cmake git libgmp3-dev libprocps3-dev python-markdown libboost-all-dev libssl-dev
+
+* On Fedora 21 through 23:
+
+        $ sudo yum install gcc-c++ cmake make git gmp-devel procps-ng-devel python2-markdown
+
+* On Fedora 20:
+
+        $ sudo yum install gcc-c++ cmake make git gmp-devel procps-ng-devel python-markdown
+
+## Development Environment
+
+__This library includes the completed development environment. If you wish to use the provided environment, you may proceed to the [zkSNARK Application](#zksnark-application).__
+
+### Directory Structure
+
+We will create a library with the following directory structure:
+
+* [__src__](src): C++ source code
+  <!-- * [__tests__](src/tests): collection of GTests -->
+* [__depends__](depends): dependency libraries
+
+Start by creating a `src` directory and nested `test` directory.
+```bash
+mkdir src && mkdir src/test
+```
+
+Next, create a dependency directory, called `depends`, and add `libsnark` as a submodule.
+```bash
+mkdir depends && cd depends
+git submodule add https://github.com/scipr-lab/libsnark.git libsnark
+```
+
+### Compilation Framework
+
+We will use `CMake` as our compilation framework. 
+
+## Compilation
+
+To compile this library, start by recursively fetching the dependencies.
+```bash
+git submodule update --init --recursive
+```
+
+Note, the submodules only need to be fetched once.
+
+Next, initialize the `build` directory.
+```bash
+mkdir build && cd build && cmake ..
+```
+
+Lastly, compile the library.
+```bash
+make
+```
+
+To run the application, use the following command from the `build` directory:
+```bash
+./src/main
+```
+
+## Further Resources
+
+### Libraries
+* [libsnark](http://github.com/SCIPR-Lab/libsnark) - C++ library for zkSNARK proofs
+* [libfqfft](https://github.com/scipr-lab/libfqfft) - C++ library for FFTs in Finite Fields
+* [libff](https://github.com/scipr-lab/libff) - C++ library for Finite Fields and Elliptic Curves
+* [Zcash](https://github.com/zcash/zcash) - Internet Money, an implementation of the Zerocash protocol
+* [ZSL on Quorum](https://github.com/jpmorganchase/zsl-q) - Zero-knowledge security layer in JP Morgan Quorum
+* [ZoKrates](https://github.com/JacobEberhardt/ZoKrates) - A toolbox for zkSNARKs on Ethereum
+
+### Articles
+* [zkSNARKs Under the Hood](https://medium.com/@VitalikButerin/zk-snarks-under-the-hood-b33151a013f6) - Vitalik Buterin
+* [zkSNARKs in a nutshell](https://blog.ethereum.org/2016/12/05/zksnarks-in-a-nutshell/) - Christian Reitwiessner
+* [What are zkSNARKs?](https://z.cash/technology/zksnarks.html) - Zcash
+* [zkSNARK Reading List](https://tahoe-lafs.org/trac/tahoe-lafs/wiki/SNARKs) - Tahoe-LAFS
+
+### Talks
+* [Zerocash: Solving Bitcoin's Privacy Problem](https://www.youtube.com/watch?v=84Vbj7-i9CI) - Alessandro Chiesa
+* [SNARKs and their Practical Applications](https://simons.berkeley.edu/talks/eran-tromer-2015-06-10) - Eran Tromer
+* [Zcash, SNARKs, STARKs](https://www.youtube.com/watch?v=VUN35BC11Qw) - Eli Ben Sasson
+* [Democratizing zkSNARKs](https://www.youtube.com/watch?v=7BxoyEw6LUY) - Sean Bowe
+
+## License
+[![MIT licensed](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
