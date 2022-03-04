@@ -11,8 +11,6 @@ Some time computation of the evaluation are given in order to compare with some 
   - [Directory Structure](#directory-structure)
   - [Compilation Framework](#compilation-framework)
 - [Compilation](#compilation)
-- [Further Resources](#further-resources)
-- [License](#license)
 
 ## Build Guide
 
@@ -98,28 +96,3 @@ To run the application, use the following command from the `build` directory:
 ```bash
 ./src/main
 ```
-
-## Further Resources
-
-### Libraries
-* [libsnark](http://github.com/SCIPR-Lab/libsnark) - C++ library for zkSNARK proofs
-* [libfqfft](https://github.com/scipr-lab/libfqfft) - C++ library for FFTs in Finite Fields
-* [libff](https://github.com/scipr-lab/libff) - C++ library for Finite Fields and Elliptic Curves
-* [Zcash](https://github.com/zcash/zcash) - Internet Money, an implementation of the Zerocash protocol
-* [ZSL on Quorum](https://github.com/jpmorganchase/zsl-q) - Zero-knowledge security layer in JP Morgan Quorum
-* [ZoKrates](https://github.com/JacobEberhardt/ZoKrates) - A toolbox for zkSNARKs on Ethereum
-
-### Articles
-* [zkSNARKs Under the Hood](https://medium.com/@VitalikButerin/zk-snarks-under-the-hood-b33151a013f6) - Vitalik Buterin
-* [zkSNARKs in a nutshell](https://blog.ethereum.org/2016/12/05/zksnarks-in-a-nutshell/) - Christian Reitwiessner
-* [What are zkSNARKs?](https://z.cash/technology/zksnarks.html) - Zcash
-* [zkSNARK Reading List](https://tahoe-lafs.org/trac/tahoe-lafs/wiki/SNARKs) - Tahoe-LAFS
-
-### Talks
-* [Zerocash: Solving Bitcoin's Privacy Problem](https://www.youtube.com/watch?v=84Vbj7-i9CI) - Alessandro Chiesa
-* [SNARKs and their Practical Applications](https://simons.berkeley.edu/talks/eran-tromer-2015-06-10) - Eran Tromer
-* [Zcash, SNARKs, STARKs](https://www.youtube.com/watch?v=VUN35BC11Qw) - Eli Ben Sasson
-* [Democratizing zkSNARKs](https://www.youtube.com/watch?v=7BxoyEw6LUY) - Sean Bowe
-
-## License
-[![MIT licensed](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
