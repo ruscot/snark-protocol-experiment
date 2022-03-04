@@ -238,18 +238,19 @@ int main(int argc, char * argv[])
 {
     if (argc < 3) {
 	    printf("Usage: DLM_bench <Polynomial degree> <in_clear>\n");
+        printf("ZK for polynomial is not implemented yet so you can fill a random number it won't change anything\n");
 	    return 1;
     }
 
     //The degree of our polynomial
     const uint64_t degree = atoi(argv[1]) - 1;	
-    const uint64_t in_clear = atoi(argv[2]);	
-    
-    if(in_clear){
+    //const uint64_t in_clear = atoi(argv[2]);	
+    test_polynomial_in_clear(degree);
+    /*if(in_clear){
         test_polynomial_in_clear(degree);
     } else {
         test_polynomial_in_zk(degree);
-    }
+    }*/
     
     return 0;
 }
