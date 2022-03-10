@@ -73,6 +73,11 @@ git submodule add https://github.com/scipr-lab/libsnark.git libsnark
 
 We will use `CMake` as our compilation framework. 
 
+Next, create a `CMakeLists.txt` file in the `depends` directory and include the `libsnark` dependency.
+```cmake
+add_subdirectory(libsnark)
+```
+
 ## Compilation
 
 To compile this library, start by recursively fetching the dependencies.
