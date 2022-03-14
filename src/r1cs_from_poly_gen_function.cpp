@@ -95,9 +95,6 @@ std::tuple<pb_variable<FieldT>,pb_variable<FieldT>> create_constraint_horner_met
         last_var_1.allocate(*pb, "0");
         (*pb).add_r1cs_constraint(r1cs_constraint<FieldT>(x, poly[degree], last_var_1));
         if(degree == 1){
-            //pb_variable<FieldT> last_var_2;
-            //last_var_2.allocate(*pb, "1");
-            //out.allocate(*pb, "out");
             (*pb).add_r1cs_constraint(r1cs_constraint<FieldT>(last_var_1 + poly[degree-1], 1, out));
         } else {
             pb_variable<FieldT> last_var_2;
@@ -116,6 +113,7 @@ std::tuple<pb_variable<FieldT>,pb_variable<FieldT>> create_constraint_horner_met
             }
         }
     }
+    
     libff::leave_block("Create constraint");
     std::get<0>(return_value) = x;
     std::get<1>(return_value) = out;

@@ -95,8 +95,6 @@ void test_polynomial_in_zk(uint64_t degree){
             {
                 pb_variable<FieldT> annex;
                 annex.index = lt.index;
-                printf("Index variable : %ld\n", lt.index);
-                cout << "cValue " << cValue <<endl;
                 protoboard_for_poly.val(annex) = cValue;
             }
         }
@@ -191,8 +189,6 @@ void test_polynomial_in_clear(uint64_t degree){
             {
                 pb_variable<FieldT> annex;
                 annex.index = lt.index;
-                printf("Index variable : %ld\n", lt.index);
-                cout << "cValue " << cValue <<endl;
                 protoboard_for_poly.val(annex) = cValue;
             }
         }
@@ -212,24 +208,75 @@ void test_polynomial_in_clear(uint64_t degree){
     bool verified = r1cs_ppzksnark_verifier_strong_IC<default_r1cs_ppzksnark_pp>(keypair.vk, protoboard_for_poly.primary_input(), proof);
     time_client = c_setup.stop();
 
-    cout << "Number of R1CS constraints: " << constraint_system.num_constraints() << endl;
-    cout << "Verification status: " << verified << endl;
+    //cout << "Number of R1CS constraints: " << constraint_system.num_constraints() << endl;
+    //cout << "Verification status: " << verified << endl;
     if(verified == 0) {
         throw std::runtime_error("The proof is not correct abort");
     }
-    cout << "Primary (public) input: " << protoboard_for_poly.primary_input() << endl;
+    //cout << "Primary (public) input: " << protoboard_for_poly.primary_input() << endl;
     //cout << "Auxiliary (private) input poly : " << protoboard_for_poly.auxiliary_input()[protoboard_for_poly.auxiliary_input().size()-1] << endl;
-    cout << "Auxiliary (private) input poly : " << protoboard_for_poly.auxiliary_input() << endl;
+    //cout << "Auxiliary (private) input poly : " << protoboard_for_poly.auxiliary_input() << endl;
 
     printf("[TIMINGS ] | %lu | setup : %f | audit-client : %f | audit-server : %f \n=== end ===\n\n", 
         degree+1, time_i, time_client, time_server);
     libff::Fr<default_r1cs_ppzksnark_pp> res = evaluation_polynomial_horner<default_r1cs_ppzksnark_pp>(polynomial, degree, protoboard_for_poly.auxiliary_input()[0]);
-    cout << "res = " << res <<endl;
+    //cout << "res = " << res <<endl;
     bool test = res == protoboard_for_poly.primary_input()[0];
-    cout << "verif poly eval is correct = " << test << endl;
+    //cout << "verif poly eval is correct = " << test << endl;
     if(test == 0) {
         throw std::runtime_error("Result for the polynomial didn't match");
     }
+    //Data store by the client 
+    cout << "Data store by the client " << keypair.vk.size_in_bits()  << endl;
+    //Data store by the server
+    cout << "Data store by the server " << endl;
+    cout << "   - Keys " << keypair.pk.size_in_bits() << endl;
+    size_t size_constraint = sizeof(constraint_system.primary_input_size) * 8 + sizeof(constraint_system.auxiliary_input_size) * 8;
+    for(r1cs_constraint<FieldT> cs : constraint_system.constraints){
+        for(linear_term<FieldT> linearTerm: cs.a.terms){
+            size_constraint += FieldT::size_in_bits();
+            size_constraint += sizeof(linearTerm.index) * 8;
+        }
+        for(linear_term<FieldT> linearTerm: cs.b.terms){
+            size_constraint += FieldT::size_in_bits();
+            size_constraint += sizeof(linearTerm.index) * 8;
+        }
+        for(linear_term<FieldT> linearTerm: cs.c.terms){
+            size_constraint += FieldT::size_in_bits();
+            size_constraint += sizeof(linearTerm.index) * 8;
+        }
+    }
+    cout << "   - Constraints size " << size_constraint << endl;
+    cout << "   - Total " << size_constraint +  keypair.pk.size_in_bits() << endl;
+
+    //Data sends by the client to the server at Init
+    cout << "Data sends by the client to the server at Init " << endl;
+    cout << "   - Keys " << keypair.pk.size_in_bits() << endl;
+    size_constraint = sizeof(constraint_system.primary_input_size) * 8 + sizeof(constraint_system.auxiliary_input_size) * 8;
+    for(r1cs_constraint<FieldT> cs : constraint_system.constraints){
+        for(linear_term<FieldT> linearTerm: cs.a.terms){
+            size_constraint += FieldT::size_in_bits();
+            size_constraint += sizeof(linearTerm.index) * 8;
+        }
+        for(linear_term<FieldT> linearTerm: cs.b.terms){
+            size_constraint += FieldT::size_in_bits();
+            size_constraint += sizeof(linearTerm.index) * 8;
+        }
+        for(linear_term<FieldT> linearTerm: cs.c.terms){
+            size_constraint += FieldT::size_in_bits();
+            size_constraint += sizeof(linearTerm.index) * 8;
+        }
+    }
+    cout << "   - Constraints size " << size_constraint << endl;
+    cout << "   - Total " << size_constraint +  keypair.pk.size_in_bits() << endl;
+    //Data sends at eval
+    cout << "Data sends at eval " << endl;
+    cout << "   - Input value " << libff::size_in_bits(protoboard_for_poly.primary_input()) << endl;
+    //Data sends back by server, return value of eval
+    cout << "Data sends back by server, return value of eval " << endl;
+    cout << "   - proof " << proof.size_in_bits() << endl;
+    cout << "   - result " << libff::size_in_bits(protoboard_for_poly.primary_input()) << endl;
+    cout << "   - Total " << libff::size_in_bits(protoboard_for_poly.primary_input()) +  proof.size_in_bits() << endl;
     libff::leave_block("test_polynomial_in_clear");
 
 }

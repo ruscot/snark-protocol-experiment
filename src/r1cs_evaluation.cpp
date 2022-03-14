@@ -11,9 +11,7 @@
 template<typename FieldT>
 FieldT evaluation_on_linear_combination(linear_combination<FieldT> a, linear_combination<FieldT> b, std::vector<FieldT> &assignment) {
     FieldT elemA = a.evaluate(assignment);
-    cout << "elemA " << elemA <<endl;
     FieldT elemB = b.evaluate(assignment);
-    cout << "elemB " << elemB <<endl;
     FieldT elemC = elemA * elemB;
     return elemC;
 }
