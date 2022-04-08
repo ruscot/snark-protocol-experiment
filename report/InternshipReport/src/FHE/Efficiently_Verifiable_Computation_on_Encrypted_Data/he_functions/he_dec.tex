@@ -1,8 +1,0 @@
-\subsubsection{HE.Dec function}
-$c \in \mathbb{Z}_q[X][Y]$ is a ciphertext with $c=c_0 + c_1 Y + c_2 Y^2$, $c_i \in \mathbb{Z}_q[X]$ \\
-\underline{$HE.Dec$(dk, c) :} \\
-\tabNormal for i in \{0, 1, 2\} : 
-\tabOne $c'_i = c_i$ mod $\Phi_m(X) $ \\
-\tabNormal $t = c'_0 - s c'_1 - s^2 c'_2$ \\
-\tabNormal $res = t$ mod p \\
-\tabNormal return $res$ 
