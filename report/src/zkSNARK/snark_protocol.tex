@@ -1,0 +1,12 @@
+\section{Protocol}
+Now we have an idea of what are SNARK and how they work, our aim is to use them to create a remote polynomial evaluation. Where the server give a proof of the correctness of the computation. For this we'll use the groth16 algorithm implement in libsnark. All our results will be on this github \href{https://github.com/ruscot/snark-protocol-experiment}{repository}. We'll detail the steps of the Groth16 algorithm to have a better understanding of it.
+
+First we have to convert our polynomial into a \textbf{rank 1 constraint system} (R1CS) which will be convert in a QAP and then we'll create our keys and start our protocol.
+
+\input{src/zkSNARK/macro/variable_name}
+%\input{src/zkSNARK/polynomial_in_clear/polynomial_to_r1cs}
+\input{src/zkSNARK/polynomial_in_clear/groth16_in_clear/groth16_in_clear}
+\input{src/zkSNARK/polynomial_in_clear/groth16_in_zk/groth16_in_zk}
+\input{src/zkSNARK/polynomial_in_clear/back_to_our_problem/back_to_our_problem}
+\input{src/zkSNARK/polynomial_in_clear/libsnark_implementation}
+\input{src/zkSNARK/polynomial_in_clear/results/results_with_libsnark}

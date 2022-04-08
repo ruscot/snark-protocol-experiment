@@ -1,0 +1,14 @@
+\subsubsection{Problem}
+\label{sec:ProblemWithoutZK}
+But we have a problem with these scheme. Since the server knows $\alpha, \beta,\delta,x$. He can cheat by this way :
+\\Pick U,V over F at random
+\\Compute W=$\frac{UV-\alpha\beta-\sum_{i=0}^l(a_i(\beta A_i(s) + \alpha B_i(s) + C_i(s)))}{\delta}$
+\\Now our equality is :
+\\$UV = \alpha \beta + \frac{\beta \sum_{i=0}^{l} a_i A_i(s) + \alpha \sum_{i=0}^{l} a_i B_i(s) + \sum_{i=0}^{l} a_i C_i(s)}{\gamma} \gamma +  \frac{UV-\alpha\beta-\sum_{i=0}^l(a_i(\beta A_i(x) + \alpha B_i(x) + C_i(x)))}{\delta}\delta $
+\\
+\\$UV = \alpha \beta + \beta \sum_{i=0}^{l} a_i A_i(s) + \alpha \sum_{i=0}^{l} a_i B_i(s) + \sum_{i=0}^{l} a_i C_i(s) +  UV-\alpha\beta-\sum_{i=0}^l(a_i(\beta A_i(s) + \alpha B_i(s) + C_i(s)))$
+\\
+\\$UV = \alpha \beta + \beta \sum_{i=0}^{l} a_i A_i(s) + \alpha \sum_{i=0}^{l} a_i B_i(s) + \sum_{i=0}^{l} a_i C_i(s) +  UV-\alpha\beta-\sum_{i=0}^l(a_i(\beta A_i(s) + \alpha B_i(s) + C_i(s)))$
+\\
+\\$0 = 0$
+So the if statement in the verify function will return true even if the person who compute the proof didn't know the $a_{l+1..m}$ (the witness).

@@ -1,0 +1,29 @@
+\paragraph{Setup function}
+With p prime, g the generator of G1, h the generator of G2 and e such that e(g,h) is the generator of Gt.
+Let's call the QAP R such that  $R = \{F, m, l, \{A_{i,j}, B_{i,j}, C_{i,j}\}_{i=0,j=0}^{i=m,j=n}, \{Z_i\}_{i=0}^n\}$
+\\\underline{Setup($1^\lambda, R$) :}
+\tabNormal $\alpha \xleftarrow[]{\$}F*$
+\tabNormal $\beta \xleftarrow[]{\$}F*$
+\tabNormal $\gamma \xleftarrow[]{\$}F*$
+\tabNormal $\delta \xleftarrow[]{\$}F*$
+\tabNormal $\alphaOne = [\alpha]_1$
+\tabNormal $\betaOne = [\beta]_1$
+\tabNormal $\gammaOne = [\gamma]_1$
+\tabNormal $\deltaOne = [\delta]_1$
+\tabNormal $\SOne=\{[s^i]_1\}_{i=0}^{n-1}$
+\tabNormal $ \CisDeltaOne = \{[\frac{C_i (s)}{\delta}]_1\}_{i=l+1}^m$
+\tabNormal $\SAnnexe = \{[\frac{\beta A_i (s) + \alpha B_i (s)}{\delta}]_1\}_{i=l+1}^m$
+\tabNormal $\SSecondAnnexe = \{[\frac{s^i Z_i(s)}{\delta}]_1\}_{i=0}^{n-1}$
+\tabNormal $\betaTwo = [\beta]_2$
+\tabNormal $\gammaTwo = [\gamma]_2$
+\tabNormal $\deltaTwo = [\delta]_2$
+\tabNormal $\STwo = \{[s^i]_2\}_{i=0}^{n-1}$
+\tabNormal crs=$(\alphaOne, \betaOne,\gammaOne ,\deltaOne, \SOne, \CisDeltaOne,\SAnnexe, \SSecondAnnexe, \betaTwo,\gammaTwo ,\deltaTwo, \STwo, g, h, G_1, G_2)$
+\tabNormal $S=\{g^{\frac{\beta x_i(s) + \alpha y_i(s) + z_i(s)}{\gamma}}\}_{i=0}^{n}$
+\tabNormal $\CisDeltaStartOne = \{[\frac{C_i (s)}{\delta}]_1\}_{i=0}^l$
+\tabNormal $\SThirdAnnexe = \{[\frac{\beta A_i (s) + \alpha B_i (s)}{\gamma}]_1\}_{i=0}^l$
+\tabNormal $\SOneOnC=\{[C_i s^i]_1\}_{i=0}^{n-1}$
+\tabNormal vk=$(\alphaOne, \betaTwo , S, \CisDeltaStartOne, \gammaTwo, \deltaTwo, \SThirdAnnexe, \SOneOnC)$
+\tabNormal return crs, vk
+
+Send \textbf{crs} to the prover and \textbf{vk} to the verifier.

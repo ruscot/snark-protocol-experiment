@@ -1,0 +1,19 @@
+\subsection{Snark protocol in clear}
+If the client has a QAP with the polynomials $\{A_i[X]$, $B_i[X]$, $C_i[X]\}_{i=0}^n$ where he knows the value $a_{1...l,l+1...m}$ to solve it. Polynomials $A_i$, $B_i$ and $C_i$ are of degree n and Z is of degree n. 
+\\ Let's call the QAP \textbf{R} such that  $R = \{F, m, l, \{A_i, B_i, C_i\}_{i=0}^m, \{Z_i\}_{i=0}^n\}$
+\\ We define 3 methods Setup, Prove and Verify such that :
+\\$Setup(R) \rightarrow (\sigma,\tau)$ 
+\\$Prove(R, \sigma, a_{i...l}, a_{l+1...m}) \rightarrow \pi$
+\\$Verify(R, \sigma, a_{i...l}, \pi) \rightarrow 0/1$
+
+\input{src/zkSNARK/polynomial_in_clear/groth16_in_clear/functions/setup_function}
+
+\input{src/zkSNARK/polynomial_in_clear/groth16_in_clear/functions/prove_function}
+
+\input{src/zkSNARK/polynomial_in_clear/groth16_in_clear/functions/verify_function}
+
+\input{src/zkSNARK/polynomial_in_clear/groth16_in_clear/equation_proof}
+
+\input{src/zkSNARK/polynomial_in_clear/groth16_in_clear/client_server_architecture}
+
+\input{src/zkSNARK/polynomial_in_clear/groth16_in_clear/problem}

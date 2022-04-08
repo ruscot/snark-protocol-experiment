@@ -1,0 +1,31 @@
+\subsubsection{From R1CS to QAP}
+Now we want to use our previous R1CS to convert it into a \textbf{quadratic arithmetic program} (QAP) form, which implement the same logic using polynomials. Such that if we evaluate the polynomials at x=1 then we get our first set of vectors, at x=2 the second and so forth.
+\\To perform this transformation we will use the Lagrange Interpolation.
+\\In our case we have 12 vectors of length 6. And we have to transform these into 6 groups of 3 polynomials, each one of degree 3. For example if we take the 1st column of A [0,0,0,5]. We can consider each element as the y-coordinate corresponding to x=1,2,3,4. So we get 4 sets of points (1,0), (2,0), (3,0), (4,5), it's an arbitrary interpretation we use to convert the R1CS into the QAP form. With lagrange interpolation we can find the polynomial passing through these 4 points.
+\\It gives $0.833333333333333 * x^3 - 5.00000000000000 * x^2 + 9.16666666666667 * x - 5.00000000000000$
+\\We just have to do this for all our points and then we have :
+\\A polynomials
+\\$[-5.0,9.166,-5.0,0.833]$
+\\$[8.0,-11.333,5.0,-0.666]$
+\\$[0.0,0.0,0.0,0.0]$
+\\$[-6.0,9.5,-4.0,0.5]$
+\\$[4.0,-7.0,3.5,-0.5]$
+\\$[-1.0,1.833,-1.0,0.166]$
+\\B polynomials
+\\$[3.0,-5.166,2.5,-0.333]$
+\\$[-2.0,5.166,-2.5,0.333]$
+\\$[0.0,0.0,0.0,0.0]$
+\\$[0.0,0.0,0.0,0.0]$
+\\$[0.0,0.0,0.0,0.0]$
+\\$[0.0,0.0,0.0,0.0]$
+\\C polynomials
+\\$[0.0,0.0,0.0,0.0]$
+\\$[0.0,0.0,0.0,0.0]$
+\\$[-1.0,1.833,-1.0,0.166]$
+\\$[4.0,-4.333,1.5,-0.166]$
+\\$[-6.0,9.5,-4.0,0.5]$
+\\$[4.0,-7.0,3.5,-0.5]$
+\\And then to finish we have to defined Z as $(x-1)(x-2)(x-3)...$ the polynomials that is equal to zero at all points corresponding to logic gates. So in our case Z=(x-1)(x-2)(x-3)(x-4)
+\\For a more complete explanation see \cite{QAP_creation} and \cite{QAP_creation_2}
+
+Now we'll give an explanation of the Groth16 algorithm.

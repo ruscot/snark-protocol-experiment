@@ -1,0 +1,9 @@
+\subsubsection{Verify function}
+\underline{Verify(SK,$\sigma_y, \tau_x$) :} // Recall $\sigma_y = (\gamma, G_t) $ and $\tau_x = x$
+\tabNormal $a= ((\tau_x  k_1)^{t+1}-1)(\tau_x k_1 - 1)^{-1}$ \\
+\tabNormal if $G_t  == (g^{H(k, \gamma)})^c * (g^{k_0})^a$ \\
+\tabOne accept \\
+\tabOne res = HE.Dec(dk,$\gamma$) \\
+\tabOne return $res$  \\
+\tabNormal else \\
+\tabOne reject \\
