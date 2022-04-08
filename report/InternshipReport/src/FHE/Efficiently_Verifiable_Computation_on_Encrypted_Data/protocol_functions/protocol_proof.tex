@@ -1,0 +1,12 @@
+\subsubsection{Proof of the equality}
+We have the following equality $G_t  == (g^{H(k, \gamma)})^c * (g^{k_0})^a$ \\
+$G_t = \prod_{i=0}^t (G_{T,i})^{x^i}$ \\
+$= \prod_{i=0}^t (g^{T_i})^{x^i}$ \\
+$= \prod_{i=0}^t (g^{c*H(k, \gamma_i) + k_1^i k_0})^{x^i}$ \\
+$= \prod_{i=0}^t g^{(c*H(k, \gamma_i) + k_1^i k_0) * x^i}$ \\
+$= \prod_{i=0}^t g^{c*H(k, \gamma_i) * x^i} g^{ k_1^i k_0 x^i}$ \\
+$= g^{c\sum_{i=0}^t H(k, \gamma_i) * x^i} g^{\sum_{i=0}^t k_1^i k_0 x^i}$ \\ 
+Since \textbf{H} is a ring homomorphism we have $\sum_{i=0}^t H(k, \gamma_i) * x^i = \sum_{i=0}^t H(k, x^i \gamma_i)$ and $\sum_{i=0}^t H(k, x^i \gamma_i) = H(k, \gamma)$ so :\\
+$= g^{c  H(k, \gamma)} g^{((x  k_1)^{t+1}-1)(x k_1 - 1)^{-1}}$ \\
+$= g^{c  H(k, \gamma)} g^a$ \\
+We have our equality.

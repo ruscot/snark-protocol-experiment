@@ -1,0 +1,9 @@
+\subsubsection{HE.Eval function}
+a and b are two ciphertexts $a,b \in \mathbb{Z}_q[X][Y]$ where a=$a_0 + a_1 Y + a_2 Y^2$, b=$b_0 + b_1 Y + b_2 Y^2$ and all $a_i, b_j \in \mathbb{Z}_q[X]$
+\underline{$HE.Enc$(pk, f, a, b) :} 
+$r\xleftarrow[]{\$}(ZO_n, D_{\mathbb{Z}^n, \sigma}, D_{\mathbb{Z}^n, \sigma})$ \\
+$u=r[0], v=r[1], w=r[2]$
+$c_0 = b u + p w + m $ \\
+$c_1 = a u + p v $ \\
+$c= c_0 +c_1 Y $ \\
+return $c$ 

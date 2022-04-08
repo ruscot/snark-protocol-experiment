@@ -1,0 +1,15 @@
+\subsection{SAVER}
+\cite{saver} give the opportunity to detach the encryption of our snark circuit. It's based on ElGamal Encryption. With this scheme we can convince a verifier that a clear message M is indeed from a corresponding ciphertext C. So it allow us to prove the correctness of the message without revealing the secret key.
+\\\\Here are the different primitive of their scheme :
+\\\underline{CRS $\leftarrow$ Setup(R) :} takes an arbitrary relation R as an input, and
+outputs the corresponding common reference string CRS.
+\\\underline{SK, P K, V K $\leftarrow$ KeyGen(CRS) :} takes a CRS as an input, and outputs the
+corresponding secret key SK, public key P K, verification key V K.
+\\\underline{$\pi$, CT $\leftarrow$ Enc(CRS, P K, M, $a_{n+1,l}$, $a_{l+1,m}$) :} takes CRS, a public key P K, a message M = $m_1,..., m_n$, a zk-SNARK statement $a_{n+1,l}$, and a witness
+$a_{l+1,m}$ as inputs, and outputs a proof $\pi$ and a ciphertext CT = $(c_0 ,... , c_n , \phi)$.
+\\ \underline{$\pi'$ , $C_t'$ $\leftarrow$ Rerandomize(PK, $\pi$, CT) :} takes a public key PK, a proof $\pi$, a
+ciphertext CT as inputs, and outputs a new proof $\pi'$ and a new ciphertext $C_t'$ with fresh randomness.
+\\\underline{0/1 $\leftarrow$ Verify\_Enc(CRS, $\pi$, CT , $a_{n+1,l}$) :} take a CRS, a proof $\pi$, a ciphertext CT and a statement  $a_{n+1,l}$ as inputs, and outputs 1 if CT , $a_{n+1,l}$ is in
+the relation R, or 0 otherwise.
+\\ \underline{M, v $\leftarrow$ Dec(CRS, SK, VK, CT ) :} takes CRS, a secret key SK, a verification key VK, and a ciphertext CT = $(c_0 ,... , c_n , \phi)$ as inputs, and outputs a plaintext M = $m_1,..., m_n$ and a decryption proof v.
+\\ \underline{0/1 $\leftarrow$ Verify\_Dec(CRS, VK, M, v, CT ) :} takes CRS, a verification key VK, a message M , a decryption proof v, and a ciphertext CT as inputs, and outputs 1 if M is a valid decryption of CT , or 0 otherwise.

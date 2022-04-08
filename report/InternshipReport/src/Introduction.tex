@@ -1,0 +1,49 @@
+\chapter{Introduction} 
+
+Secure multi-party computing (SMC) is a subfield of cryptography with the goal of creating methods for parties to jointly compute a function over their inputs while keeping those inputs private. \\
+
+For instance, consider two security agencies that wish to compare their lists of suspects without revealing their contents or an airline company that would like to check it's list of passengers against the list of people that are not allowed to go abroad. \\
+
+The functionalities of interest thus include secure set-intersection, but also oblivious polynomial evaluation, secure equality of strings, approximation of a Taylor series, RSA key generation, oblivious keyword search, set membership, proof of data possession and more. \\
+
+Initially developed in the context of cloud computing with client/server outsourcing protocols, it is nowadays largely used in more peer-to-peer setups with multiple players, or even in decentralized setups such as distributed ledger technology (blockchains). \\
+
+The proposed methodology in this work is to focus on algebraic problems involving polynomial arithmetic and linear algebra. The main tools are secret sharing techniques and homomorphic cryptography and those need to be adapted to efficiently take into account modifications of the assumptions (dynamicity) during the protocols. Then the developed building blocks will be declined to give more efficient solutions to dynamic proof of retreivability systems for edge storage or decentralized storage networks, or also for private reputation systems and secure evaluation of decision forests. \\
+
+First we will give an overview of the existing protocols and techniques and compare them with the protocol created by one of the LJK team, implemented in \textbf{Relic}. \\
+
+We'll focus ourself on the \textbf{Zero-Knowledge Succinct Non-Interactive Argument of Knowledge} (zkSNARK) proof and \textbf{Fully Homomorphic Encryption} (FHE). The report will be divide in two parts, one for the zkSNARK and another one with the FHE where our results will be given. \\
+
+Our problem is the following we want to evaluate a polynomial on a server and the server has to give a proof of it's result. 
+
+\begin{tabular}{|c|c c c|}
+  \hline
+  & \textbf{Client} & \textbf{Communications} & \textbf{Server} \TBstrut\\
+  \hline
+  Setup & Select the polynomial P & & \Tstrut \\
+  & and the evaluation point x &  $\xrightarrow[]{P, x}$ & \Tstrut \\
+  \hline
+  Eval & & & Compute y=P[x] \Tstrut \\
+  & & $\xleftarrow[]{y, \pi}$ & Compute $\pi$ a proof of y \\
+  \hline
+  Verif & Check with $\pi$ that y is correct & & \Tstrut \\
+  \hline
+\end{tabular} \\
+
+
+
+We'll use the zkSNARK or FHE to create the proof and compare them on the following criteria :
+
+\begin{itemize}
+    \item Computation time : how long it tooks to perform the evaluation and compute the proof
+    \item Extra storage : the data e need to store to compute the proof 
+    \item Communication volume : the amount of communication needed 
+    \item Number of communication : how many communication we need to do to achieve the protocol
+\end{itemize}
+As a reminder \textbf{Zero-Knowledge Proof} enable a prover to convince a verifier that a statement is true without revealing anything else. It have 3 core property :
+\begin{itemize}
+  \item \textbf{Completeness} : Given a statement and a witness, the prover can convince the verifier.
+  \item \textbf{Soundness} : A malicious prover cannot convince the verifier of a false statement.
+  \item \textbf{Zero-knowledge} : The proof does not reveal anything but the truth of the statement, in particular it doesn't reveal the prover's witness.
+\end{itemize}
+\hl{TODO add definitions and change report structure to be readable by someone who doesn't knwo zkSNARK}

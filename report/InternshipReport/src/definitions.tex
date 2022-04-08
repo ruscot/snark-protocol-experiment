@@ -1,0 +1,36 @@
+\section{Definitions}
+This section give some definitions for the rest of the report. \\
+
+\textbf{Verifiable decryption}: a verifiable decryption \cite{verifiable_decryption} is a primitive which can convince the verifier that the decrypted message is indeed from the corresponding ciphertext. \\
+
+\textbf{Rerandomizable encryption}: a rerandomizable encryption \cite{rerandomizable_rcca_encryption} is a public-key encryption scheme where the ciphertext can be rerandomized, which can be viewed as a newly-encrypted ciphertext. \\
+
+\textbf{Additively-homomorphic encryption}: an additively-homomorphic encryption is a primitive that allows computations on ciphertexts. \\
+
+\textbf{Commit-and-prove (CP) methodology}. With a CP scheme one can
+prove statements of the form “$c_{ck}(x)$ contains x such that R(x,w)” where $c_{ck}(x)$ is a commitment.
+To see how the CP capability can be used for modular composition consider the following example of sequential composition in which one wants to prove that $\exists$w : z = h(x; w), where h(x; w) := g(f (x; w); w). Such a proof can be built by combining two CP systems $\Pi_f$ and $\Pi_g$ for its two building blocks, i.e., respectively f and g: the prover creates a commitment $c_{ck}(y)$ of y, and then uses $\Pi_f$ (resp. $\Pi_g$ ) to prove that “$c_{ck}(y)$ contains y = f (x; w) (resp. contains y such that z = g(y; w))”. \\
+
+\textbf{Quadratic Arithmetic Circuit (QAP)} is a representation of an arithmetic circuit. 
+If we have Q an arithmetic circuit that compute something with $a_{1...l}$ the outputs and inputs of the circuit, and  $a_{l+1...m}$ the witness of the circuit (i.e the intermediate values). 
+A QAP is a triplet set of polynomials $\{A_i[X]$, $B_i[X]$, $C_i[X]\}_{i=0}^m$, each $A_i$, $B_i$, $C_i$ are of degree n, such that \[ (\sum_{i=0}^m a_i A_i) (\sum_{i=0}^m a_i B_i) = \sum_{i=0}^m a_i C_i  \] 
+\\ Now considering our QAP defined above with an n-degree polynomial Z[X] we say this accept a vector $x \in F^n$ such that Z(x) divide our equation above. If we have our set of polynomials $\{A_i[X]$, $B_i[X]$, $C_i[X]\}_{i=0}^m$ we can find Z with this method : 
+\\ Generate an arbitrary set of n points $S \subseteq F$. Construct A(x), B(x), C(x) in such a way that $A(s_i ), B(s_i ), C(s_i )$ are the i-th rows of A, B, C respectively. The Z(x) is defined in such a way that
+$\forall s \in S : Z(s) = 0$.
+\\ Then we have : \[ (\sum_{i=0}^m a_i A_i(x)) * (\sum_{i=0}^m a_i B_i(x)) = \sum_{i=0}^m a_i C_i(x) \bmod Z(x) \] 
+\\ See \cite{Succinct_Non_Interactive_Arguments_from_Quadratic_Arithmetic_Programs} for more explanations. \\
+
+\textbf{Bilinear map} is defined by seven elements $(p, G_1, G_2, G_T, e, g, h)$ such that :
+\\- $e:G_1*G_2\rightarrow G_T$
+\\- $G_1$, $G_2$, $G_T$ are groups of prime order p
+\\- g is a generator of $G_1$
+\\- h is a generator of $G_2$
+\\- e(g,h) is a generator of $G_T$
+\\- $e(g^a, h^b) = e(g,h)^{ab}$ \\
+
+\textbf{Zero-knowledge proof} enable a prover to convince a verifier that a statement is true without revealing anything else. It have 3 core property :
+\begin{itemize}
+  \item \textbf{Completeness} : Given a statement and a witness, the prover can convince the verifier.
+  \item \textbf{Soundness} : A malicious prover cannot convince the verifier of a false statement.
+  \item \textbf{Zero-knowledge} : The proof does not reveal anything but the truth of the statement, in particular it doesn't reveal the prover's witness.
+\end{itemize}

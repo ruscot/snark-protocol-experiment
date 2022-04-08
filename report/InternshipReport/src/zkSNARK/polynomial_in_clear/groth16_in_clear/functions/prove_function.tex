@@ -1,0 +1,14 @@
+\subsubsection{Prove function}
+\underline{$Prove(R, \sigma, a_{i...l}, a_{l+1...m})$ :}
+\tabNormal r$\xleftarrow[]{\$}$F
+\tabNormal k$\xleftarrow[]{\$}$F
+\tabNormal U = $\alpha + \sum_{i=0}^{m} a_i A_i (s) + r\delta $
+\tabNormal V = $\beta + \sum_{i=0}^{m} a_i B_i (s) + k\delta $
+\tabNormal We compute H(s) such that  \[ (\sum_{i=0}^m a_i A_i(s)) (\sum_{i=0}^m a_i B_i(s)) = \sum_{i=0}^m a_i C_i(s) + H(s) Z(s) \]
+\tabNormal $\Aa =\sum_{i=l+1}^m a_i A_i$
+\tabNormal $\Ba=\sum_{i=l+1}^m a_i B_i$
+\tabNormal $\Ca =\sum_{i=l+1}^m a_i C_i$
+\tabNormal $S=\frac{\beta \Aa (s) + \alpha \Ba (s) + \Ca (s)}{\delta}$
+\tabNormal W = $S + \frac{H(s)Z(s)}{\delta} + Uk + rV - rk\delta $
+\tabNormal $\pi = (U,V,W)$ 
+\tabNormal return $\pi$

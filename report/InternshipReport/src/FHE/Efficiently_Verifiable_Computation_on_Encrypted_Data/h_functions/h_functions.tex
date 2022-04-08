@@ -1,0 +1,13 @@
+\subsection{Homomorphic hash function}
+We define the following functions for our homomorphic hash function. 
+\tabNormal - \textbf{H.KeyGen} generates the description of a function \pmb{H} 
+\tabNormal - \textbf{H} computes the function
+\tabNormal - \textbf{H.Eval} allows to compute over $\mathbb{R}$
+
+They propose a homomorphic hash whose key features is that it allows to "compress" an homomorphic encryption scheme by Brakerski and Vaikuntanathan (\textbf{BV}) \cite{Brakerski_and_Vaikuntanathan} cyphertext $\mu \in \mathbb{Z}_q[X][Y]$ into a single entry $\nu \in \mathbb{Z}_q$ in such a way that \textbf{H} is a ring homomorphism hence \textbf{H.Eval}(f, (\textbf{H}($\gamma_1$),...,\textbf{H}($\gamma_t$))) = \textbf{H}(f($\gamma_1$,...,$\gamma_t$)). \\
+
+Let q be a prime of $\lambda$ bits, N, c be two integers of size at most polynomial in $\lambda$ and let D=${\mu \in \mathbb{Z}[X][Y]: deg_X(\mu) = N, deg_Y(\mu) = c}$
+
+\input{src/FHE/Efficiently_Verifiable_Computation_on_Encrypted_Data/h_functions/h_key_gen}
+\input{src/FHE/Efficiently_Verifiable_Computation_on_Encrypted_Data/h_functions/h_k_function}
+\input{src/FHE/Efficiently_Verifiable_Computation_on_Encrypted_Data/h_functions/h_eval}

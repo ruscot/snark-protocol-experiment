@@ -1,0 +1,49 @@
+\newpage
+\subsubsection{Summarize of the first part of zkSNARK}
+\begingroup
+    \fontsize{10pt}{12pt}\selectfont
+
+\begin{tabular}{|c|c c c|}
+  \hline
+  & \textbf{Client} & \textbf{Communications} & \textbf{Server} \TBstrut\\
+  \hline
+  & With P$\in F[X]$ & & \Tstrut \\
+  & Compute R corresponding to P & & \\ 
+  & $\alpha, \beta, \gamma, \delta, s  \leftarrow^\$F^*$ & &\\ 
+  & $\alphaOne = [\alpha]_1, \betaOne = [\beta]_1, \gammaOne = [\gamma]_1$ & & \\
+  & $\deltaOne = [\delta]_1,\SOne=\{[s^i]_1\}_{i=0}^{n-1}, $  & & \\
+  Setup & $\CisDeltaOne = \{[\frac{C_i (s)}{\delta}]_1\}_{i=l+1}^m$ & & \\
+  & $\SAnnexe = \{[\frac{\beta A_i (s) + \alpha B_i (s)}{\delta}]_1\}_{i=l+1}^m, $  & & \\
+  & $\SSecondAnnexe = \{[\frac{s^i Z_i(s)}{\delta}]_1\}_{i=0}^{n-1}$ & & \\
+  & $\betaTwo = [\beta]_2,\gammaTwo = [\gamma]_2, \deltaTwo = [\delta]_2, \STwo = \{[s^i]_2\}_{i=0}^{n-1}$ & & \\
+  & crs=$(\alphaOne, \betaOne,\gammaOne ,\deltaOne, \SOne, $  & & \\
+  & $\CisDeltaOne,\SAnnexe, \SSecondAnnexe, \betaTwo,\gammaTwo ,\deltaTwo, \STwo, g, h, G_1, G_2)$ & $\xrightarrow[]{crs, a_{input}, R}$ & \\
+  & $S=\{g^{\frac{\beta x_i(s) + \alpha y_i(s) + z_i(s)}{\gamma}}\}_{i=0}^{n}$ & & \\
+  & $\CisDeltaStartOne = \{[\frac{C_i (s)}{\delta}]_1\}_{i=0}^l$ & & \\
+  & $\SThirdAnnexe = \{[\frac{\beta A_i (s) + \alpha B_i (s)}{\gamma}]_1\}_{i=0}^l$ & & \\
+  & $\SOneOnC=\{[C_i s^i]_1\}_{i=0}^{n-1}$ & & \\
+  & vk=$(\alphaOne, \betaTwo , S, \CisDeltaStartOne, \gammaTwo, \deltaTwo, \SThirdAnnexe, \SOneOnC)$ & & \Bstrut \\
+  \hline
+  & & & Compute $a_{witness}, a_{output}$ from R \Tstrut \\
+  & & & on $a_{input}$ \\
+  & & & $r, k \xleftarrow[]{\$}F*$ \\
+  & & & $\Aa =\sum_{i=0}^m a_i A_i$ \\
+  & & & $\Ba=\sum_{i=0}^m a_i B_i$ \\
+  Eval & & & $\Ca =\sum_{i=0}^m a_i C_i$ \\
+  & & & U = $\alphaOne \Pi_{i=0}^{m} \SOne_i^{\Aa_i} (\deltaOne)^r $ \\
+  & & & \VOne = $\betaOne \Pi_{i=0}^{m} \SOne_i^{\Ba_i} (\deltaOne)^k $ \\
+  & & & \VTwo = $\betaTwo \Pi_{i=0}^{m} \STwo_i^{\Ba_i} (\deltaTwo)^k $ \\
+  & & & We compute H(s) such that  \\
+  & & & $(\sum_{i=0}^m a_i A_i(s))(\sum_{i=0}^m a_i B_i(s))$ \\
+  & & & $= \sum_{i=0}^m a_i C_i(s) + H(s) Z(s)$ \\
+  & & & $S=\Pi_{i=l+1}^{m}(\SAnnexe_i)^{a_i}\CisDeltaOne_i$ \\
+  & & & W = $\frac{\Pi_{i=0}^n S_i (\Pi_{i=0}^n (\SSecondAnnexe_i)^{H_i}) U^k  \VOne^k}{\delta1^{rk}} $ \\
+  & & $\xleftarrow[]{\pi, a_{output}}$ & $\pi=(U, W, \VTwo)$ \Bstrut \\ 
+  \hline
+  & $Y=\Pi_{i=0}^{l}(\SThirdAnnexe_i)^{a_i} \CisDeltaStartOne_i$ & & \Tstrut \\
+  Verif &  if $e(U, \VTwo) == e(\alphaOne, \betaTwo) e(Y, \gammaTwo) e(W, \deltaTwo) $ : return 1 & & \\
+  & else : return 0 & & \Bstrut \\
+  \hline
+\end{tabular}
+
+\endgroup

@@ -1,0 +1,14 @@
+\subsubsection{Proof of the equality}
+What we want is to check the following equality :
+\[ (\sum_{i=0}^m a_i A_i(s)) (\sum_{i=0}^m a_i B_i(s)) = \sum_{i=0}^m a_i C_i(s) + H(s) Z(s) \]
+Here is the detailled calcul for the if statement in verify :
+\\ $e(U,\VTwo) = e((\alphaOne \Pi_{i=0}^{m} \SOne_i^{\Aa_i} (\deltaOne)^r), (\betaTwo \Pi_{i=0}^{m} \STwo_i^{\Ba_i} (\deltaTwo)^k)) $
+\\
+\\ = $ [(\alpha + \sum_{i=0}^{m} a_i A_i (s) + r\delta) (\beta + \sum_{i=0}^{m} a_i B_i (s) + k\delta)]_T$
+\\ 
+\\ $e(\alphaOne, \betaTwo) e(Y, \gammaTwo)  e(W, \deltaTwo) = e(\alphaOne, \betaTwo) e(\Pi_{i=0}^{l}(\SThirdAnnexe_i)^{a_i}, \gammaTwo) e(\frac{S (\Pi_{i=0}^n (\SSecondAnnexe_i)^{H_i}) U^k \VOne^k}{\deltaOne^{rk}}, \deltaTwo)$
+\\
+\\ = $[\alpha \beta]_T [(\frac{\beta \sum_{i=0}^{l} a_i A_i (s) + \alpha \sum_{i=0}^{l} a_i B_i(s) + \sum_{i=0}^{l} a_i C_i(s) }{\gamma}) \gamma]_T  [(S + \frac{H(s)Z(s)}{\delta} + Uk + rV - rk\delta) \delta]_T$
+\\
+\\= $[\alpha \beta + (\frac{\beta \sum_{i=0}^{l} a_i A_i (s) + \alpha \sum_{i=0}^{l} a_i B_i(s) + \sum_{i=0}^{l} a_i C_i(s) }{\gamma}) \gamma + (S + \frac{H(s)Z(s)}{\delta} + Uk + rV - rk\delta) \delta]_T$
+\\\\For our both side we have the same equation as the proof in \hyperref[sec:EquationProofNotInZK]{4.4} just in the $g_T$ exponent.

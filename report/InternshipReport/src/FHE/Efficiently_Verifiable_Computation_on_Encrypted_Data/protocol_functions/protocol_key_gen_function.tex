@@ -1,0 +1,15 @@
+\subsubsection{KeyGen function}
+With P=$\sum_{i=0}^{t}p_i X^i$ our polynomial and $p_i \in R_q$ \\
+\underline{KeyGen($p_0,...,p_t, \lambda$) :} 
+\tabNormal Specify a group (G,.) of order q and a generator g
+\tabNormal $HE.ParamGen(\lambda)$ \\
+\tabNormal $(dk, pk) = HE.KeyGen(1^\lambda)$ \\
+\tabNormal $c,k_0,k_1 \xleftarrow[]{\$} \mathbb{Z}_q$ \\
+\tabNormal $k=H.KeyGen()$ //Just a reminder k=$(\alpha,\beta)$\\
+\tabNormal for i in \{0,...,t\} \\
+\tabOne $\gamma_i = HE.Enc(pk, p_i)$ \\
+\tabOne $T_i = c*H(k, \gamma_i) + k_1^i k_0$ \\
+\tabOne $G_{T,i} = g^{T_i}$ \\
+\tabNormal $PK = (pk, G, g, \gamma_0, G_{T,0},..., \gamma_t, G_{T,t})$ \\
+\tabNormal $SK = (pk, G, g, dk, c, k, k_0, k_1 )$ \\
+\tabNormal return (PK, SK)  \\

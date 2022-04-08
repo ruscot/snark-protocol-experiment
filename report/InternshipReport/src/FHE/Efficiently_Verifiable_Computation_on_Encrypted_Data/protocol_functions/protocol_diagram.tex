@@ -1,0 +1,15 @@
+\subsubsection{Protocol diagram}
+\begin{tabular}{|c|c c c|}
+  \hline
+  & \textbf{Client} & \textbf{Communications} & \textbf{Server} \TBstrut\\
+  \hline
+  & P=$\sum_{i=0}^{t}p_i X^i$ & & \Tstrut \\
+  & $p_i \in R_q$& & \\ 
+  Setup & (SK, PK) $\leftarrow $ KeyGen($p_i, \lambda$) & & \\ 
+  & $(\sigma_x, \tau_x)$ $\leftarrow $ ProbGen(PK, x) & $\xrightarrow[]{PK, \sigma_x}$ & \Bstrut \\
+  \hline
+  Eval & & $\xleftarrow[]{\sigma_y}$ & $\sigma_y$ $\leftarrow$ Compute(PK, $\sigma_x$) \TBstrut \\ 
+  \hline
+  Verif & Verify(SK,$\sigma_y, \tau_x$) & & \TBstrut \\
+  \hline
+\end{tabular}
