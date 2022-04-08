@@ -52,21 +52,19 @@ __This library includes the completed development environment. If you wish to us
 
 ### Directory Structure
 
-We will create a library with the following directory structure:
+The library have the following directory structure:
 
 * [__src__](src): C++ source code
   <!-- * [__tests__](src/tests): collection of GTests -->
 * [__depends__](depends): dependency libraries
 
-Start by creating a `src` directory and nested `test` directory.
-```bash
-mkdir src && mkdir src/test
-```
 
-Next, create a dependency directory, called `depends`, and add `libsnark` as a submodule.
+Create a dependency directory, called `depends`, and add `libsnark` as a submodule.
 ```bash
 mkdir depends && cd depends
-git submodule add https://github.com/scipr-lab/libsnark.git libsnark
+```
+```bash
+git submodule add -f https://github.com/scipr-lab/libsnark.git libsnark
 ```
 
 ### Compilation Framework
