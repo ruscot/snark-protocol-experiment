@@ -5,5 +5,6 @@ The aim of this project is too give a simulation of a polynomial evaluation on a
 The library have the following directory structure:
 
 * [__libsnark-experiment__](libsnark-experiment): protocol with libsnark on a clear polynomial
-  <!-- * [__tests__](src/tests): collection of GTests -->
-* [__report__](report): contain a report that explain the different methods.
+* [__report__](report): contain a report that explain the different methods
+* [__homomorphic-authentication-fhe__](homomorphic-authentication-fhe): todo
+* [__jsnark__](jsnark): todo
