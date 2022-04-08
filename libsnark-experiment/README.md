@@ -72,9 +72,11 @@ git submodule add -f https://github.com/scipr-lab/libsnark.git libsnark
 We will use `CMake` as our compilation framework. 
 
 Next, create a `CMakeLists.txt` file in the `depends` directory and include the `libsnark` dependency.
-```cmake
-add_subdirectory(libsnark)
+```bash
+echo "add_subdirectory(libsnark)" > CMakeLists.txt
 ```
+
+You can go back to the libsnark-experiment directory.
 
 ## Compilation
 
@@ -102,5 +104,5 @@ make
 
 To run the application, use the following command from the `build` directory:
 ```bash
-./src/main
+./src/snark_polynomial_in_clear
 ```
