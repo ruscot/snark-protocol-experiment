@@ -82,6 +82,11 @@ To compile this library, start by recursively fetching the dependencies.
 ```bash
 git submodule update --init --recursive
 ```
+You can have an issue with the command above, if the output of the command is "The unauthenticated git protocol on port 9418 is no longer supported." you can run this command 
+```bash
+git config --global url."https://github.com/".insteadOf git://github.com/
+```
+and then you just have to run again the command to update submodule.
 
 Note, the submodules only need to be fetched once.
 

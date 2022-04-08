@@ -10,8 +10,8 @@ template<typename FieldT>
 vector<libff::Fr<FieldT>> create_polynomials(uint64_t degree){
     vector<libff::Fr<FieldT>> poly;
     for(size_t i = 0; i <= degree; ++i) {
-        //poly.push_back(libff::Fr<FieldT>::random_element());
-        poly.push_back(2);
+        poly.push_back(libff::Fr<FieldT>::random_element());
+        //poly.push_back(2);
     }
     return poly;
 }
@@ -103,8 +103,6 @@ std::tuple<pb_variable<FieldT>,pb_variable<FieldT>> create_constraint_horner_met
             string last_var_name = "2";
             for(uint64_t i = degree-1; i > 0; i-=1){
                 if(i == 1){
-                    //out.allocate(*pb, "out");
-                    //printf("On est la *--------------------------------------\n");
                     create_constraint_for_x_exponent_horner_out<FieldT, ppT>(poly[i-1], pb, x, last_var_2, &last_var_name, out);
                 } else {
                     last_var_2 = create_constraint_for_x_exponent_horner<FieldT, ppT>(poly[i-1], pb, x, last_var_2, &last_var_name);

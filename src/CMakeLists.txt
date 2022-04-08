@@ -1,18 +1,18 @@
 include_directories(.)
 
 add_executable(
-  main
+  snark_polynomial_in_clear
 
-  main.cpp
+  snark_polynomial_in_clear.cpp
 )
 target_link_libraries(
-  main
+  snark_polynomial_in_clear
 
   snark
 )
 target_include_directories(
-  main
-
+  snark_polynomial_in_clear
+  
   PUBLIC
   ${DEPENDS_DIR}/libsnark
   ${DEPENDS_DIR}/libsnark/depends/libfqfft
