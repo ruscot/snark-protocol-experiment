@@ -183,7 +183,18 @@ void test_polynomial_in_clear(uint64_t degree){
     cout << "   - proof " << proof.size_in_bits() << endl;
     cout << "   - result " << libff::size_in_bits(protoboard_for_poly.primary_input()) << endl;
     cout << "   - Total " << libff::size_in_bits(protoboard_for_poly.primary_input()) +  proof.size_in_bits() << endl;
+    
+    /**
+     * Try to change a coeff of our polynomial without doing the setup from start
+     * */
+    cout << "Last coeff " << polynomial[0] << endl;
+    polynomial[0] = libff::Fr<default_r1cs_ppzksnark_pp>::random_element();
+    cout << "New coeff " << polynomial[0] << endl;
+    cout << "Res horner last coef " << res << endl;
+    res = evaluation_polynomial_horner<default_r1cs_ppzksnark_pp>(polynomial, degree, protoboard_for_poly.auxiliary_input()[0]);
+    cout << "Res horner new coef " << res << endl;
     libff::leave_block("test_polynomial_in_clear");
+    
 
 }
 
