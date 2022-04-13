@@ -83,9 +83,9 @@ void test_polynomial_in_clear(uint64_t degree){
     c_setup.start();
     //Compute the witness and output of our polynomial
     r1cs_variable_assignment<FieldT> full_variable_assignment =  protoboard_for_poly.primary_input();
+    r1cs_variable_assignment<FieldT> full_variable_assignment_update =  protoboard_for_poly.primary_input();
     full_variable_assignment.push_back(protoboard_for_poly.auxiliary_input()[0]);
     cout << "full variable assignement " << full_variable_assignment <<endl;
-    libff::enter_block("Evaluation on linear combination");
     for(r1cs_constraint<FieldT> cs : constraint_system.constraints){
         
         FieldT cValue = evaluation_on_linear_combination(cs.a, cs.b, full_variable_assignment);
@@ -100,6 +100,9 @@ void test_polynomial_in_clear(uint64_t degree){
         }
         full_variable_assignment.push_back(cValue);
     }
+
+    //cout << "primary input 0 " << protoboard_for_poly.primary_input()[0] << endl;
+    //return;
 
     //From our witnes and input output compute the proof for the client
     //protoboard_for_poly.set_input_sizes(1);
@@ -127,6 +130,8 @@ void test_polynomial_in_clear(uint64_t degree){
         degree+1, time_i, time_client, time_server);
     libff::Fr<default_r1cs_ppzksnark_pp> res = evaluation_polynomial_horner<default_r1cs_ppzksnark_pp>(polynomial, degree, protoboard_for_poly.auxiliary_input()[0]);
     //cout << "res = " << res <<endl;
+    //cout << "primary input 0 " << protoboard_for_poly.primary_input()[0] << endl;
+    //return ;
     bool test = res == protoboard_for_poly.primary_input()[0];
     //cout << "verif poly eval is correct = " << test << endl;
     if(test == 0) {
@@ -187,15 +192,46 @@ void test_polynomial_in_clear(uint64_t degree){
     /**
      * Try to change a coeff of our polynomial without doing the setup from start
      * */
-    cout << "Last coeff " << polynomial[0] << endl;
-    polynomial[0] = libff::Fr<default_r1cs_ppzksnark_pp>::random_element();
-    cout << "New coeff " << polynomial[0] << endl;
+    cout << "Last coeff " << polynomial[5] << endl;
+    polynomial[5] = libff::Fr<default_r1cs_ppzksnark_pp>::random_element();
+    cout << "New coeff " << polynomial[5] << endl;
     cout << "Res horner last coef " << res << endl;
     res = evaluation_polynomial_horner<default_r1cs_ppzksnark_pp>(polynomial, degree, protoboard_for_poly.auxiliary_input()[0]);
     cout << "Res horner new coef " << res << endl;
+    //cout << polynomial << endl;
+    update_constraint_horner_method<FieldT, default_r1cs_ppzksnark_pp>(polynomial[5], &protoboard_for_poly, 5, degree);
+    r1cs_constraint<FieldT> constraint = protoboard_for_poly.get_constraint_system().constraints[0];
+    cout << "r1cs constraint b " << endl;
+    cout << constraint.b.terms[0].coeff << endl;
+    //constraint.b.terms[0].coeff = coef;
+    //cout << constraint.b.terms[0].coeff << endl;
     libff::leave_block("test_polynomial_in_clear");
-    
 
+
+    //Compute the witness and output of our polynomial
+    
+    full_variable_assignment_update.push_back(protoboard_for_poly.auxiliary_input()[0]);
+    cout << "full variable assignement 2 \n " << full_variable_assignment_update <<endl;
+    const r1cs_constraint_system<FieldT> constraint_system_update = protoboard_for_poly.get_constraint_system();
+    for(r1cs_constraint<FieldT> cs : constraint_system_update.constraints){
+        
+        FieldT cValue = evaluation_on_linear_combination(cs.a, cs.b, full_variable_assignment_update);
+        for (auto &lt : cs.c.terms)
+        {
+            if(lt.index != 0 )
+            {
+                pb_variable<FieldT> annex;
+                annex.index = lt.index;
+                protoboard_for_poly.val(annex) = cValue;
+            }
+        }
+        full_variable_assignment_update.push_back(cValue);
+    }
+
+    cout << "test after update " << protoboard_for_poly.primary_input()[0] << endl;
+    
+    test = res == protoboard_for_poly.primary_input()[0];
+    cout << "test after update " << test << endl;
 }
 
 int main(int argc, char * argv[])

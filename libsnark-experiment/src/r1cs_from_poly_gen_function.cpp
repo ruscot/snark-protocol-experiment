@@ -117,3 +117,137 @@ std::tuple<pb_variable<FieldT>,pb_variable<FieldT>> create_constraint_horner_met
     std::get<1>(return_value) = out;
     return return_value;
 }
+
+template<typename FieldT, typename ppT>
+void update_constraint_horner_method(libff::Fr<ppT> coef, protoboard<FieldT> *pb, uint64_t coef_index, uint64_t degree)
+{
+    libff::enter_block("Update constraint");
+    /*r1cs_constraint<FieldT> constraint;
+    for(uint64_t i = 0; i < degree ; i++){
+        cout << "i " << i << endl;
+        constraint = (*pb).get_constraint_system().constraints[i];
+        cout << "r1cs constraint a " << endl;
+        constraint.a.print();
+        cout << constraint.a.terms[0].coeff << endl;
+        cout << constraint.a.terms[0].index << endl;
+        cout << "r1cs constraint b " << endl;
+        constraint.b.print();
+        cout << constraint.b.terms[0].coeff << endl;
+    }*/
+  
+    if(coef_index == degree){
+        r1cs_constraint<FieldT> constraint = (*pb).get_constraint_system().constraints[0];
+        cout << "r1cs constraint b " << endl;
+        cout << "coef  " << coef << endl;
+        cout << constraint.b.terms[0].coeff << endl;
+        constraint.b.terms[0].coeff = coef;
+        cout << constraint.b.terms[0].coeff << endl;
+        (*pb).protoboard_update_r1cs_constraint(constraint, 0, "");
+    } else if (coef_index == degree - 1) {
+        r1cs_constraint<FieldT> constraint = (*pb).get_constraint_system().constraints[1];
+        cout << "r1cs constraint a " << endl;
+        constraint.a.print();
+        cout << constraint.a.terms[0].coeff << endl;
+        cout << constraint.a.terms[0].index << endl;
+        constraint.a.terms[0].coeff = coef;
+        cout << "coef " << coef << endl;
+        constraint.a.print();
+        (*pb).protoboard_update_r1cs_constraint(constraint, 1, "");
+    } else {
+        uint64_t index = 2 + (degree - coef_index - 2) * 2 +1;
+        cout << "index " << index << endl;
+        r1cs_constraint<FieldT> constraint = (*pb).get_constraint_system().constraints[index];
+        cout << "r1cs constraint a " << endl;
+        constraint.a.print();
+        constraint.a.terms[0].coeff = coef;
+        cout << "coef " << coef << endl;
+        constraint.a.print();
+        (*pb).protoboard_update_r1cs_constraint(constraint, index, "");
+    }
+    
+    libff::leave_block("Update constraint");
+}
+
+  /*
+21812035055494624812787781580588190355381051726023411839889764010840555760197
+18264955162797063752559944305439423604666780529402049673784088251426451961327
+6280039041269993045744033927058262086663646205129951997185127168875474770666
+21191741919942421796898621929722566307170111953122137131681507602972831011837
+7786041477537073298857969679157220926233805807131900586076506215427676761593
+973773522213953214195682434770678475784580037887673996447341121400076089101
+31673561585488433599050791904540180595868436979789025252305780393337142503
+7291511875036787203678836918395449182321513594297117053754470978267401673272
+13886149822949901285820179172059501909624150799966725865910396498661827981419
+19504457738222001575628129932762382111552964536682514414687117191202960254204
+
+
+i 0
+r1cs constraint a 
+here1    x_2 (no annotation) * 1
+1
+2
+r1cs constraint b 
+here    1 * 19504457738222001575628129932762382111552964536682514414687117191202960254204
+19504457738222001575628129932762382111552964536682514414687117191202960254204
+i 1
+r1cs constraint a 
+here    1 * 13886149822949901285820179172059501909624150799966725865910396498661827981419
+here1    x_3 (no annotation) * 1
+13886149822949901285820179172059501909624150799966725865910396498661827981419
+0
+r1cs constraint b 
+here    1 * 1
+1
+i 2
+r1cs constraint a 
+here1    x_2 (no annotation) * 1
+1
+2
+r1cs constraint b 
+here1    x_4 (no annotation) * 1
+1
+i 3
+r1cs constraint a 
+here    1 * 7291511875036787203678836918395449182321513594297117053754470978267401673272
+here1    x_5 (no annotation) * 1
+7291511875036787203678836918395449182321513594297117053754470978267401673272
+0
+r1cs constraint b 
+here    1 * 1
+1
+i 4
+r1cs constraint a 
+here1    x_2 (no annotation) * 1
+1
+2
+r1cs constraint b 
+here1    x_6 (no annotation) * 1
+1
+i 5
+r1cs constraint a 
+here    1 * 31673561585488433599050791904540180595868436979789025252305780393337142503
+here1    x_7 (no annotation) * 1
+31673561585488433599050791904540180595868436979789025252305780393337142503
+0
+r1cs constraint b 
+here    1 * 1
+1
+i 6
+r1cs constraint a 
+here1    x_2 (no annotation) * 1
+1
+2
+r1cs constraint b 
+here1    x_8 (no annotation) * 1
+1
+i 7
+r1cs constraint a 
+here    1 * 973773522213953214195682434770678475784580037887673996447341121400076089101
+here1    x_9 (no annotation) * 1
+973773522213953214195682434770678475784580037887673996447341121400076089101
+0
+r1cs constraint b 
+here    1 * 1
+1
+
+    */
