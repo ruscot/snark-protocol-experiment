@@ -122,18 +122,6 @@ template<typename FieldT, typename ppT>
 void update_constraint_horner_method(libff::Fr<ppT> coef, protoboard<FieldT> *pb, uint64_t coef_index, uint64_t degree)
 {
     libff::enter_block("Update constraint");
-    /*r1cs_constraint<FieldT> constraint;
-    for(uint64_t i = 0; i < degree ; i++){
-        cout << "i " << i << endl;
-        constraint = (*pb).get_constraint_system().constraints[i];
-        cout << "r1cs constraint a " << endl;
-        constraint.a.print();
-        cout << constraint.a.terms[0].coeff << endl;
-        cout << constraint.a.terms[0].index << endl;
-        cout << "r1cs constraint b " << endl;
-        constraint.b.print();
-        cout << constraint.b.terms[0].coeff << endl;
-    }*/
   
     if(coef_index == degree){
         r1cs_constraint<FieldT> constraint = (*pb).get_constraint_system().constraints[0];

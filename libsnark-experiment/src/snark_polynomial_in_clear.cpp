@@ -12,6 +12,7 @@
 #include "util.hpp"
 #include "r1cs_from_poly_gen_function.cpp"
 #include "r1cs_evaluation.cpp"
+#include "r1cs_update_keys.cpp"
 
 #include <stdexcept>
 #include <tuple>
@@ -200,14 +201,7 @@ void test_polynomial_in_clear(uint64_t degree){
     cout << "Res horner new coef " << res << endl;
     //cout << polynomial << endl;
     update_constraint_horner_method<FieldT, default_r1cs_ppzksnark_pp>(polynomial[5], &protoboard_for_poly, 5, degree);
-    r1cs_constraint<FieldT> constraint = protoboard_for_poly.get_constraint_system().constraints[0];
-    cout << "r1cs constraint b " << endl;
-    cout << constraint.b.terms[0].coeff << endl;
-    //constraint.b.terms[0].coeff = coef;
-    //cout << constraint.b.terms[0].coeff << endl;
-    libff::leave_block("test_polynomial_in_clear");
-
-
+    //r1cs_constraint<FieldT> constraint = protoboard_for_poly.get_constraint_system().constraints[0];
     //Compute the witness and output of our polynomial
     
     full_variable_assignment_update.push_back(protoboard_for_poly.auxiliary_input()[0]);
@@ -232,6 +226,10 @@ void test_polynomial_in_clear(uint64_t degree){
     
     test = res == protoboard_for_poly.primary_input()[0];
     cout << "test after update " << test << endl;
+
+    //const r1cs_ppzksnark_keypair<default_r1cs_ppzksnark_pp> keypair = r1cs_ppzksnark_generator<default_r1cs_ppzksnark_pp>(constraint_system);
+    const r1cs_ppzksnark_keypair<default_r1cs_ppzksnark_pp> newkeypair = r1cs_ppzksnark_update<default_r1cs_ppzksnark_pp>(constraint_system, polynomial[5], 5, degree, keypair);
+    libff::leave_block("test_polynomial_in_clear");
 }
 
 int main(int argc, char * argv[])
