@@ -74,8 +74,11 @@ void test_polynomial_in_clear(uint64_t degree){
     const r1cs_constraint_system<FieldT> constraint_system = protoboard_for_poly.get_constraint_system();
 
     //Creation of our keys for the zkSNARK protocol from our R1CS constraints
-    const r1cs_ppzksnark_keypair<default_r1cs_ppzksnark_pp> keypair = r1cs_ppzksnark_generator<default_r1cs_ppzksnark_pp>(constraint_system);
-    
+    //const r1cs_ppzksnark_keypair<default_r1cs_ppzksnark_pp> keypair = r1cs_ppzksnark_generator<default_r1cs_ppzksnark_pp>(constraint_system);
+    std::tuple<r1cs_ppzksnark_keypair<default_r1cs_ppzksnark_pp>,std::tuple<libff::Fr<default_r1cs_ppzksnark_pp>, 
+        random_container_key<default_r1cs_ppzksnark_pp>>> ret_val = r1cs_ppzksnark_generator2<default_r1cs_ppzksnark_pp>(constraint_system);
+
+    const r1cs_ppzksnark_keypair<default_r1cs_ppzksnark_pp> keypair = std::get<0>(ret_val);
     //timer of the setup stop
     time_i = c_setup.stop();
     /**
@@ -87,7 +90,8 @@ void test_polynomial_in_clear(uint64_t degree){
     r1cs_variable_assignment<FieldT> full_variable_assignment_update =  protoboard_for_poly.primary_input();
     full_variable_assignment.push_back(protoboard_for_poly.auxiliary_input()[0]);
     cout << "full variable assignement " << full_variable_assignment <<endl;
-    for(r1cs_constraint<FieldT> cs : constraint_system.constraints){
+    //constraint_system = keypair.pk.constraint_system;
+    for(r1cs_constraint<FieldT> cs : keypair.pk.constraint_system.constraints){
         
         FieldT cValue = evaluation_on_linear_combination(cs.a, cs.b, full_variable_assignment);
         for (auto &lt : cs.c.terms)
@@ -143,7 +147,7 @@ void test_polynomial_in_clear(uint64_t degree){
     //Data store by the server
     cout << "Data store by the server " << endl;
     cout << "   - Keys " << keypair.pk.size_in_bits() << endl;
-    size_t size_constraint = sizeof(constraint_system.primary_input_size) * 8 + sizeof(constraint_system.auxiliary_input_size) * 8;
+    /*size_t size_constraint = sizeof(constraint_system.primary_input_size) * 8 + sizeof(constraint_system.auxiliary_input_size) * 8;
     for(r1cs_constraint<FieldT> cs : constraint_system.constraints){
         for(linear_term<FieldT> linearTerm: cs.a.terms){
             size_constraint += FieldT::size_in_bits();
@@ -158,13 +162,13 @@ void test_polynomial_in_clear(uint64_t degree){
             size_constraint += sizeof(linearTerm.index) * 8;
         }
     }
-    cout << "   - Constraints size " << size_constraint << endl;
-    cout << "   - Total " << size_constraint +  keypair.pk.size_in_bits() << endl;
+    cout << "   - Constraints size " << size_constraint << endl;*/
+    cout << "   - Total " << /*size_constraint +*/  keypair.pk.size_in_bits() << endl;
 
     //Data sends by the client to the server at Init
     cout << "Data sends by the client to the server at Init " << endl;
     cout << "   - Keys " << keypair.pk.size_in_bits() << endl;
-    size_constraint = sizeof(constraint_system.primary_input_size) * 8 + sizeof(constraint_system.auxiliary_input_size) * 8;
+    /*size_constraint = sizeof(constraint_system.primary_input_size) * 8 + sizeof(constraint_system.auxiliary_input_size) * 8;
     for(r1cs_constraint<FieldT> cs : constraint_system.constraints){
         for(linear_term<FieldT> linearTerm: cs.a.terms){
             size_constraint += FieldT::size_in_bits();
@@ -179,8 +183,8 @@ void test_polynomial_in_clear(uint64_t degree){
             size_constraint += sizeof(linearTerm.index) * 8;
         }
     }
-    cout << "   - Constraints size " << size_constraint << endl;
-    cout << "   - Total " << size_constraint +  keypair.pk.size_in_bits() << endl;
+    cout << "   - Constraints size " << size_constraint << endl;*/
+    cout << "   - Total " << /*size_constraint +*/  keypair.pk.size_in_bits() << endl;
     //Data sends at eval
     cout << "Data sends at eval " << endl;
     cout << "   - Input value " << libff::size_in_bits(protoboard_for_poly.primary_input()) << endl;
@@ -194,6 +198,7 @@ void test_polynomial_in_clear(uint64_t degree){
      * Try to change a coeff of our polynomial without doing the setup from start
      * */
     cout << "Last coeff " << polynomial[5] << endl;
+    libff::Fr<default_r1cs_ppzksnark_pp> save5 = polynomial[5];
     polynomial[5] = libff::Fr<default_r1cs_ppzksnark_pp>::random_element();
     cout << "New coeff " << polynomial[5] << endl;
     cout << "Res horner last coef " << res << endl;
@@ -222,13 +227,30 @@ void test_polynomial_in_clear(uint64_t degree){
         full_variable_assignment_update.push_back(cValue);
     }
 
-    cout << "test after update " << protoboard_for_poly.primary_input()[0] << endl;
+    cout << "test after update result " << protoboard_for_poly.primary_input()[0] << endl;
     
     test = res == protoboard_for_poly.primary_input()[0];
-    cout << "test after update " << test << endl;
+    cout << "test after update equal or not " << test << endl;
 
-    //const r1cs_ppzksnark_keypair<default_r1cs_ppzksnark_pp> keypair = r1cs_ppzksnark_generator<default_r1cs_ppzksnark_pp>(constraint_system);
-    const r1cs_ppzksnark_keypair<default_r1cs_ppzksnark_pp> newkeypair = r1cs_ppzksnark_update<default_r1cs_ppzksnark_pp>(constraint_system, polynomial[5], 5, degree, keypair);
+    /*r1cs_ppzksnark_keypair<default_r1cs_ppzksnark_pp> oldKeyPair = r1cs_ppzksnark_generator55<default_r1cs_ppzksnark_pp>(constraint_system, save5, polynomial[5], 
+                                    5, degree, std::get<0>(std::get<1>(ret_val)), std::get<1>(std::get<1>(ret_val)) );*/
+
+    r1cs_ppzksnark_keypair<default_r1cs_ppzksnark_pp> test_res_keypair = update_proving_key_compilation(constraint_system, save5, polynomial[5], 
+                                    7, degree, std::get<0>(std::get<1>(ret_val)), std::get<1>(std::get<1>(ret_val)), keypair);
+    //cout << "K_query save main " << test_res_keypair.pk.K_query[0] << endl;
+    r1cs_ppzksnark_keypair<default_r1cs_ppzksnark_pp> newkeypair = r1cs_ppzksnark_generator_with_t_and_random<default_r1cs_ppzksnark_pp>(constraint_system_update,  
+                                    std::get<0>(std::get<1>(ret_val)),  std::get<1>(std::get<1>(ret_val)), polynomial[5], 5, degree );
+    //cout << "K_query save main " << newkeypair.pk.K_query[0] << endl;
+    /*r1cs_ppzksnark_keypair<default_r1cs_ppzksnark_pp> newkeypair2 = r1cs_ppzksnark_generator_with_t_and_random<default_r1cs_ppzksnark_pp>(constraint_system_update,  
+                                    std::get<0>(std::get<1>(ret_val)),  std::get<1>(std::get<1>(ret_val)), polynomial[5], 5, degree );*/
+
+    cout << "Compare test key pair with new " << endl;
+    compare_keypair(newkeypair,test_res_keypair);
+
+    /*cout << "Compare key pair with new " << endl;
+    compare_keypair(keypair,newkeypair);
+    cout << "Compare new key pair with new 2 " << endl;
+    compare_keypair(newkeypair2,newkeypair);*/
     libff::leave_block("test_polynomial_in_clear");
 }
 
