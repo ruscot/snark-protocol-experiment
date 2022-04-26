@@ -58,26 +58,6 @@ The library have the following directory structure:
   <!-- * [__tests__](src/tests): collection of GTests -->
 * [__depends__](depends): dependency libraries
 
-
-Create a dependency directory, called `depends`, and add `libsnark` as a submodule.
-```bash
-mkdir depends && cd depends
-```
-```bash
-git submodule add -f https://github.com/scipr-lab/libsnark.git libsnark
-```
-
-### Compilation Framework
-
-We will use `CMake` as our compilation framework. 
-
-Next, create a `CMakeLists.txt` file in the `depends` directory and include the `libsnark` dependency.
-```bash
-echo "add_subdirectory(libsnark)" > CMakeLists.txt
-```
-
-You can go back to the libsnark-experiment directory.
-
 ## Compilation
 
 To compile this library, start by recursively fetching the dependencies.
@@ -91,6 +71,11 @@ git config --global url."https://github.com/".insteadOf git://github.com/
 and then you just have to run again the command to update submodule.
 
 Note, the submodules only need to be fetched once.
+
+Next we need to change our file in libsnark library by running the change_libsnark.hs script
+```bash
+./change_libsnark.sh
+```
 
 Next, initialize the `build` directory.
 ```bash
