@@ -991,19 +991,7 @@ template <typename ppT>
 r1cs_ppzksnark_keypair<ppT> update_proving_key_compilation(const r1cs_ppzksnark_constraint_system<ppT> &cs,libff::Fr<ppT> coef_save, 
                     libff::Fr<ppT> new_coef, uint64_t coef_index, uint64_t degree, 
                     libff::Fr<ppT> t, random_container_key<ppT> random_container, r1cs_ppzksnark_keypair<ppT> ref_keypair)
-{
-    //proving key
-    //knowledge_commitment_vector<libff::G1<ppT>, libff::G1<ppT> > A_query = keypair.pk.A_query; 
-    //keypair.pk 
-    /*At[cs.constraints[index].a.terms[0].index] = r1cs_to_qap_instance_map_with_evaluation_At(cs_copy, t, 
-                                                    At[cs.constraints[index].a.terms[0].index], new_coef, 
-                                                    coef_save, index);
-    Fr<ppT> At_save_index_0 = At[cs.constraints[index].a.terms[0].index];
-    Kt[0] = r1cs_to_qap_instance_map_with_evaluation_Zt2(cs_copy, t, 
-                                                    Kt[0], At_save, 
-                                                    At[cs.constraints[index].a.terms[0].index], 0, rA, beta);*/
-    //return keypair;
-    
+{   
     Fr<ppT> At_save = random_container.At_save;
     random_container.At_save = r1cs_to_qap_instance_map_with_evaluation_At(cs, t, 
                         random_container.At_save, new_coef, 

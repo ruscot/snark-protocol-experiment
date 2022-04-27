@@ -125,30 +125,30 @@ void update_constraint_horner_method(libff::Fr<ppT> coef, protoboard<FieldT> *pb
   
     if(coef_index == degree){
         r1cs_constraint<FieldT> constraint = (*pb).get_constraint_system().constraints[0];
-        cout << "r1cs constraint b " << endl;
-        cout << "coef  " << coef << endl;
-        cout << constraint.b.terms[0].coeff << endl;
+        //cout << "r1cs constraint b " << endl;
+        //cout << "coef  " << coef << endl;
+        //cout << constraint.b.terms[0].coeff << endl;
         constraint.b.terms[0].coeff = coef;
-        cout << constraint.b.terms[0].coeff << endl;
+        //cout << constraint.b.terms[0].coeff << endl;
         (*pb).protoboard_update_r1cs_constraint(constraint, 0, "");
     } else if (coef_index == degree - 1) {
         r1cs_constraint<FieldT> constraint = (*pb).get_constraint_system().constraints[1];
-        cout << "r1cs constraint a " << endl;
+        //cout << "r1cs constraint a " << endl;
         constraint.a.print();
-        cout << constraint.a.terms[0].coeff << endl;
-        cout << constraint.a.terms[0].index << endl;
+        //cout << constraint.a.terms[0].coeff << endl;
+        //cout << constraint.a.terms[0].index << endl;
         constraint.a.terms[0].coeff = coef;
-        cout << "coef " << coef << endl;
+        //cout << "coef " << coef << endl;
         constraint.a.print();
         (*pb).protoboard_update_r1cs_constraint(constraint, 1, "");
     } else {
         uint64_t index = 2 + (degree - coef_index - 2) * 2 +1;
-        cout << "index " << index << endl;
+        //cout << "index " << index << endl;
         r1cs_constraint<FieldT> constraint = (*pb).get_constraint_system().constraints[index];
-        cout << "r1cs constraint a " << endl;
+        //cout << "r1cs constraint a " << endl;
         constraint.a.print();
         constraint.a.terms[0].coeff = coef;
-        cout << "coef " << coef << endl;
+        //cout << "coef " << coef << endl;
         constraint.a.print();
         (*pb).protoboard_update_r1cs_constraint(constraint, index, "");
     }
