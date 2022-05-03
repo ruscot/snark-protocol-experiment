@@ -37,10 +37,6 @@ Verify the installed version by `java -version`. In case it is not 1.8 or later,
 
 	`$ sudo apt-get install junit4`
 	
-- To download BouncyCastle:
-
-	`$ wget https://www.bouncycastle.org/download/bcprov-jdk15on-159.jar`
-
 ### Compilation for paillier's tests
 For compilation :
 ```bash
