@@ -60,6 +60,17 @@ The library have the following directory structure:
 
 ## Compilation
 
+Create a dependency directory, called depends, and add libsnark as a submodule.
+```bash
+mkdir depends && cd depends
+```
+```bash
+git submodule add -f https://github.com/scipr-lab/libsnark.git libsnark
+```
+Add a cmake file in depends for compilation 
+```bash
+echo "add_subdirectory(libsnark)" > CMakeLists.txt
+```
 To compile this library, start by recursively fetching the dependencies.
 ```bash
 git submodule update --init --recursive
