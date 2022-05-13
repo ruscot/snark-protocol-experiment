@@ -73,7 +73,7 @@ echo "add_subdirectory(libsnark)" > CMakeLists.txt
 ```
 To compile this library, start by recursively fetching the dependencies.
 ```bash
-git submodule update --init --recursive
+cd .. && git submodule update --init --recursive
 ```
 You can have an issue with the command above, if the output of the command is "The unauthenticated git protocol on port 9418 is no longer supported." you can run this command 
 ```bash
