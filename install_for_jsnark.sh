@@ -11,6 +11,6 @@ mv file_for_jsnark/paillier jsnark/JsnarkCircuitBuilder/src/examples/generators/
 mv file_for_jsnark/paillier_tests file_for_jsnark/paillier
 mv file_for_jsnark/paillier jsnark/JsnarkCircuitBuilder/src/examples/tests/
 
-mv file_for_jsnark/run_ppzksnark_paillier.cpp jsnark/libsnark/libsnark/
-mv file_for_jsnark/CMakeLists.txt jsnark/libsnark/libsnark/jsnark_interface
+mv file_for_jsnark/CMakeLists.txt jsnark/libsnark/libsnark/
+mv file_for_jsnark/run_ppzksnark_paillier.cpp jsnark/libsnark/libsnark/jsnark_interface
 

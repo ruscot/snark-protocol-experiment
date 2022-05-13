@@ -111,7 +111,7 @@ Command to run pailliers' generator :
 ```bash
 java -cp bin examples.generators.paillier.HornerPolynomialPaillierGenerator <number_of_coefficients_for_polynomials>
 ```
-Command to run libsnark on the generate paillier's R1CS :
+Command to run libsnark on the generate paillier's R1CS in jsnark/libsnark/build : 
 ```bash
 ./libsnark/jsnark_interface/run_ppzksnark_paillier ../../JsnarkCircuitBuilder/Horner_polynomial_eval_big_int_paillier_gadget.arith ../../JsnarkCircuitBuilder/Horner_polynomial_eval_big_int_paillier_gadget.in
 ```
