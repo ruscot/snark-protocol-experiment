@@ -85,7 +85,7 @@ Note, the submodules only need to be fetched once.
 
 Next we need to change our file in libsnark library by running the change_libsnark.hs script
 ```bash
-cd .. && ./change_libsnark.sh
+./change_libsnark.sh
 ```
 
 Next, initialize the `build` directory.
