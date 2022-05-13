@@ -88,14 +88,14 @@ make
 
 From the root of the git repository run 
 ```bash
-./install_for_jsnark.sh
+cd ../../.. && ./install_for_jsnark.sh
 ```
 
 ### Running and Testing JsnarkCircuitBuilder
 To compile the JsnarkCircuitBuilder project via command line, from the jsnark directory:
 
 ```bash
-cd JsnarkCircuitBuilder
+cd jsnark/JsnarkCircuitBuilder
 ```
 ```bash
 mkdir -p bin
