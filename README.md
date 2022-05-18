@@ -101,6 +101,8 @@ javac -d bin -cp /usr/share/java/junit4.jar:../bcprov-jdk15on-159.jar  $(find ./
 ```
 Command to run paillier's tests
 ``java -cp bin:/usr/share/java/junit4.jar org.junit.runner.JUnitCore  examples.tests.paillier.<name_of_file_paillier_test> ``
+
+
 For example :
 ```bash
 java -cp bin:/usr/share/java/junit4.jar org.junit.runner.JUnitCore  examples.tests.paillier.test_paillier_circuit_multiplication 
