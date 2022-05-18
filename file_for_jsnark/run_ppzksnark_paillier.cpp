@@ -72,7 +72,7 @@ int main(int argc, char **argv) {
      * SETUP START
      */
     //Start the timer for the setup phase
-    //c_setup.start();
+    c_setup.start();
 
 	libff::start_profiling();
 	gadgetlib2::initPublicParamsFromDefaultPp();
@@ -92,7 +92,6 @@ int main(int argc, char **argv) {
 		}
 		inputStartIndex = 1;	
 	}
-	c_setup.start();
 	// Read the circuit, evaluate, and translate constraints
 	CircuitReader reader_client(argv[1 + inputStartIndex], argv[2 + inputStartIndex], pb_client);
 	r1cs_constraint_system<FieldT> cs_client = get_constraint_system_from_gadgetlib2(*pb_client);

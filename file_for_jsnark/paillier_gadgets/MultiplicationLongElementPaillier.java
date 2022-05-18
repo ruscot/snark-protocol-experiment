@@ -1,7 +1,5 @@
 package examples.gadgets.paillier;
 
-import java.math.BigInteger;
-
 import circuit.auxiliary.LongElement;
 import circuit.operations.Gadget;
 import circuit.structure.Wire;

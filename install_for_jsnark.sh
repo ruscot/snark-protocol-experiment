@@ -14,3 +14,5 @@ mv file_for_jsnark/paillier jsnark/JsnarkCircuitBuilder/src/examples/tests/
 mv file_for_jsnark/CMakeLists.txt jsnark/libsnark/libsnark/
 mv file_for_jsnark/run_ppzksnark_paillier.cpp jsnark/libsnark/libsnark/jsnark_interface
 
+mv file_for_jsnark/CircuitGenerator.java jsnark/JsnarkCircuitBuilder/src/circuit/structure/
+mv file_for_jsnark/CircuitEvaluator.java jsnark/JsnarkCircuitBuilder/src/circuit/eval/

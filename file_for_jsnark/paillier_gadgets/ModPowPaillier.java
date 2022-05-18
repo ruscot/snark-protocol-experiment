@@ -31,7 +31,7 @@ public class ModPowPaillier extends Gadget {
 		LongElement aLongElement = new LongElement(aAllBits);
         WireArray bAllBits = new WireArray(b).getBits(8);
 		LongElement bLongElement = new LongElement(bAllBits);*/
-		WireArray allBitsA = new WireArray(a).getBits(8);
+		WireArray allBitsA = new WireArray(a).getBits(32);
 	 	LongElement msgA = new LongElement(allBitsA);
 		LongElement res = new LongElement(
 			new BigInteger[] { BigInteger.ONE });
