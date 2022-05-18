@@ -8,14 +8,17 @@ import circuit.structure.Wire;
 import circuit.structure.WireArray;
 import examples.gadgets.math.LongIntegerModGadget;
 
+/***
+ * Gadget which perform modular exponentiation in paillier
+ * a**b [paillierModulus]
+ */
 public class ModPowPaillier extends Gadget {
-    // every wire represents a byte in the following three arrays
 	private Wire[] a;
 	private int b;
 	private Wire[] result;
 	
-	LongElement paillierModulus;
-	int paillierKeyBitLength;
+	private LongElement paillierModulus;
+	private int paillierKeyBitLength;
 	public ModPowPaillier(LongElement paillierModulus, Wire[] a, int b, int paillierKeyBitLength, String... desc) {
 		super(desc);
 		this.paillierModulus = paillierModulus;
@@ -26,27 +29,21 @@ public class ModPowPaillier extends Gadget {
 	}
 
 	private void buildCircuit() {
-		// 1. safest method:
-		/*WireArray aAllBits = new WireArray(a).getBits(8);
-		LongElement aLongElement = new LongElement(aAllBits);
-        WireArray bAllBits = new WireArray(b).getBits(8);
-		LongElement bLongElement = new LongElement(bAllBits);*/
-		WireArray allBitsA = new WireArray(a).getBits(32);
+		WireArray allBitsA = new WireArray(this.a).getBits(32);
 	 	LongElement msgA = new LongElement(allBitsA);
 		LongElement res = new LongElement(
 			new BigInteger[] { BigInteger.ONE });
 		//Naive approach
-		for(int i = 0; i < b; i++){
+		for(int i = 0; i < this.b; i++){
 			res = res.mul(msgA);
-			res = new LongIntegerModGadget(res, paillierModulus, paillierKeyBitLength, true).getRemainder();
+			res = new LongIntegerModGadget(res, this.paillierModulus, this.paillierKeyBitLength, true).getRemainder();
 		}
 		
-		//res = new LongIntegerModGadget(res, paillierModulus, paillierKeyBitLength, true).getRemainder();
-		result = res.getBits(-1).packBitsIntoWords(8);
+		this.result = res.getBits(-1).packBitsIntoWords(8);
 	}
 	
 	@Override
 	public Wire[] getOutputWires() {
-		return result;
+		return this.result;
 	}
 }

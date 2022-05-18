@@ -6,15 +6,21 @@ import circuit.structure.Wire;
 import circuit.structure.WireArray;
 import examples.gadgets.math.LongIntegerModGadget;
 
+/***
+ * Gadget which perform addition in paillier
+ * a + b [paillierModulus]
+ */
 public class AdditionLongElementPaillier extends Gadget {
-    // every wire represents a byte in the following three arrays
+	//Contain the first integer 
 	private Wire[] a;
+	//Contain the second integer
     private Wire[] b;
 
 	private Wire[] result;
 	
-	LongElement paillierModulus;
-	int paillierKeyBitLength;
+	private LongElement paillierModulus;
+	private int paillierKeyBitLength;
+
 	public AdditionLongElementPaillier(LongElement paillierModulus, Wire[] a, Wire[] b, int paillierKeyBitLength, String... desc) {
 		super(desc);
 		this.paillierModulus = paillierModulus;
@@ -25,23 +31,18 @@ public class AdditionLongElementPaillier extends Gadget {
 	}
 
 	private void buildCircuit() {
-		// 1. safest method:
-		/*WireArray aAllBits = new WireArray(a).getBits(8);
-		LongElement aLongElement = new LongElement(aAllBits);
-        WireArray bAllBits = new WireArray(b).getBits(8);
-		LongElement bLongElement = new LongElement(bAllBits);*/
-		WireArray allBitsA = new WireArray(a).getBits(32);
+		WireArray allBitsA = new WireArray(this.a).getBits(32);
 	 	LongElement msgA = new LongElement(allBitsA);
-		WireArray allBitsB = new WireArray(b).getBits(32);
+		WireArray allBitsB = new WireArray(this.b).getBits(32);
 	 	LongElement msgB = new LongElement(allBitsB);
 		msgA = msgA.add(msgB);
-		msgA = new LongIntegerModGadget(msgA, paillierModulus, paillierKeyBitLength, true).getRemainder();
-		result = msgA.getBits(-1).packBitsIntoWords(8);
+		msgA = new LongIntegerModGadget(msgA, this.paillierModulus, this.paillierKeyBitLength, true).getRemainder();
+		this.result = msgA.getBits(-1).packBitsIntoWords(8);
 	}
 	
 	@Override
 	public Wire[] getOutputWires() {
-		return result;
+		return this.result;
 	}
     
 }
