@@ -5,6 +5,7 @@
  */
 #include <stdlib.h>
 #include <iostream>
+#include <typeinfo>
 
 #include "libff/algebra/fields/field_utils.hpp"
 #include "libsnark/zk_proof_systems/ppzksnark/r1cs_ppzksnark/r1cs_ppzksnark.hpp"
@@ -54,15 +55,6 @@ struct Chrono {
     }
 };
 
-template<typename FieldT>
-FieldT evaluation_on_linear_combination(linear_combination<FieldT> a, linear_combination<FieldT> b, std::vector<FieldT> &assignment) {
-    FieldT elemA = a.evaluate(assignment);
-    FieldT elemB = b.evaluate(assignment);
-    FieldT elemC = elemA * elemB;
-	exit(0);
-    return elemC;
-}
-
 int main(int argc, char **argv) {
     //Some variables to calculate the time of our computations
     double time_i=0., time_client=0., time_server=0. ;
@@ -80,13 +72,14 @@ int main(int argc, char **argv) {
      * SETUP START
      */
     //Start the timer for the setup phase
-    c_setup.start();
+    //c_setup.start();
 
 	libff::start_profiling();
 	gadgetlib2::initPublicParamsFromDefaultPp();
 	gadgetlib2::GadgetLibAdapter::resetVariableIndex();
 	//Just creating the protoboard
-	ProtoboardPtr pb = gadgetlib2::Protoboard::create(gadgetlib2::R1P);
+	ProtoboardPtr pb_client = gadgetlib2::Protoboard::create(gadgetlib2::R1P);
+	
 	
 	//Check for arguments
 	int inputStartIndex = 0;
@@ -99,20 +92,13 @@ int main(int argc, char **argv) {
 		}
 		inputStartIndex = 1;	
 	}
-	
+	c_setup.start();
 	// Read the circuit, evaluate, and translate constraints
-	CircuitReader reader(argv[1 + inputStartIndex], argv[2 + inputStartIndex], pb);
-	r1cs_constraint_system<FieldT> cs = get_constraint_system_from_gadgetlib2(*pb);
-	//try_to_compute_witness_from_gadgetlib2(*pb);
-	cout << cs.constraints.size() << endl;
-	//try_to_compute_witness_from_gadgetlib2(*pb);
-	const r1cs_variable_assignment<FieldT> full_assignment =
-			get_variable_assignment_from_gadgetlib2(*pb);
-	cs.primary_input_size = reader.getNumInputs() + reader.getNumOutputs();
-	cs.auxiliary_input_size = full_assignment.size() - cs.num_inputs();
-
+	CircuitReader reader_client(argv[1 + inputStartIndex], argv[2 + inputStartIndex], pb_client);
+	r1cs_constraint_system<FieldT> cs_client = get_constraint_system_from_gadgetlib2(*pb_client);
+	cs_client.primary_input_size = reader_client.getNumInputs() + reader_client.getNumOutputs();
     //Creation of our keys for the zkSNARK protocol from our R1CS constraints
-    const r1cs_ppzksnark_keypair<default_r1cs_ppzksnark_pp> keypair = r1cs_ppzksnark_generator<default_r1cs_ppzksnark_pp>(cs);
+    const r1cs_ppzksnark_keypair<default_r1cs_ppzksnark_pp> keypair = r1cs_ppzksnark_generator<default_r1cs_ppzksnark_pp>(cs_client);
     
     //timer of the setup stop
     time_i = c_setup.stop();
@@ -121,74 +107,41 @@ int main(int argc, char **argv) {
      * SERVER START
      */
     c_setup.start();
+	ProtoboardPtr pb_server = gadgetlib2::Protoboard::create(gadgetlib2::R1P);
     //Compute the witness and output of our polynomial
-    r1cs_variable_assignment<FieldT> full_variable_assignment(full_assignment.begin(),
-			full_assignment.begin() + cs.num_inputs());
-	ConstraintSystem cur_constraint_system = (*pb).constraintSystem();
-	/*cout << "full assignement size : " << full_assignment.size() << endl;
-    for(r1cs_constraint<FieldT> cs : keypair.pk.constraint_system.constraints){
-        
-        FieldT cValue = evaluation_on_linear_combination(cs.a, cs.b, full_variable_assignment);
-        for (auto &lt : cs.c.terms)
-        {
-            if(lt.index != 0 )
-            {
-                Variable annex;
-                //annex.index = lt.index;
-                //(*pb).val(lt) = cValue;
-            }
-        }
-        full_variable_assignment.push_back(cValue);
-    }*/
+	CircuitReader reader_server(argv[3 + inputStartIndex], argv[4 + inputStartIndex], pb_server);
+
+	r1cs_constraint_system<FieldT> cs_server = get_constraint_system_from_gadgetlib2(*pb_server);
+	const r1cs_variable_assignment<FieldT> full_assignment_server =
+			get_variable_assignment_from_gadgetlib2(*pb_server);
+	cs_server.primary_input_size = reader_server.getNumInputs() + reader_server.getNumOutputs();
+	cs_server.auxiliary_input_size = full_assignment_server.size() - cs_server.num_inputs();
+
+	ConstraintSystem cur_constraint_system = (*pb_server).constraintSystem();
     // extract primary and auxiliary input
-	const r1cs_primary_input<FieldT> primary_input(full_assignment.begin(),
-			full_assignment.begin() + cs.num_inputs());
-	const r1cs_auxiliary_input<FieldT> auxiliary_input(
-			full_assignment.begin() + cs.num_inputs(), full_assignment.end());
-	// only print the circuit output values if both flags MONTGOMERY and BINARY outputs are off (see CMakeLists file)
-	// In the default case, these flags should be ON for faster performance.
-
-#if !defined(MONTGOMERY_OUTPUT) && !defined(OUTPUT_BINARY)
-	cout << endl << "Printing output assignment in readable format:: " << endl;
-	std::vector<Wire> outputList = reader.getOutputWireIds();
-	int start = reader.getNumInputs();
-	int end = reader.getNumInputs() +reader.getNumOutputs();	
-	for (int i = start ; i < end; i++) {
-		cout << "[output]" << " Value of Wire # " << outputList[i-reader.getNumInputs()] << " :: ";
-		cout << primary_input[i];
-		cout << endl;
-	}
-	cout << endl;
-#endif
-
-	//assert(cs.is_valid());
-
-	// removed cs.is_valid() check due to a suspected (off by 1) issue in a newly added check in their method.
-        // A follow-up will be added.
-	if(!cs.is_satisfied(primary_input, auxiliary_input)){
-		cout << "The constraint system is  not satisifed by the value assignment - Terminating." << endl;
-		return -1;
-	}
-
-	r1cs_example<FieldT> example(cs, primary_input, auxiliary_input);
+	const r1cs_primary_input<FieldT> primary_input_server(full_assignment_server.begin(),
+			full_assignment_server.begin() + cs_server.num_inputs());
 	
-	const bool test_serialization = false;
-	bool successBit = false;
-	if(argc == 3) {
-		successBit = libsnark::run_r1cs_ppzksnark<libff::default_ec_pp>(example, test_serialization);
+	const r1cs_auxiliary_input<FieldT> auxiliary_input_server(
+			full_assignment_server.begin() + cs_server.num_inputs(), full_assignment_server.end());
 
-	} else {
-		// The following code makes use of the observation that 
-		// libsnark::default_r1cs_gg_ppzksnark_pp is the same as libff::default_ec_pp (see r1cs_gg_ppzksnark_pp.hpp)
-		// otherwise, the following code won't work properly, as GadgetLib2 is hardcoded to use libff::default_ec_pp.
-		successBit = libsnark::run_r1cs_gg_ppzksnark<libsnark::default_r1cs_gg_ppzksnark_pp>(
-			example, test_serialization);
-	}
+	const r1cs_ppzksnark_proof<default_r1cs_ppzksnark_pp> proof = r1cs_ppzksnark_prover<default_r1cs_ppzksnark_pp>(keypair.pk, 
+                                            primary_input_server, auxiliary_input_server);
 
-	if(!successBit){
-		cout << "Problem occurred while running the ppzksnark algorithms .. " << endl;
-		return -1;
-	}	
+	time_server = c_setup.stop();
+
+	/**
+     * CLIENT check proof
+     */
+	c_setup.start();
+	bool verified = r1cs_ppzksnark_verifier_strong_IC<default_r1cs_ppzksnark_pp>(keypair.vk, primary_input_server, proof);
+	time_client = c_setup.stop();
+
+	if(verified == 0) {
+        throw std::runtime_error("The proof is not correct abort");
+    }
+	printf("[TIMINGS ] | setup : %f | audit-client : %f | audit-server : %f \n=== end ===\n\n", 
+        time_i, time_client, time_server);
 
     libff::leave_block("test_polynomial_in_paillier");
 	return 0;
