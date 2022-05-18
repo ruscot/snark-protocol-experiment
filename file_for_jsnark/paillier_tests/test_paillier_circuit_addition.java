@@ -42,7 +42,7 @@ import examples.gadgets.rsa.PaillierEncryptionAddition_Gadget;
 
 public class test_paillier_circuit_addition {
     private Paillier_KeyPair keyPair;
-    Paillier_PublicKey publicKey;
+    private Paillier_PublicKey publicKey;
 
     @Test
 	public void testAdditionBigIntPaillier() {
@@ -54,15 +54,15 @@ public class test_paillier_circuit_addition {
         //2 -> 6900
         //4 -> 6799
         Paillier_keyPairBuilder keygen = new Paillier_keyPairBuilder();
-        keyPair = keygen.generateKeyPair();
-        publicKey = keyPair.getPublicKey();
+        this.keyPair = keygen.generateKeyPair();
+        this.publicKey = this.keyPair.getPublicKey();
         BigInteger plainA = BigInteger.valueOf(102);
         BigInteger plainB = BigInteger.valueOf(203);
 
-        BigInteger encryptedA = publicKey.encrypt(plainA);
-        BigInteger encryptedB = publicKey.encrypt(plainB);
+        BigInteger encryptedA = this.publicKey.encrypt(plainA);
+        BigInteger encryptedB = this.publicKey.encrypt(plainB);
 
-        BigInteger paillierModulusValue = publicKey.getnSquared();
+        BigInteger paillierModulusValue = this.publicKey.getnSquared();
         int paillierModulusSize = paillierModulusValue.bitLength();
 			
         CircuitGenerator generator = new CircuitGenerator("Addition biginteger paillier") {

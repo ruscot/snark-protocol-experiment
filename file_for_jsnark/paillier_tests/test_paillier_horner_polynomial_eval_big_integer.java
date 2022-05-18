@@ -43,7 +43,7 @@ import examples.gadgets.rsa.PaillierEncryptionAddition_Gadget;
 
 public class test_paillier_horner_polynomial_eval_big_integer {
     private Paillier_KeyPair keyPair;
-    Paillier_PublicKey publicKey;
+    private Paillier_PublicKey publicKey;
 
     @Test
 	public void testHornerPolynomialEvalBigIntPaillierGadget() {
@@ -53,17 +53,17 @@ public class test_paillier_horner_polynomial_eval_big_integer {
          * And check wether the result is correct or not 
          */
         Paillier_keyPairBuilder keygen = new Paillier_keyPairBuilder();
-        keyPair = keygen.generateKeyPair();
-        publicKey = keyPair.getPublicKey();
+        this.keyPair = keygen.generateKeyPair();
+        this.publicKey = this.keyPair.getPublicKey();
         BigInteger coef0 = BigInteger.valueOf(102);
         BigInteger coef1 = BigInteger.valueOf(203);
         BigInteger coef2 = BigInteger.valueOf(150);
 
         BigInteger x = BigInteger.valueOf(8);
 
-        BigInteger encryptedCoef0 = publicKey.encrypt(coef0);
-        BigInteger encryptedCoef1 = publicKey.encrypt(coef1);
-        BigInteger encryptedCoef2 = publicKey.encrypt(coef2);
+        BigInteger encryptedCoef0 = this.publicKey.encrypt(coef0);
+        BigInteger encryptedCoef1 = this.publicKey.encrypt(coef1);
+        BigInteger encryptedCoef2 = this.publicKey.encrypt(coef2);
         ArrayList<BigInteger> cipheredCoefficients = new ArrayList<>();
         cipheredCoefficients.add(encryptedCoef0);
         cipheredCoefficients.add(encryptedCoef1);
@@ -74,10 +74,10 @@ public class test_paillier_horner_polynomial_eval_big_integer {
         System.out.println("Polynomial evaluation res " + res);
         System.out.println("Polynomial evaluation horner res " + res2);
         
-        BigInteger paillierModulusValue = publicKey.getnSquared();
+        BigInteger paillierModulusValue = this.publicKey.getnSquared();
         int paillierModulusSize = paillierModulusValue.bitLength();
         BigInteger resWithPaillier = encryptedCoef0.multiply(encryptedCoef1.multiply(encryptedCoef2.modPow(
-                    x, publicKey.getnSquared())).modPow(x, publicKey.getnSquared())).mod(publicKey.getnSquared());
+                    x, this.publicKey.getnSquared())).modPow(x, this.publicKey.getnSquared())).mod(this.publicKey.getnSquared());
 
 
         CircuitGenerator generator = new CircuitGenerator("Horner polynomial eval big int paillier gadget") {
@@ -138,9 +138,9 @@ public class test_paillier_horner_polynomial_eval_big_integer {
         }
         
 
-        BigInteger decryptedPow = keyPair.decrypt(resWithPaillier);
+        BigInteger decryptedPow = this.keyPair.decrypt(resWithPaillier);
         Assert.assertEquals(t, resWithPaillier);
-        BigInteger decryptedPowGadget = keyPair.decrypt(t);
+        BigInteger decryptedPowGadget = this.keyPair.decrypt(t);
         Assert.assertEquals(decryptedPow, decryptedPowGadget);
 	}
 }

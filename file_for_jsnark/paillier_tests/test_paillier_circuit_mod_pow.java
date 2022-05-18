@@ -43,7 +43,7 @@ import examples.gadgets.rsa.PaillierEncryptionAddition_Gadget;
 
 public class test_paillier_circuit_mod_pow {
     private Paillier_KeyPair keyPair;
-    Paillier_PublicKey publicKey;
+    private Paillier_PublicKey publicKey;
 
     @Test
 	public void testModPowPaillier() {
@@ -57,16 +57,16 @@ public class test_paillier_circuit_mod_pow {
         //2 -> 44156
         //4 -> 44090
         Paillier_keyPairBuilder keygen = new Paillier_keyPairBuilder();
-        keyPair = keygen.generateKeyPair();
-        publicKey = keyPair.getPublicKey();
+        this.keyPair = keygen.generateKeyPair();
+        this.publicKey = this.keyPair.getPublicKey();
         BigInteger coef0 = BigInteger.valueOf(102);
 
         BigInteger bigIntX = BigInteger.valueOf(8);
         int x = 8;
 
-        BigInteger encryptedCoef0 = publicKey.encrypt(coef0);
+        BigInteger encryptedCoef0 = this.publicKey.encrypt(coef0);
         
-        BigInteger paillierModulusValue = publicKey.getnSquared();
+        BigInteger paillierModulusValue = this.publicKey.getnSquared();
         int paillierModulusSize = paillierModulusValue.bitLength();
 
         CircuitGenerator generator = new CircuitGenerator("Mod pow long integer paillier") {
@@ -133,7 +133,7 @@ public class test_paillier_circuit_mod_pow {
             i++;
         }
 
-        BigInteger res = encryptedCoef0.modPow(bigIntX, publicKey.getnSquared());
+        BigInteger res = encryptedCoef0.modPow(bigIntX, this.publicKey.getnSquared());
         Assert.assertEquals(t, res);
 
 	}

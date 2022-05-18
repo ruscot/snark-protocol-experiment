@@ -14,9 +14,9 @@ import circuit.structure.WireArray;
 import examples.gadgets.paillier.HornerPolynomialEvalPaillier;
 
 public class HornerPolynomialPaillierFromFileGenerator {
-    ArrayList<BigInteger> coeff_in_paillier;
-    BigInteger x;
-    BigInteger nSquared;
+    private ArrayList<BigInteger> coeff_in_paillier;
+    private BigInteger x;
+    private BigInteger nSquared;
 
     public HornerPolynomialPaillierFromFileGenerator() {
         this.coeff_in_paillier = new ArrayList<>();
@@ -50,20 +50,20 @@ public class HornerPolynomialPaillierFromFileGenerator {
 
     public BigInteger paillierResCiphered(){
         BigInteger res = BigInteger.valueOf(1);
-        for(int i = coeff_in_paillier.size()-1; i >= 0; i--){
+        for(int i = this.coeff_in_paillier.size()-1; i >= 0; i--){
             if(i == 0){
-                res = coeff_in_paillier.get(i).multiply(res).mod(nSquared);
-            } else if (i == coeff_in_paillier.size() - 1) {
-                res = coeff_in_paillier.get(i).modPow(x, nSquared);
+                res = this.coeff_in_paillier.get(i).multiply(res).mod(this.nSquared);
+            } else if (i == this.coeff_in_paillier.size() - 1) {
+                res = this.coeff_in_paillier.get(i).modPow(this.x, this.nSquared);
             } else {
-                res = res.multiply(coeff_in_paillier.get(i)).modPow(x, nSquared);
+                res = res.multiply(this.coeff_in_paillier.get(i)).modPow(this.x, this.nSquared);
             }
         }
         return res;
     }
 
     public void genCircuit(){
-        BigInteger paillierModulusValue = nSquared;
+        BigInteger paillierModulusValue = this.nSquared;
         int paillierModulusSize = paillierModulusValue.bitLength();
 
 
@@ -79,16 +79,16 @@ public class HornerPolynomialPaillierFromFileGenerator {
             protected void buildCircuit() {
                 paillierModulus = createLongElementInput(paillierModulusSize);
                 inputMessageA = new ArrayList<>();
-                for(int j = 0; j < coeff_in_paillier.size(); j++){
-                    Wire[] coefficientWire = createProverWitnessWireArray(coeff_in_paillier.get(j).toByteArray().length);
-                    for(int i = 0; i < coeff_in_paillier.get(j).toByteArray().length; i++){
+                for(int j = 0; j < this.coeff_in_paillier.size(); j++){
+                    Wire[] coefficientWire = createProverWitnessWireArray(this.coeff_in_paillier.get(j).toByteArray().length);
+                    for(int i = 0; i < this.coeff_in_paillier.get(j).toByteArray().length; i++){
                         coefficientWire[i].restrictBitLength(8);
                     }
                     inputMessageA.add(coefficientWire);
                 }
                 
                 
-                hornerPolynomialEvalPaillier = new HornerPolynomialEvalPaillier(paillierModulus, inputMessageA, x, paillierModulusSize);
+                hornerPolynomialEvalPaillier = new HornerPolynomialEvalPaillier(paillierModulus, inputMessageA, this.x, paillierModulusSize);
                 
                 Wire[] cipherTextInBytes = hornerPolynomialEvalPaillier.getOutputWires(); // in bytes
                 
@@ -100,8 +100,8 @@ public class HornerPolynomialPaillierFromFileGenerator {
 
             @Override
             public void generateSampleInput(CircuitEvaluator evaluator) {
-                for(int j = 0; j < coeff_in_paillier.size(); j++){
-                    byte[] array = coeff_in_paillier.get(j).toByteArray();
+                for(int j = 0; j < this.coeff_in_paillier.size(); j++){
+                    byte[] array = this.coeff_in_paillier.get(j).toByteArray();
                     for(int i = 0; i < array.length; i++){
                         long num = array[array.length - i - 1] & 0xff;
                         evaluator.setWireValue(inputMessageA.get(j)[i], num);

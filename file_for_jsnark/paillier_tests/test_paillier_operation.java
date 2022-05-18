@@ -46,7 +46,7 @@ import examples.gadgets.rsa.PaillierEncryptionAddition_Gadget;
 
 public class test_paillier_operation {
     private Paillier_KeyPair keyPair;
-    Paillier_PublicKey publicKey;
+    private Paillier_PublicKey publicKey;
 
     @Test
     public void testEncryption() {
@@ -55,11 +55,11 @@ public class test_paillier_operation {
          * to the clear data
          */
         Paillier_keyPairBuilder keygen = new Paillier_keyPairBuilder();
-        keyPair = keygen.generateKeyPair();
-        publicKey = keyPair.getPublicKey();
+        this.keyPair = keygen.generateKeyPair();
+        this.publicKey = this.keyPair.getPublicKey();
         BigInteger plainData = BigInteger.valueOf(10);
 
-        BigInteger encryptedData = publicKey.encrypt(plainData);
+        BigInteger encryptedData = this.publicKey.encrypt(plainData);
 
         Assert.assertNotEquals(plainData, encryptedData);
     }
@@ -71,12 +71,12 @@ public class test_paillier_operation {
          * to the clear data when deciphered
          */
         Paillier_keyPairBuilder keygen = new Paillier_keyPairBuilder();
-        keyPair = keygen.generateKeyPair();
-        publicKey = keyPair.getPublicKey();
+        this.keyPair = keygen.generateKeyPair();
+        this.publicKey = this.keyPair.getPublicKey();
         BigInteger plainData = BigInteger.valueOf(10);
 
-        BigInteger encryptedData = publicKey.encrypt(plainData);
-        BigInteger decryptedData = keyPair.decrypt(encryptedData);
+        BigInteger encryptedData = this.publicKey.encrypt(plainData);
+        BigInteger decryptedData = this.keyPair.decrypt(encryptedData);
 
         Assert.assertEquals(plainData, decryptedData);
     }
@@ -87,17 +87,17 @@ public class test_paillier_operation {
          * This function test the addition in paillier
          */
         Paillier_keyPairBuilder keygen = new Paillier_keyPairBuilder();
-        keyPair = keygen.generateKeyPair();
-        publicKey = keyPair.getPublicKey();
+        this.keyPair = keygen.generateKeyPair();
+        this.publicKey = this.keyPair.getPublicKey();
         BigInteger plainA = BigInteger.valueOf(102);
         BigInteger plainB = BigInteger.valueOf(203);
 
-        BigInteger encryptedA = publicKey.encrypt(plainA);
-        BigInteger encryptedB = publicKey.encrypt(plainB);
+        BigInteger encryptedA = this.publicKey.encrypt(plainA);
+        BigInteger encryptedB = this.publicKey.encrypt(plainB);
 
-        BigInteger decryptedProduct = keyPair.decrypt(encryptedA.multiply(
-                encryptedB).mod(publicKey.getnSquared()));
-        BigInteger plainSum = plainA.add(plainB).mod(publicKey.getN());
+        BigInteger decryptedProduct = this.keyPair.decrypt(encryptedA.multiply(
+                encryptedB).mod(this.publicKey.getnSquared()));
+        BigInteger plainSum = plainA.add(plainB).mod(this.publicKey.getN());
 
         Assert.assertEquals(decryptedProduct, plainSum);
     }
@@ -108,17 +108,17 @@ public class test_paillier_operation {
          * This function test the mulitplication
          */
         Paillier_keyPairBuilder keygen = new Paillier_keyPairBuilder();
-        keyPair = keygen.generateKeyPair();
-        publicKey = keyPair.getPublicKey();
+        this.keyPair = keygen.generateKeyPair();
+        this.publicKey = this.keyPair.getPublicKey();
 
         BigInteger plainA = BigInteger.valueOf(14);
         BigInteger plainB = BigInteger.valueOf(203);
 
-        BigInteger encryptedA = publicKey.encrypt(plainA);
+        BigInteger encryptedA = this.publicKey.encrypt(plainA);
 
-        BigInteger decryptedPow = keyPair.decrypt(encryptedA.modPow(plainB,
-                publicKey.getnSquared()));
-        BigInteger plainSum = plainA.multiply(plainB).mod(publicKey.getN());
+        BigInteger decryptedPow = this.keyPair.decrypt(encryptedA.modPow(plainB,
+                this.publicKey.getnSquared()));
+        BigInteger plainSum = plainA.multiply(plainB).mod(this.publicKey.getN());
 
         Assert.assertEquals(decryptedPow, plainSum);
     }
@@ -131,18 +131,18 @@ public class test_paillier_operation {
          * And check wether the result is correct or not 
          */
         Paillier_keyPairBuilder keygen = new Paillier_keyPairBuilder();
-        keyPair = keygen.generateKeyPair();
-        publicKey = keyPair.getPublicKey();
+        this.keyPair = keygen.generateKeyPair();
+        this.publicKey = this.keyPair.getPublicKey();
         BigInteger coef0 = BigInteger.valueOf(102);
         BigInteger coef1 = BigInteger.valueOf(203);
         BigInteger coef2 = BigInteger.valueOf(150);
 
         BigInteger x = BigInteger.valueOf(8);
 
-        BigInteger encryptedCoef0 = publicKey.encrypt(coef0);
-        BigInteger encryptedCoef1 = publicKey.encrypt(coef1);
-        BigInteger encryptedCoef2 = publicKey.encrypt(coef2);
-        BigInteger encryptedX = publicKey.encrypt(x);
+        BigInteger encryptedCoef0 = this.publicKey.encrypt(coef0);
+        BigInteger encryptedCoef1 = this.publicKey.encrypt(coef1);
+        BigInteger encryptedCoef2 = this.publicKey.encrypt(coef2);
+        BigInteger encryptedX = this.publicKey.encrypt(x);
 
         //BigInteger encryptedCoef0WithX = 
         BigInteger res = coef0.add(coef1.multiply(x.pow(1))).add(coef2.multiply(x.pow(2)));
@@ -150,11 +150,12 @@ public class test_paillier_operation {
         System.out.println("Polynomial evaluation res " + res);
         System.out.println("Polynomial evaluation horner res " + res2);
         
-        BigInteger paillierModulusValue = publicKey.getnSquared();
+        BigInteger paillierModulusValue = this.publicKey.getnSquared();
         int paillierModulusSize = paillierModulusValue.bitLength();
-        BigInteger resWithPaillier = encryptedCoef0.multiply(encryptedCoef1.multiply(encryptedCoef2.modPow(x, publicKey.getnSquared())).modPow(x, publicKey.getnSquared())).mod(publicKey.getnSquared());
+        BigInteger resWithPaillier = encryptedCoef0.multiply(encryptedCoef1.multiply(encryptedCoef2.modPow(x, 
+                        this.publicKey.getnSquared())).modPow(x, this.publicKey.getnSquared())).mod(this.publicKey.getnSquared());
 
-        BigInteger decryptedPow = keyPair.decrypt(resWithPaillier);
+        BigInteger decryptedPow = this.keyPair.decrypt(resWithPaillier);
         System.out.println("Decryption with paillier " + decryptedPow);
         Assert.assertEquals(decryptedPow, res);
         Assert.assertEquals(decryptedPow, res2);

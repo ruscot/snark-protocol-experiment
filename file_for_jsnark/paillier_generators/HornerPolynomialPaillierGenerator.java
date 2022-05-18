@@ -16,22 +16,22 @@ import examples.gadgets.paillier.Paillier_PublicKey;
 import examples.gadgets.paillier.Paillier_keyPairBuilder;
 
 public class HornerPolynomialPaillierGenerator {
-    Integer number_of_coef;
-    Paillier_keyPairBuilder keygen;
-    Paillier_KeyPair keyPair;
-    Paillier_PublicKey publicKey;
-    ArrayList<BigInteger> coeff_in_clear;
-    ArrayList<BigInteger> coeff_in_paillier;
-    BigInteger x;
+    private Integer number_of_coef;
+    private Paillier_keyPairBuilder keygen;
+    private Paillier_KeyPair keyPair;
+    private Paillier_PublicKey publicKey;
+    private ArrayList<BigInteger> coeff_in_clear;
+    private ArrayList<BigInteger> coeff_in_paillier;
+    private BigInteger x;
     private long endTimeCalculation;
 
     public HornerPolynomialPaillierGenerator(Integer coef_number) {
         /**
          * Generation of paillier keys
         */
-        keygen = new Paillier_keyPairBuilder();
-        keyPair = keygen.generateKeyPair();
-        publicKey = keyPair.getPublicKey();
+        this.keygen = new Paillier_keyPairBuilder();
+        this.keyPair = keygen.generateKeyPair();
+        this.publicKey = keyPair.getPublicKey();
         this.number_of_coef = coef_number;
         this.coeff_in_clear = new ArrayList<>();
         this.coeff_in_paillier = new ArrayList<>();
@@ -46,23 +46,23 @@ public class HornerPolynomialPaillierGenerator {
     }
 
     public void createCoefficients(){
-        for(Integer i = 0; i < number_of_coef; i++){
+        for(Integer i = 0; i < this.number_of_coef; i++){
             BigInteger randomCoeff = getRandomBigInteger();
-            coeff_in_clear.add(randomCoeff);
+            this.coeff_in_clear.add(randomCoeff);
             BigInteger randomCoeffEncrypted = publicKey.encrypt(randomCoeff);
-            coeff_in_paillier.add(randomCoeffEncrypted);
+            this.coeff_in_paillier.add(randomCoeffEncrypted);
         }
     }
 
     public BigInteger paillierResCiphered(){
         BigInteger res = BigInteger.valueOf(1);
-        for(int i = coeff_in_paillier.size()-1; i >= 0; i--){
+        for(int i = this.coeff_in_paillier.size()-1; i >= 0; i--){
             if(i == 0){
-                res = coeff_in_paillier.get(i).multiply(res).mod(publicKey.getnSquared());
-            } else if (i == coeff_in_paillier.size() - 1) {
-                res = coeff_in_paillier.get(i).modPow(x, publicKey.getnSquared());
+                res = this.coeff_in_paillier.get(i).multiply(res).mod(this.publicKey.getnSquared());
+            } else if (i == this.coeff_in_paillier.size() - 1) {
+                res = this.coeff_in_paillier.get(i).modPow(this.x, this.publicKey.getnSquared());
             } else {
-                res = res.multiply(coeff_in_paillier.get(i)).modPow(x, publicKey.getnSquared());
+                res = res.multiply(this.coeff_in_paillier.get(i)).modPow(this.x, this.publicKey.getnSquared());
             }
         }
         return res;
@@ -73,8 +73,8 @@ public class HornerPolynomialPaillierGenerator {
     }
 
     public void genCircuit() throws Exception{
-        BigInteger paillierModulusValue = publicKey.getnSquared();
-        int paillierModulusSize = paillierModulusValue.bitLength();
+        BigInteger paillierModulusValue = this.publicKey.getnSquared();
+        int paillierModulusSize = this.paillierModulusValue.bitLength();
 
         CircuitGenerator generator = new CircuitGenerator("Horner_polynomial_eval_big_int_paillier_gadget") {
             ArrayList<Wire[]> inputMessageA;
@@ -88,9 +88,9 @@ public class HornerPolynomialPaillierGenerator {
             protected void buildCircuit() {
                 paillierModulus = createLongElementInput(paillierModulusSize);
                 inputMessageA = new ArrayList<>();
-                for(int j = 0; j < coeff_in_paillier.size(); j++){
-                    Wire[] coefficientWire = createProverWitnessWireArray(coeff_in_paillier.get(j).toByteArray().length);
-                    for(int i = 0; i < coeff_in_paillier.get(j).toByteArray().length; i++){
+                for(int j = 0; j < this.coeff_in_paillier.size(); j++){
+                    Wire[] coefficientWire = createProverWitnessWireArray(this.coeff_in_paillier.get(j).toByteArray().length);
+                    for(int i = 0; i < this.coeff_in_paillier.get(j).toByteArray().length; i++){
                         coefficientWire[i].restrictBitLength(8);
                     }
                     inputMessageA.add(coefficientWire);
@@ -111,8 +111,8 @@ public class HornerPolynomialPaillierGenerator {
 
             @Override
             public void generateSampleInput(CircuitEvaluator evaluator) {
-                for(int j = 0; j < coeff_in_paillier.size(); j++){
-                    byte[] array = coeff_in_paillier.get(j).toByteArray();
+                for(int j = 0; j < this.coeff_in_paillier.size(); j++){
+                    byte[] array = this.coeff_in_paillier.get(j).toByteArray();
                     for(int i = 0; i < array.length; i++){
                         long num = array[array.length - i - 1] & 0xff;
                         evaluator.setWireValue(inputMessageA.get(j)[i], num);
@@ -128,7 +128,7 @@ public class HornerPolynomialPaillierGenerator {
         generator.generateCircuit();
         generator.genInputEval();
         generator.prepFilesPaillier();
-        generator.writeAllPailliersCoefsWithN(coeff_in_paillier, x, publicKey);
+        generator.writeAllPailliersCoefsWithN(this.coeff_in_paillier, this.x, this.publicKey);
         
         this.endTimeCalculation = System.nanoTime();
 
@@ -150,8 +150,8 @@ public class HornerPolynomialPaillierGenerator {
         }
         
 
-        BigInteger decryptedPow = keyPair.decrypt(resWithPaillier);
-        BigInteger decryptedPowGadget = keyPair.decrypt(t);
+        BigInteger decryptedPow = this.keyPair.decrypt(resWithPaillier);
+        BigInteger decryptedPowGadget = this.keyPair.decrypt(t);
         if(!t.equals(resWithPaillier) && decryptedPow.equals(decryptedPowGadget)){
             throw new Exception("Horner evaluation not correct, the result found is not correct...");
         }
