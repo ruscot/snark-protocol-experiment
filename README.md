@@ -56,41 +56,37 @@ sudo apt-get install junit4
 git clone --recursive https://github.com/akosba/jsnark.git
 ```
 
-- Run:
+- Run this command to download BouncyCastle:
 
 ```bash
-cd jsnark/
-```
-
-Download BouncyCastle:
-
-```bash
-wget https://www.bouncycastle.org/download/bcprov-jdk15on-159.jar
+cd jsnark/ && wget https://www.bouncycastle.org/download/bcprov-jdk15on-159.jar
 ```
 	
 - Run:
 
 ```bash
-cd libsnark
+cd libsnark && git submodule init && git submodule update
 ```
 
 ```bash
-git submodule init && git submodule update
-```
-
-```bash
-mkdir build && cd build && cmake ..
+mkdir build && cd build && cmake .. 
 ```
 
 ```bash
 make
 ```
-
-From the root of the git repository run 
+ 
 ```bash
 cd ../../.. && ./install_for_jsnark.sh
 ```
 
+- After the install for jsnark script we need to run cmake .. and make again in libsnark :
+```bash
+cd jsnark/libsnark/build/ && cmake ..
+```
+```bash
+make && cd ../../..	
+```
 ### Running and Testing JsnarkCircuitBuilder
 To compile the JsnarkCircuitBuilder project via command line, from the jsnark directory:
 
@@ -104,8 +100,10 @@ mkdir -p bin
 javac -d bin -cp /usr/share/java/junit4.jar:../bcprov-jdk15on-159.jar  $(find ./src/* | grep ".java$")
 ```
 Command to run paillier's tests
+``java -cp bin:/usr/share/java/junit4.jar org.junit.runner.JUnitCore  examples.tests.paillier.<name_of_file_paillier_test> ``
+For example :
 ```bash
-java -cp bin:/usr/share/java/junit4.jar org.junit.runner.JUnitCore  examples.tests.paillier.test_paillier
+java -cp bin:/usr/share/java/junit4.jar org.junit.runner.JUnitCore  examples.tests.paillier.test_paillier_circuit_multiplication 
 ```
 Command to run pailliers' generator :
 ```bash
