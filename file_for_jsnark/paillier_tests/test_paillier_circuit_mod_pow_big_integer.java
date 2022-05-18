@@ -47,6 +47,11 @@ public class test_paillier_circuit_mod_pow_big_integer {
 
     @Test
     public void testModPowBigIntPaillier() {
+        /***
+         * This function generate a circuit that perform the following calcul :
+         * a**x in paillier 
+         * And check wether the result is correct or not 
+         */
         Paillier_keyPairBuilder keygen = new Paillier_keyPairBuilder();
         keyPair = keygen.generateKeyPair();
         publicKey = keyPair.getPublicKey();

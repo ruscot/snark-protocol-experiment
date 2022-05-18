@@ -50,6 +50,10 @@ public class test_paillier_operation {
 
     @Test
     public void testEncryption() {
+        /***
+         * This function test if the ciphered data in paillier's are not equal
+         * to the clear data
+         */
         Paillier_keyPairBuilder keygen = new Paillier_keyPairBuilder();
         keyPair = keygen.generateKeyPair();
         publicKey = keyPair.getPublicKey();
@@ -62,6 +66,10 @@ public class test_paillier_operation {
 
     @Test
     public void testDecyption() {
+        /***
+         * This function test if the ciphered data in paillier's are equal
+         * to the clear data when deciphered
+         */
         Paillier_keyPairBuilder keygen = new Paillier_keyPairBuilder();
         keyPair = keygen.generateKeyPair();
         publicKey = keyPair.getPublicKey();
@@ -75,6 +83,9 @@ public class test_paillier_operation {
 
     @Test
     public void testHomomorphicAddition() {
+        /***
+         * This function test the addition in paillier
+         */
         Paillier_keyPairBuilder keygen = new Paillier_keyPairBuilder();
         keyPair = keygen.generateKeyPair();
         publicKey = keyPair.getPublicKey();
@@ -93,6 +104,9 @@ public class test_paillier_operation {
 
     @Test
     public void testHomomorphicConstantMultiplication() {
+        /***
+         * This function test the mulitplication
+         */
         Paillier_keyPairBuilder keygen = new Paillier_keyPairBuilder();
         keyPair = keygen.generateKeyPair();
         publicKey = keyPair.getPublicKey();
@@ -111,6 +125,11 @@ public class test_paillier_operation {
 
     @Test
 	public void testPolynomialBigIntPaillier() {
+        /***
+         * This function test the result of the following calcul :
+         * a*((b*(c**x))**x) = a*(b**x)*(c**(x**2)) in paillier 
+         * And check wether the result is correct or not 
+         */
         Paillier_keyPairBuilder keygen = new Paillier_keyPairBuilder();
         keyPair = keygen.generateKeyPair();
         publicKey = keyPair.getPublicKey();
@@ -133,14 +152,12 @@ public class test_paillier_operation {
         
         BigInteger paillierModulusValue = publicKey.getnSquared();
         int paillierModulusSize = paillierModulusValue.bitLength();
-        //Addition
-        //encryptedA.multiply(encryptedB).mod(publicKey.getnSquared()));
-        //Multiplication
-        //encryptedCoef0.modPow(plainB,publicKey.getnSquared());
         BigInteger resWithPaillier = encryptedCoef0.multiply(encryptedCoef1.multiply(encryptedCoef2.modPow(x, publicKey.getnSquared())).modPow(x, publicKey.getnSquared())).mod(publicKey.getnSquared());
 
         BigInteger decryptedPow = keyPair.decrypt(resWithPaillier);
         System.out.println("Decryption with paillier " + decryptedPow);
+        Assert.assertEquals(decryptedPow, res);
+        Assert.assertEquals(decryptedPow, res2);
 
 	}
 }

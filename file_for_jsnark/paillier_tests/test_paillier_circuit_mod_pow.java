@@ -47,6 +47,12 @@ public class test_paillier_circuit_mod_pow {
 
     @Test
 	public void testModPowPaillier() {
+        /***
+         * This function generate a circuit that perform the following calcul :
+         * a**x in paillier 
+         * With x a little integer
+         * And check wether the result is correct or not 
+         */
         //1 -> 44284
         //2 -> 44156
         //4 -> 44090

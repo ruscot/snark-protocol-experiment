@@ -47,6 +47,11 @@ public class test_paillier_circuit_multiplication {
 
     @Test
 	public void testMultiplicationBigIntPaillier() {
+        /***
+         * This function generate a circuit that perform the following calcul :
+         * a*x in paillier 
+         * And check wether the result is correct or not 
+         */
         Paillier_keyPairBuilder keygen = new Paillier_keyPairBuilder();
         keyPair = keygen.generateKeyPair();
         publicKey = keyPair.getPublicKey();

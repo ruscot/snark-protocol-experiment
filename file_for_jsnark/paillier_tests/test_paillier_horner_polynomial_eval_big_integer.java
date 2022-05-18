@@ -47,6 +47,11 @@ public class test_paillier_horner_polynomial_eval_big_integer {
 
     @Test
 	public void testHornerPolynomialEvalBigIntPaillierGadget() {
+        /***
+         * This function generate a circuit that perform the following calcul :
+         * a*((b*(c**x))**x) = a*(b**x)*(c**(x**2)) in paillier 
+         * And check wether the result is correct or not 
+         */
         Paillier_keyPairBuilder keygen = new Paillier_keyPairBuilder();
         keyPair = keygen.generateKeyPair();
         publicKey = keyPair.getPublicKey();
@@ -71,11 +76,8 @@ public class test_paillier_horner_polynomial_eval_big_integer {
         
         BigInteger paillierModulusValue = publicKey.getnSquared();
         int paillierModulusSize = paillierModulusValue.bitLength();
-        //Addition
-        //encryptedA.multiply(encryptedB).mod(publicKey.getnSquared()));
-        //Multiplication
-        //encryptedCoef0.modPow(plainB,publicKey.getnSquared());
-        BigInteger resWithPaillier = encryptedCoef0.multiply(encryptedCoef1.multiply(encryptedCoef2.modPow(x, publicKey.getnSquared())).modPow(x, publicKey.getnSquared())).mod(publicKey.getnSquared());
+        BigInteger resWithPaillier = encryptedCoef0.multiply(encryptedCoef1.multiply(encryptedCoef2.modPow(
+                    x, publicKey.getnSquared())).modPow(x, publicKey.getnSquared())).mod(publicKey.getnSquared());
 
 
         CircuitGenerator generator = new CircuitGenerator("Horner polynomial eval big int paillier gadget") {
@@ -101,8 +103,6 @@ public class test_paillier_horner_polynomial_eval_big_integer {
                 
                 hornerPolynomialEvalPaillier = new HornerPolynomialEvalPaillier(paillierModulus, inputMessageA, x, paillierModulusSize);
                 
-                // since randomness is a witness
-                //rsaEncryptionV1_5_Gadget.checkRandomnessCompliance();
                 Wire[] cipherTextInBytes = hornerPolynomialEvalPaillier.getOutputWires(); // in bytes
                 
                 // group every 8 bytes together
@@ -119,9 +119,7 @@ public class test_paillier_horner_polynomial_eval_big_integer {
                         long num = array[array.length - i - 1] & 0xff;
                         evaluator.setWireValue(inputMessageA.get(j)[i], num);
                     }
-                    
                 }
-                
                 evaluator.setWireValue(this.paillierModulus, paillierModulusValue,
                             LongElement.CHUNK_BITWIDTH);
             }

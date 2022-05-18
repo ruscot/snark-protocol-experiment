@@ -46,6 +46,10 @@ public class test_paillier_circuit_addition {
 
     @Test
 	public void testAdditionBigIntPaillier() {
+        /***
+         * This function generate a circuit that perform the addition of 2
+         * ciphered element in paillier modulo n squared (paillier's modulo)
+         */
         //1 -> 7174
         //2 -> 6900
         //4 -> 6799
@@ -84,8 +88,6 @@ public class test_paillier_circuit_addition {
                 }
                 additionLongElementPaillier = new AdditionLongElementPaillier(paillierModulus, inputMessageA, inputMessageB, paillierModulusSize);
                 
-                // since randomness is a witness
-                //rsaEncryptionV1_5_Gadget.checkRandomnessCompliance();
                 Wire[] cipherTextInBytes = additionLongElementPaillier.getOutputWires(); // in bytes
                 
                 // group every 8 bytes together
@@ -108,7 +110,6 @@ public class test_paillier_circuit_addition {
                         long num4 = array[array.length - (i*4+3) - 1] & 0xff;
                         evaluator.setWireValue(inputMessageA[i], (num4<<24) + (num3<<16) + (num2<<8) + num);
                     }
-                    //evaluator.setWireValue(inputMessageA[i], 1);
                 }
                 array = encryptedB.toByteArray();
                 for(int i = 0; i < (int)Math.ceil(array.length/4); i++){
@@ -122,7 +123,6 @@ public class test_paillier_circuit_addition {
                         long num4 = array[array.length - (i*4+3) - 1] & 0xff;
                         evaluator.setWireValue(inputMessageB[i], (num4<<24) + (num3<<16) + (num2<<8) + num);
                     }
-                    //evaluator.setWireValue(inputMessageA[i], 1);
                 }
                 evaluator.setWireValue(this.paillierModulus, paillierModulusValue,
                             LongElement.CHUNK_BITWIDTH);
