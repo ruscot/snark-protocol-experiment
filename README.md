@@ -107,6 +107,7 @@ For example :
 ```bash
 java -cp bin:/usr/share/java/junit4.jar org.junit.runner.JUnitCore  examples.tests.paillier.test_paillier_circuit_multiplication 
 ```
+If you want to try libsnark on a polynomial with coefficients in paillier's, you need to run the 3 following commands in the same order.
 Command to run pailliers' generator :
 ```bash
 java -cp bin examples.generators.paillier.HornerPolynomialPaillierGenerator <number_of_coefficients_for_polynomials>
