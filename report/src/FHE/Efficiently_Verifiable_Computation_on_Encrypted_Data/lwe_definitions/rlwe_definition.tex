@@ -1,5 +1,0 @@
-\subsection{RLWE definition}
-The ring learning with errors (\textbf{RLWE}) problem was introduced by Lyubaskevsky, Peikert and Regev \cite{RLWE}. Here is a simplified definition : \\
-For security parameter $\lambda$, let f(x) = $x^d$ + 1 where d = d($\lambda$) is a power of 2. Let q = q($\lambda$) $\geq$ 2 be an integer. Let R = $\mathbb{Z}$[x]/(f(x)) and let $R_q$ = R/qR. Let $\chi$ = $\chi(\lambda)$ be a distribution over R. The $RLWE_{d,q,\chi}$ problem is to distinguish the following two distributions : 
-\tabNormal In the first distribution, one samples (ai, bi) uniformly from $R^2_q$. 
-\tabNormal In the second distribution, one first draws $s \xleftarrow[]{\$}R_q$  uniformly and then samples $(a_i, b_i) \in R^2_q$ by sampling $a_i \xleftarrow[]{\$}R_q$  uniformly, $e_i \xleftarrow[]{\$}\chi$ , and setting $b_i = a_i s + e_i$. The $RLWE_{d,q,\chi}$ assumption is that the $RLWE_{d,q,\chi}$ problem is infeasible.
