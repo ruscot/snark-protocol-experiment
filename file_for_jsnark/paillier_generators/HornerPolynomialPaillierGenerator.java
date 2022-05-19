@@ -36,12 +36,13 @@ public class HornerPolynomialPaillierGenerator {
         this.coeff_in_clear = new ArrayList<>();
         this.coeff_in_paillier = new ArrayList<>();
         this.x = getRandomBigInteger();
+        System.out.println("x value " + this.x);
         this.endTimeCalculation = 0;
     }
 
     public BigInteger getRandomBigInteger() {
         Random rand = new Random();
-        BigInteger result = new BigInteger(5, rand); // (2^4-1) = 15 is the maximum value
+        BigInteger result = new BigInteger(253, rand); // (2^253-1) 
         return result;
     }
 
