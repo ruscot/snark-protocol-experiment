@@ -42,7 +42,7 @@ public class HornerPolynomialPaillierGenerator {
 
     public BigInteger getRandomBigInteger() {
         Random rand = new Random();
-        BigInteger result = new BigInteger(253, rand); // (2^253-1) 
+        BigInteger result = new BigInteger(254, rand); // (2^253-1) 
         return result;
     }
 
