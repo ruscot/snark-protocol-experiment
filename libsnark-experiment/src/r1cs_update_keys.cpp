@@ -31,8 +31,10 @@ public:
     libff::Fr<ppT> beta;
     libff::Fr<ppT> gamma;
     Fr<ppT> At_save;
+    Fr<ppT> Bt_save;
     Fr<ppT> Kt_save;
     size_t g1_window;
+    size_t g2_window;
 
     random_container_key(libff::Fr<ppT> alphaA,
         libff::Fr<ppT> alphaB,
@@ -43,7 +45,9 @@ public:
         libff::Fr<ppT> gamma,
         Fr<ppT> At_save,
         Fr<ppT> Kt_save,
-        size_t g1_window) :
+        Fr<ppT> Bt_save,
+        size_t g1_window, 
+        size_t g2_window) :
         alphaA(alphaA),
         alphaB(alphaB),
         alphaC(alphaC),
@@ -53,7 +57,9 @@ public:
         gamma(gamma),
         At_save(At_save),
         Kt_save(Kt_save),
-        g1_window(g1_window)
+        Bt_save(Bt_save),
+        g1_window(g1_window),
+        g2_window(g2_window)
     {};
 };
 
@@ -222,16 +228,7 @@ r1cs_ppzksnark_keypair<ppT> r1cs_ppzksnark_generator55(const r1cs_ppzksnark_cons
     if(coef_index == degree){
         cout << "here if not done yet  " << endl;
         index = 0;
-        exit(0);
-        /*cout << "r1cs constraint b " << endl;
-        cout << "coef  " << coef << endl;
-        cout << constraint.b.terms[0].coeff << endl;
-        constraint.b.terms[0].coeff = coef;
-        cout << constraint.b.terms[0].coeff << endl;
-        (*pb).protoboard_update_r1cs_constraint(constraint, 0, "");
-        At[cs.constraints[0].b.terms[0].index] = r1cs_to_qap_instance_map_with_evaluation2(cs_copy, t, 
-                                                    At[cs.constraints[0].b.terms[0].index], new_coef, 
-                                                    coef_save, 0);*/
+        /*exit(0);*/
     } else if (coef_index == degree - 1) {
         cout << "here else if " << endl;
         cout << "not check yet" << endl;
@@ -508,6 +505,7 @@ std::tuple<r1cs_ppzksnark_keypair<ppT>,std::tuple<libff::Fr<ppT>, random_contain
     Ct.emplace_back(qap_inst.Zt);
     
     Fr<ppT> At_save = At[0];
+    Fr<ppT> Bt_save = Bt[0];
 
     //cout << "At save r1cs ppzksnark generator 2 " << At_save << endl;
     const  libff::Fr<ppT> alphaA = libff::Fr<ppT>::random_element(),
@@ -645,7 +643,9 @@ std::tuple<r1cs_ppzksnark_keypair<ppT>,std::tuple<libff::Fr<ppT>, random_contain
                                                                         gamma,
                                                                         At_save,
                                                                         Kt[0],
-                                                                        g1_window);
+                                                                        Bt_save,
+                                                                        g1_window, 
+                                                                        g2_window);
 
     pk.print_size();
     vk.print_size();
@@ -935,15 +935,15 @@ void compare_keypair(r1cs_ppzksnark_keypair<ppT> ref_keypair, r1cs_ppzksnark_key
     }
     cout << text << endl;   
     
-    cout << "B_query.......................";
-    
     text = "OK";
     for(int i = 0; i < ref_keypair.pk.B_query.values.size() && i < new_keypair.pk.B_query.values.size(); i++){
         if(ref_keypair.pk.B_query.values[i] != new_keypair.pk.B_query.values[i]) {
+            cout << "index " << i  << " not ok for B_query "<< endl;
             text = "NOT OK";
             break;
         }
     }
+    cout << "B_query.......................";
     cout << text << endl; 
 
     cout << "C_query.......................";
@@ -992,20 +992,44 @@ r1cs_ppzksnark_keypair<ppT> update_proving_key_compilation(const r1cs_ppzksnark_
                     libff::Fr<ppT> new_coef, uint64_t coef_index, uint64_t degree, 
                     libff::Fr<ppT> t, random_container_key<ppT> random_container, r1cs_ppzksnark_keypair<ppT> ref_keypair)
 {   
-    Fr<ppT> At_save = random_container.At_save;
-    random_container.At_save = r1cs_to_qap_instance_map_with_evaluation_At(cs, t, 
-                        random_container.At_save, new_coef, 
-                        coef_save, coef_index);
-    Fr<ppT> At_save_index_0 = random_container.At_save;
-    random_container.Kt_save = r1cs_to_qap_instance_map_with_evaluation_Zt2(cs, t, 
-                        random_container.Kt_save, At_save, 
-                        random_container.At_save, 0, random_container.rA, random_container.beta);
-    libff::window_table<libff::G1<ppT> > g1_table = get_window_table(libff::Fr<ppT>::size_in_bits(), random_container.g1_window, libff::G1<ppT>::one());
-    ref_keypair.pk.K_query[0] = batch_exp_monomial(libff::Fr<ppT>::size_in_bits(), random_container.g1_window, g1_table, random_container.Kt_save);
-    libff::G1<ppT> encoded_IC_base = (random_container.rA * At_save_index_0) * libff::G1<ppT>::one();
-    ref_keypair.vk.encoded_IC_query.first = encoded_IC_base;
-    return r1cs_ppzksnark_keypair<ppT>(std::move(ref_keypair.pk), std::move(ref_keypair.vk));
+    if(0 == coef_index){
+        Fr<ppT> Bt_save = random_container.Bt_save;
+        random_container.Bt_save = r1cs_to_qap_instance_map_with_evaluation_Bt(cs, t, 
+                            random_container.Bt_save, new_coef, 
+                            coef_save, coef_index);
+        Fr<ppT> Bt_save_index_0 = random_container.At_save;
+        random_container.Kt_save = r1cs_to_qap_instance_map_with_evaluation_Zt2(cs, t, 
+                            random_container.Kt_save, Bt_save, 
+                            random_container.Bt_save, 0, random_container.rB, random_container.beta);
+        libff::window_table<libff::G1<ppT> > g1_table = get_window_table(libff::Fr<ppT>::size_in_bits(), random_container.g1_window, libff::G1<ppT>::one());
+        ref_keypair.pk.K_query[0] = batch_exp_monomial(libff::Fr<ppT>::size_in_bits(), random_container.g1_window, g1_table, random_container.Kt_save);
+        libff::window_table<libff::G2<ppT> > g2_table = get_window_table(libff::Fr<ppT>::size_in_bits(), random_container.g2_window, libff::G2<ppT>::one());
+        //libff::G1<ppT> encoded_IC_base = (random_container.rA * At_save_index_0) * libff::G1<ppT>::one();
+        //ref_keypair.vk.encoded_IC_query.first = encoded_IC_base;
+        
+        ref_keypair.pk.B_query.values[0] = knowledge_commitment<libff::G2<ppT>, libff::G1<ppT>>(
+                                    windowed_exp(libff::Fr<ppT>::size_in_bits(), random_container.g2_window, 
+                                                    g2_table, random_container.rB * random_container.Bt_save),
+                                    windowed_exp(libff::Fr<ppT>::size_in_bits(), random_container.g1_window, 
+                                                    g1_table, random_container.rB * random_container.alphaB * random_container.Bt_save));
+        return r1cs_ppzksnark_keypair<ppT>(std::move(ref_keypair.pk), std::move(ref_keypair.vk));
+    } else {
+        Fr<ppT> At_save = random_container.At_save;
+        random_container.At_save = r1cs_to_qap_instance_map_with_evaluation_At(cs, t, 
+                            random_container.At_save, new_coef, 
+                            coef_save, coef_index);
+        Fr<ppT> At_save_index_0 = random_container.At_save;
+        random_container.Kt_save = r1cs_to_qap_instance_map_with_evaluation_Zt2(cs, t, 
+                            random_container.Kt_save, At_save, 
+                            random_container.At_save, 0, random_container.rA, random_container.beta);
+        libff::window_table<libff::G1<ppT> > g1_table = get_window_table(libff::Fr<ppT>::size_in_bits(), random_container.g1_window, libff::G1<ppT>::one());
+        ref_keypair.pk.K_query[0] = batch_exp_monomial(libff::Fr<ppT>::size_in_bits(), random_container.g1_window, g1_table, random_container.Kt_save);
+        libff::G1<ppT> encoded_IC_base = (random_container.rA * At_save_index_0) * libff::G1<ppT>::one();
+        ref_keypair.vk.encoded_IC_query.first = encoded_IC_base;
+        return r1cs_ppzksnark_keypair<ppT>(std::move(ref_keypair.pk), std::move(ref_keypair.vk));
+    }
+
 }
 
 } // libsnark
-#endif // R1CS_PPZKSNARK_TCC_
+#endif // R1CS_UPDATE_KEYS_CPP_

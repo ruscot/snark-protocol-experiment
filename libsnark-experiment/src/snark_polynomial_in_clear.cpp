@@ -48,16 +48,20 @@ void test_polynomial_in_clear_update(vector<libff::Fr<default_r1cs_ppzksnark_pp>
                                 protoboard<FieldT> protoboard_for_poly, r1cs_variable_assignment<FieldT> full_variable_assignment_update,
                                 const r1cs_constraint_system<FieldT> constraint_system, 
                                 std::tuple<r1cs_ppzksnark_keypair<default_r1cs_ppzksnark_pp>,std::tuple<libff::Fr<default_r1cs_ppzksnark_pp>, 
-                                random_container_key<default_r1cs_ppzksnark_pp>>> ret_val, const r1cs_ppzksnark_keypair<default_r1cs_ppzksnark_pp> keypair)
+                                random_container_key<default_r1cs_ppzksnark_pp>>> ret_val, const r1cs_ppzksnark_keypair<default_r1cs_ppzksnark_pp> keypair, uint64_t coef_to_update)
 {
     libff::enter_block("test_polynomial_in_clear_update");
-    //cout << "Last coeff " << polynomial[5] << endl;
-    libff::Fr<default_r1cs_ppzksnark_pp> save5 = polynomial[5];
-    polynomial[5] = libff::Fr<default_r1cs_ppzksnark_pp>::random_element();
-    //cout << "New coeff " << polynomial[5] << endl;
+    
+    if(coef_to_update > degree || coef_to_update < 0){
+        throw std::runtime_error("Coefficient of the polynomial not in the polynomial ");
+    }
+
+    libff::Fr<default_r1cs_ppzksnark_pp> save_last_value_of_the_coef = polynomial[coef_to_update];
+    polynomial[coef_to_update] = libff::Fr<default_r1cs_ppzksnark_pp>::random_element();
+    
     libff::Fr<default_r1cs_ppzksnark_pp> res = evaluation_polynomial_horner<default_r1cs_ppzksnark_pp>(polynomial, degree, 
-                                protoboard_for_poly.auxiliary_input()[0]);
-    update_constraint_horner_method<FieldT, default_r1cs_ppzksnark_pp>(polynomial[5], &protoboard_for_poly, 5, degree);
+                                                                            protoboard_for_poly.auxiliary_input()[0]);
+    update_constraint_horner_method<FieldT, default_r1cs_ppzksnark_pp>(polynomial[coef_to_update], &protoboard_for_poly, coef_to_update, degree);
     //Compute the witness and output of our polynomial
     
     full_variable_assignment_update.push_back(protoboard_for_poly.auxiliary_input()[0]);
@@ -77,14 +81,23 @@ void test_polynomial_in_clear_update(vector<libff::Fr<default_r1cs_ppzksnark_pp>
         }
         full_variable_assignment_update.push_back(cValue);
     }
-    /*r1cs_ppzksnark_keypair<default_r1cs_ppzksnark_pp> test_res_keypair = update_proving_key_compilation(constraint_system, save5, polynomial[5], 
-                                    7, degree, std::get<0>(std::get<1>(ret_val)), std::get<1>(std::get<1>(ret_val)), keypair);
+
+    uint64_t index = 0;
+    if(coef_to_update == degree){
+        index = 0;
+    } else if (coef_to_update == degree - 1) {
+        index = 1;
+    } else {
+        index = 2 + (degree - coef_to_update - 2) * 2 +1;
+    }
+
+    r1cs_ppzksnark_keypair<default_r1cs_ppzksnark_pp> test_res_keypair = update_proving_key_compilation(constraint_system, save_last_value_of_the_coef, polynomial[coef_to_update], 
+                                    index, degree, std::get<0>(std::get<1>(ret_val)), std::get<1>(std::get<1>(ret_val)), keypair);
     test_res_keypair.pk.constraint_system = constraint_system_update;
     const r1cs_ppzksnark_proof<default_r1cs_ppzksnark_pp> proof = r1cs_ppzksnark_prover<default_r1cs_ppzksnark_pp>(test_res_keypair.pk, 
                                             protoboard_for_poly.primary_input(), 
                                             protoboard_for_poly.auxiliary_input());
-    //cout << "test after update result " << protoboard_for_poly.primary_input()[0] << endl;
-    bool verified = r1cs_ppzksnark_verifier_strong_IC<default_r1cs_ppzksnark_pp>(test_res_keypair.vk, protoboard_for_poly.primary_input(), proof);*/
+    bool verified = r1cs_ppzksnark_verifier_strong_IC<default_r1cs_ppzksnark_pp>(test_res_keypair.vk, protoboard_for_poly.primary_input(), proof);
     
     bool test = res == protoboard_for_poly.primary_input()[0];
 
@@ -92,22 +105,23 @@ void test_polynomial_in_clear_update(vector<libff::Fr<default_r1cs_ppzksnark_pp>
         throw std::runtime_error("The result for polynomial eval is not correct abort");
     }
 
-    /*if(verified == 0) {
+    if(verified == 0) {
         throw std::runtime_error("The proof is not correct abort");
-    }*/
-    //cout << "test after update equal or not " << test << endl;
+    }
+    cout << "test after update equal or not " << test << endl;
 
-    /*r1cs_ppzksnark_keypair<default_r1cs_ppzksnark_pp> oldKeyPair = r1cs_ppzksnark_generator55<default_r1cs_ppzksnark_pp>(constraint_system, save5, polynomial[5], 
-                                    5, degree, std::get<0>(std::get<1>(ret_val)), std::get<1>(std::get<1>(ret_val)) );*/
+    r1cs_ppzksnark_keypair<default_r1cs_ppzksnark_pp> oldKeyPair = r1cs_ppzksnark_generator55<default_r1cs_ppzksnark_pp>(constraint_system, save_last_value_of_the_coef, polynomial[coef_to_update], 
+                                    coef_to_update, degree, std::get<0>(std::get<1>(ret_val)), std::get<1>(std::get<1>(ret_val)) );
 
     
 
     r1cs_ppzksnark_keypair<default_r1cs_ppzksnark_pp> newkeypair = r1cs_ppzksnark_generator_with_t_and_random<default_r1cs_ppzksnark_pp>(
                                                     constraint_system_update, std::get<0>(std::get<1>(ret_val)),  
-                                                    std::get<1>(std::get<1>(ret_val)), polynomial[5], 5, degree );
+                                                    std::get<1>(std::get<1>(ret_val)), polynomial[coef_to_update], coef_to_update, degree );
 
-    //cout << "Check if our keypair updated is correct " << endl;
-    //compare_keypair(newkeypair,test_res_keypair);
+    cout << "Check if our keypair updated is correct " << endl;
+    compare_keypair(newkeypair,test_res_keypair);
+    //compare_keypair(oldKeyPair,newkeypair);
     libff::leave_block("test_polynomial_in_clear_update");
 }
 
@@ -224,7 +238,7 @@ void test_polynomial_in_clear(uint64_t degree){
     
     test_polynomial_in_clear_update<FieldT>(polynomial, degree, protoboard_for_poly, 
                                 full_variable_assignment_update, constraint_system, 
-                                ret_val, keypair);
+                                ret_val, keypair, degree -1 );
     
     libff::leave_block("test_polynomial_in_clear");
 }
