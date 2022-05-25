@@ -143,28 +143,6 @@ r1cs_ppzksnark_keypair<ppT> r1cs_ppzksnark_update(const r1cs_ppzksnark_constrain
 }
 
 template <typename ppT>
-r1cs_ppzksnark_keypair<ppT> r1cs_ppzksnark_update_proving_key(/*const r1cs_ppzksnark_constraint_system<ppT> &cs,libff::Fr<ppT> coef_save, 
-                    libff::Fr<ppT> new_coef, uint64_t coef_index, uint64_t degree, 
-                    libff::Fr<ppT> t, random_container_key<ppT> random_container,*/ r1cs_ppzksnark_keypair<ppT> ref_keypair)
-{
-    //proving key
-    //knowledge_commitment_vector<libff::G1<ppT>, libff::G1<ppT> > A_query = keypair.pk.A_query; 
-    //keypair.pk 
-    //return keypair;
-    /*Fr<ppT> At_save = random_container.At_save;
-    random_container.At_save = r1cs_to_qap_instance_map_with_evaluation_At(cs, t, 
-                        random_container.At_save, new_coef, 
-                        coef_save, index);
-    Fr<ppT> At_save_index_0 = random_container.At_save;
-    random_container.Kt_save = r1cs_to_qap_instance_map_with_evaluation_Zt2(cs, t, 
-                        random_container.Kt_save, At_save, 
-                        random_container.At_save, 0, random_container.rA, random_container.beta);
-    libff::window_table<libff::G1<ppT> > g1_table = get_window_table(libff::Fr<ppT>::size_in_bits(), random_container.g1_window, libff::G1<ppT>::one());
-    ref_keypair.pk.K_query[0] = batch_exp_monomial(libff::Fr<ppT>::size_in_bits(), random_container.g1_window, g1_table, random_container.Kt_save);*/
-    return ref_keypair;
-}
-
-template <typename ppT>
 r1cs_ppzksnark_keypair<ppT> r1cs_ppzksnark_update_proving_key_test(const r1cs_ppzksnark_keypair<ppT> ref_keypair){
     return ref_keypair;
 
@@ -182,7 +160,6 @@ r1cs_ppzksnark_keypair<ppT> r1cs_ppzksnark_generator55(const r1cs_ppzksnark_cons
     cs_copy.swap_AB_if_beneficial();
 
     /* draw random element at which the QAP is evaluated */
-    //const  libff::Fr<ppT> t = libff::Fr<ppT>::random_element();
 
     qap_instance_evaluation<libff::Fr<ppT> > qap_inst = r1cs_to_qap_instance_map_with_evaluation(cs_copy, t);
     libff::print_indent(); printf("* QAP number of variables: %zu\n", qap_inst.num_variables());
@@ -220,35 +197,6 @@ r1cs_ppzksnark_keypair<ppT> r1cs_ppzksnark_generator55(const r1cs_ppzksnark_cons
     libff::Fr_vector<ppT> Bt = std::move(qap_inst.Bt); // qap_inst.Bt is now in unspecified state, but we do not use it later
     libff::Fr_vector<ppT> Ct = std::move(qap_inst.Ct); // qap_inst.Ct is now in unspecified state, but we do not use it later
     libff::Fr_vector<ppT> Ht = std::move(qap_inst.Ht); // qap_inst.Ht is now in unspecified state, but we do not use it later
-    //const std::shared_ptr<libfqfft::evaluation_domain<ppT> > domain = libfqfft::get_evaluation_domain<ppT>(cs.num_constraints() + cs.num_inputs() + 1);
-    //const std::vector<ppT> u = std::get<1>(tuple)->evaluate_all_lagrange_polynomials(std::get<0>(tuple));
-    //cout << "At r1cs_ppzksnark_generator55 " << At <<endl;
-    uint64_t index = 0;
-    //Fr<ppT> At_save = At[cs.constraints[index].a.terms[0].index];
-    if(coef_index == degree){
-        cout << "here if not done yet  " << endl;
-        index = 0;
-        /*exit(0);*/
-    } else if (coef_index == degree - 1) {
-        cout << "here else if " << endl;
-        cout << "not check yet" << endl;
-        index = 1;
-        /*At[cs.constraints[1].a.terms[0].index] = r1cs_to_qap_instance_map_with_evaluation2(cs_copy, t, 
-                                                    At[cs.constraints[1].a.terms[0].index], new_coef, 
-                                                    coef_save, 1);*/
-    } else {
-        cout << "here else " << endl;
-        index = 2 + (degree - coef_index - 2) * 2 +1;
-        cout << "index " << index << endl;
-        cout << "At index : " << cs.constraints[index].a.terms[0].index << endl;
-        cout << "coef save : " << coef_save << endl;
-        cout << "new coef : " << new_coef << endl;
-        /*At[cs.constraints[index].a.terms[0].index] = r1cs_to_qap_instance_map_with_evaluation_At(cs_copy, t, 
-                        At[cs.constraints[index].a.terms[0].index], new_coef, 
-                        coef_save, index);*/
-    }
-    //cout << "At r1cs_ppzksnark_generator55 after change " << At <<endl;
-    
 
     /* append Zt to At,Bt,Ct with */
     At.emplace_back(qap_inst.Zt);
@@ -275,34 +223,6 @@ r1cs_ppzksnark_keypair<ppT> r1cs_ppzksnark_generator55(const r1cs_ppzksnark_cons
     Kt.emplace_back(beta * rA * qap_inst.Zt);
     Kt.emplace_back(beta * rB * qap_inst.Zt);
     Kt.emplace_back(beta * rC * qap_inst.Zt);
-    //Fr<ppT> At_save = At[cs.constraints[index].a.terms[0].index];
-    
-    /*At[cs.constraints[index].a.terms[0].index] = r1cs_to_qap_instance_map_with_evaluation_At(cs_copy, t, 
-                                                    At[cs.constraints[index].a.terms[0].index], new_coef, 
-                                                    coef_save, index);*/
-    /*cout << "Arguments value : " << endl;
-    cout << "   t " << t << endl;
-    cout << "   At[cs.constraints[index].a.terms[0].index] " << At[cs.constraints[index].a.terms[0].index] << endl;
-    cout << "   new_coef " << new_coef << endl;
-    cout << "   coef_save " << coef_save << endl;
-    cout << "   index " << index << endl;
-    cout << "   At_save " << At_save << endl;
-    
-    cout << "At value r1cs_ppzksnark_generator55 to check " << At[cs.constraints[index].a.terms[0].index] << endl;
-    Fr<ppT> At_save_index_0 = At[cs.constraints[index].a.terms[0].index];
-    Fr<ppT> KT_save = r1cs_to_qap_instance_map_with_evaluation_Zt2(cs_copy, t, 
-                                                    Kt[0], At_save, 
-                                                    At[cs.constraints[index].a.terms[0].index], 0, rA, beta);
-    cout << "Arguments value 2 : " << endl;
-    cout << "   t " << t << endl;
-    cout << "   KT_save " << KT_save << endl;
-    cout << "   At[cs.constraints[index].a.terms[0].index] " << At[cs.constraints[index].a.terms[0].index] << endl;
-    cout << "   rA " << rA << endl;
-    cout << "   beta " << beta << endl;
-    cout << "   At_save " << At_save << endl;*/
-    /*Kt[0] = r1cs_to_qap_instance_map_with_evaluation_Zt(cs_copy, t, 
-                                                    Kt[0], new_coef, 
-                                                    coef_save, 0, rA, beta);*/
 
     /* zero out prefix of At and stick it into IC coefficients */
     libff::Fr_vector<ppT> IC_coefficients;
@@ -365,26 +285,6 @@ r1cs_ppzksnark_keypair<ppT> r1cs_ppzksnark_generator55(const r1cs_ppzksnark_cons
     //TODO try to change here because of Kt
     libff::G1_vector<ppT> K_query = batch_exp(libff::Fr<ppT>::size_in_bits(), g1_window, g1_table, Kt);
 
-    
-    /*At[cs.constraints[index].a.terms[0].index] = r1cs_to_qap_instance_map_with_evaluation_At(cs_copy, t, 
-                                                    At[cs.constraints[index].a.terms[0].index], new_coef, 
-                                                    coef_save, index);*/
-    /*Kt[0] = r1cs_to_qap_instance_map_with_evaluation_Zt2(cs_copy, t, 
-                                                    Kt[0], At_save, 
-                                                    At[cs.constraints[index].a.terms[0].index], 0, rA, beta);*/
-    /*cout << "Ic coef 0 before " << IC_coefficients[0] << endl;
-    IC_coefficients[0] = At_save_index_0;
-    cout << "Ic coef 0 after " << IC_coefficients[0] << endl;
-    //Todo change here the KT 0 query
-    G1<ppT> test = batch_exp_monomial(libff::Fr<ppT>::size_in_bits(), g1_window, g1_table, Kt[0]);
-    cout << "Arguments value 3 : " << endl;
-    cout << "   t " << t << endl;
-    cout << "   K_query[0] 0 " << test << endl;
-    cout << "   g1_window " << g1_window << endl;
-    //cout << "   g1_table " << g1_table << endl;
-    cout << "    Kt[0] " <<  Kt[0] << endl;*/
-    //cout << "K_query r1cs_ppzksnark_generator_with_t_and_random " << K_query <<endl;
-    //return ;
 #ifdef USE_MIXED_ADDITION
     libff::batch_to_special<libff::G1<ppT> >(K_query);
 #endif
@@ -497,8 +397,6 @@ std::tuple<r1cs_ppzksnark_keypair<ppT>,std::tuple<libff::Fr<ppT>, random_contain
     libff::Fr_vector<ppT> Ct = std::move(qap_inst.Ct); // qap_inst.Ct is now in unspecified state, but we do not use it later
     libff::Fr_vector<ppT> Ht = std::move(qap_inst.Ht); // qap_inst.Ht is now in unspecified state, but we do not use it later
 
-    //cout << "At r1cs_ppzksnark_generator2 " << At << endl;
-    //cout << "end " << endl;
     /* append Zt to At,Bt,Ct with */
     At.emplace_back(qap_inst.Zt);
     Bt.emplace_back(qap_inst.Zt);
@@ -507,7 +405,6 @@ std::tuple<r1cs_ppzksnark_keypair<ppT>,std::tuple<libff::Fr<ppT>, random_contain
     Fr<ppT> At_save = At[0];
     Fr<ppT> Bt_save = Bt[0];
 
-    //cout << "At save r1cs ppzksnark generator 2 " << At_save << endl;
     const  libff::Fr<ppT> alphaA = libff::Fr<ppT>::random_element(),
         alphaB = libff::Fr<ppT>::random_element(),
         alphaC = libff::Fr<ppT>::random_element(),
@@ -666,9 +563,6 @@ r1cs_ppzksnark_keypair<ppT> r1cs_ppzksnark_generator_with_t_and_random(const r1c
     r1cs_ppzksnark_constraint_system<ppT> cs_copy(cs);
     cs_copy.swap_AB_if_beneficial();
 
-    /* draw random element at which the QAP is evaluated */
-    //const  libff::Fr<ppT> t = libff::Fr<ppT>::random_element();
-
     qap_instance_evaluation<libff::Fr<ppT> > qap_inst = r1cs_to_qap_instance_map_with_evaluation(cs_copy, t);
 
     libff::print_indent(); printf("* QAP number of variables: %zu\n", qap_inst.num_variables());
@@ -731,8 +625,6 @@ r1cs_ppzksnark_keypair<ppT> r1cs_ppzksnark_generator_with_t_and_random(const r1c
     Kt.emplace_back(beta * rA * qap_inst.Zt);
     Kt.emplace_back(beta * rB * qap_inst.Zt);
     Kt.emplace_back(beta * rC * qap_inst.Zt);
-    /*cout << "Kt r1cs_ppzksnark_generator_with_t_and_random " << Kt <<endl;*/
-    /* zero out prefix of At and stick it into IC coefficients */
     libff::Fr_vector<ppT> IC_coefficients;
     IC_coefficients.reserve(qap_inst.num_inputs() + 1);
     for (size_t i = 0; i < qap_inst.num_inputs() + 1; ++i)
@@ -741,8 +633,6 @@ r1cs_ppzksnark_keypair<ppT> r1cs_ppzksnark_generator_with_t_and_random(const r1c
         assert(!IC_coefficients[i].is_zero());
         At[i] = libff::Fr<ppT>::zero();
     }
-    /*cout << "IC_coeff r1cs_ppzksnark_generator_with_t_and_random " << IC_coefficients <<endl;
-    cout << "IC_coefficients before r1cs_ppzksnark_generator_with_t_and_random " << IC_coefficients[0] <<endl;*/
     const size_t g1_exp_count = 2*(non_zero_At - qap_inst.num_inputs() + non_zero_Ct) + non_zero_Bt + non_zero_Ht + Kt.size();
     const size_t g2_exp_count = non_zero_Bt;
 
@@ -841,9 +731,6 @@ r1cs_ppzksnark_keypair<ppT> r1cs_ppzksnark_generator_with_t_and_random(const r1c
                                                                          std::move(K_query),
                                                                          std::move(cs_copy));
 
-    pk.print_size();
-    vk.print_size();
-    //std::tuple<libff::Fr<ppT>, std::shared_ptr<libfqfft::evaluation_domain<FieldT> >> vec_return1(t, qap_inst.domain);
     return r1cs_ppzksnark_keypair<ppT>(std::move(pk), std::move(vk));
 }
 
@@ -1004,8 +891,6 @@ r1cs_ppzksnark_keypair<ppT> update_proving_key_compilation(const r1cs_ppzksnark_
         libff::window_table<libff::G1<ppT> > g1_table = get_window_table(libff::Fr<ppT>::size_in_bits(), random_container.g1_window, libff::G1<ppT>::one());
         ref_keypair.pk.K_query[0] = batch_exp_monomial(libff::Fr<ppT>::size_in_bits(), random_container.g1_window, g1_table, random_container.Kt_save);
         libff::window_table<libff::G2<ppT> > g2_table = get_window_table(libff::Fr<ppT>::size_in_bits(), random_container.g2_window, libff::G2<ppT>::one());
-        //libff::G1<ppT> encoded_IC_base = (random_container.rA * At_save_index_0) * libff::G1<ppT>::one();
-        //ref_keypair.vk.encoded_IC_query.first = encoded_IC_base;
         
         ref_keypair.pk.B_query.values[0] = knowledge_commitment<libff::G2<ppT>, libff::G1<ppT>>(
                                     windowed_exp(libff::Fr<ppT>::size_in_bits(), random_container.g2_window, 

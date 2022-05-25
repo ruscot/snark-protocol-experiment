@@ -238,7 +238,7 @@ void test_polynomial_in_clear(uint64_t degree){
     
     test_polynomial_in_clear_update<FieldT>(polynomial, degree, protoboard_for_poly, 
                                 full_variable_assignment_update, constraint_system, 
-                                ret_val, keypair, degree -1 );
+                                ret_val, keypair, degree  - 1);
     
     libff::leave_block("test_polynomial_in_clear");
 }

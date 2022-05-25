@@ -124,16 +124,12 @@ void update_constraint_horner_method(libff::Fr<ppT> coef, protoboard<FieldT> *pb
         (*pb).protoboard_update_r1cs_constraint(constraint, 0, "");
     } else if (coef_index == degree - 1) {
         r1cs_constraint<FieldT> constraint = (*pb).get_constraint_system().constraints[1];
-        constraint.a.print();
         constraint.a.terms[0].coeff = coef;
-        constraint.a.print();
         (*pb).protoboard_update_r1cs_constraint(constraint, 1, "");
     } else {
         uint64_t index = 2 + (degree - coef_index - 2) * 2 +1;
         r1cs_constraint<FieldT> constraint = (*pb).get_constraint_system().constraints[index];
-        constraint.a.print();
         constraint.a.terms[0].coeff = coef;
-        constraint.a.print();
         (*pb).protoboard_update_r1cs_constraint(constraint, index, "");
     }
     libff::leave_block("Update constraint");
