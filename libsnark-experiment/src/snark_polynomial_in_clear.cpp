@@ -62,10 +62,9 @@ void test_polynomial_in_clear_update(vector<libff::Fr<default_r1cs_ppzksnark_pp>
     libff::Fr<default_r1cs_ppzksnark_pp> res = evaluation_polynomial_horner<default_r1cs_ppzksnark_pp>(polynomial, degree, 
                                                                             protoboard_for_poly.auxiliary_input()[0]);
     update_constraint_horner_method<FieldT, default_r1cs_ppzksnark_pp>(polynomial[coef_to_update], &protoboard_for_poly, coef_to_update, degree);
-    //Compute the witness and output of our polynomial
     
+    //Compute the witness and output of our polynomial
     full_variable_assignment_update.push_back(protoboard_for_poly.auxiliary_input()[0]);
-    //cout << "full variable assignement 2 \n " << full_variable_assignment_update <<endl;
     const r1cs_constraint_system<FieldT> constraint_system_update = protoboard_for_poly.get_constraint_system();
     for(r1cs_constraint<FieldT> cs : constraint_system_update.constraints){
         
@@ -121,8 +120,33 @@ void test_polynomial_in_clear_update(vector<libff::Fr<default_r1cs_ppzksnark_pp>
 
     cout << "Check if our keypair updated is correct " << endl;
     compare_keypair(newkeypair,test_res_keypair);
-    //compare_keypair(oldKeyPair,newkeypair);
     libff::leave_block("test_polynomial_in_clear_update");
+}
+
+template<typename FieldT, typename default_r1cs_ppzksnark_pp>
+r1cs_variable_assignment<FieldT> compute_polynomial_witness_output(protoboard<FieldT> &protoboard_for_poly, 
+    r1cs_ppzksnark_proving_key<default_r1cs_ppzksnark_pp> pk){
+//Compute the witness and output of our polynomial
+    r1cs_variable_assignment<FieldT> full_variable_assignment =  protoboard_for_poly.primary_input();
+    r1cs_variable_assignment<FieldT> full_variable_assignment_update =  protoboard_for_poly.primary_input();
+    full_variable_assignment.push_back(protoboard_for_poly.auxiliary_input()[0]);
+
+    for(r1cs_constraint<FieldT> cs : pk.constraint_system.constraints){
+        
+        FieldT cValue = evaluation_on_linear_combination(cs.a, cs.b, full_variable_assignment);
+        for (auto &lt : cs.c.terms)
+        {
+            if(lt.index != 0 )
+            {
+                pb_variable<FieldT> annex;
+                annex.index = lt.index;
+                protoboard_for_poly.val(annex) = cValue;
+            }
+        }
+        full_variable_assignment.push_back(cValue);
+    }
+
+    return full_variable_assignment_update;
 }
 
 void test_polynomial_in_clear(uint64_t degree){
@@ -150,6 +174,7 @@ void test_polynomial_in_clear(uint64_t degree){
     //Create our R1CS constraint and get our input variable x
     std::tuple<pb_variable<FieldT>,pb_variable<FieldT>> x_and_out = create_constraint_horner_method<FieldT, 
                                                 default_r1cs_ppzksnark_pp>(polynomial, &protoboard_for_poly, degree);
+
     //Choose a random x on which we want to eval our polynomial
     protoboard_for_poly.val(std::get<0>(x_and_out)) = libff::Fr<default_r1cs_ppzksnark_pp>::random_element();
     protoboard_for_poly.val(std::get<1>(x_and_out)) = 0;
@@ -157,7 +182,6 @@ void test_polynomial_in_clear(uint64_t degree){
     const r1cs_constraint_system<FieldT> constraint_system = protoboard_for_poly.get_constraint_system();
 
     //Creation of our keys for the zkSNARK protocol from our R1CS constraints
-    //const r1cs_ppzksnark_keypair<default_r1cs_ppzksnark_pp> keypair = r1cs_ppzksnark_generator<default_r1cs_ppzksnark_pp>(constraint_system);
     std::tuple<r1cs_ppzksnark_keypair<default_r1cs_ppzksnark_pp>,std::tuple<libff::Fr<default_r1cs_ppzksnark_pp>, 
         random_container_key<default_r1cs_ppzksnark_pp>>> ret_val = r1cs_ppzksnark_generator2<default_r1cs_ppzksnark_pp>(constraint_system);
 
@@ -168,29 +192,10 @@ void test_polynomial_in_clear(uint64_t degree){
      * SERVER START
      */
     c_setup.start();
-    //Compute the witness and output of our polynomial
-    r1cs_variable_assignment<FieldT> full_variable_assignment =  protoboard_for_poly.primary_input();
-    r1cs_variable_assignment<FieldT> full_variable_assignment_update =  protoboard_for_poly.primary_input();
-    full_variable_assignment.push_back(protoboard_for_poly.auxiliary_input()[0]);
-    //cout << "full variable assignement " << full_variable_assignment <<endl;
-    //constraint_system = keypair.pk.constraint_system;
-    for(r1cs_constraint<FieldT> cs : keypair.pk.constraint_system.constraints){
-        
-        FieldT cValue = evaluation_on_linear_combination(cs.a, cs.b, full_variable_assignment);
-        for (auto &lt : cs.c.terms)
-        {
-            if(lt.index != 0 )
-            {
-                pb_variable<FieldT> annex;
-                annex.index = lt.index;
-                protoboard_for_poly.val(annex) = cValue;
-            }
-        }
-        full_variable_assignment.push_back(cValue);
-    }
+    r1cs_variable_assignment<FieldT> full_variable_assignment_update = compute_polynomial_witness_output<FieldT, 
+                    default_r1cs_ppzksnark_pp>(protoboard_for_poly, keypair.pk);
 
     //From our witnes and input output compute the proof for the client
-    //protoboard_for_poly.set_input_sizes(1);
     const r1cs_ppzksnark_proof<default_r1cs_ppzksnark_pp> proof = r1cs_ppzksnark_prover<default_r1cs_ppzksnark_pp>(keypair.pk, 
                                             protoboard_for_poly.primary_input(), 
                                             protoboard_for_poly.auxiliary_input());
@@ -201,7 +206,8 @@ void test_polynomial_in_clear(uint64_t degree){
      */
     c_setup.start();
     //Check that the proof send by the server is correct
-    bool verified = r1cs_ppzksnark_verifier_strong_IC<default_r1cs_ppzksnark_pp>(keypair.vk, protoboard_for_poly.primary_input(), proof);
+    bool verified = r1cs_ppzksnark_verifier_strong_IC<default_r1cs_ppzksnark_pp>(keypair.vk, protoboard_for_poly.primary_input(), 
+            proof);
     time_client = c_setup.stop();
 
     if(verified == 0) {
