@@ -1,21 +1,20 @@
 #!/bin/bash
 
-mv file_for_jsnark/PaillierEncryptionAddition_Gadget.java jsnark/JsnarkCircuitBuilder/src/examples/gadgets/rsa/
+echo "Add the repository jsnark"
+git clone --recursive https://github.com/akosba/jsnark.git
+cd jsnark/ && wget https://www.bouncycastle.org/download/bcprov-jdk15on-159.jar
 
-mv file_for_jsnark/paillier_gadgets file_for_jsnark/paillier
-mv file_for_jsnark/paillier jsnark/JsnarkCircuitBuilder/src/examples/gadgets/
+echo "Compilation of libsnark in jsnark"
+cd libsnark && git submodule init && git submodule update
+mkdir build && cd build && cmake .. 
+make -j8
 
-mv file_for_jsnark/paillier_generators file_for_jsnark/paillier
-mv file_for_jsnark/paillier jsnark/JsnarkCircuitBuilder/src/examples/generators/
+echo "Install our script in jsnark"
+cd ../../.. && ./install_for_jsnark.sh
+cd jsnark/libsnark/build/ && cmake ..
+make && cd ../../..	
 
-mv file_for_jsnark/paillier_tests file_for_jsnark/paillier
-mv file_for_jsnark/paillier jsnark/JsnarkCircuitBuilder/src/examples/tests/
-
-mv file_for_jsnark/CMakeLists.txt jsnark/libsnark/libsnark/
-mv file_for_jsnark/run_ppzksnark_paillier.cpp jsnark/libsnark/libsnark/jsnark_interface
-
-mv file_for_jsnark/CircuitGenerator.java jsnark/JsnarkCircuitBuilder/src/circuit/structure/
-mv file_for_jsnark/CircuitEvaluator.java jsnark/JsnarkCircuitBuilder/src/circuit/eval/
-
-rm jsnark/JsnarkCircuitBuilder/src/gadgets/math/LongIntegerModGadget.java
-mv file_for_jsnark/LongIntegerModGadget.java jsnark/JsnarkCircuitBuilder/src/gadgets/math/
+echo "Compilation step for jsnark script"
+cd jsnark/JsnarkCircuitBuilder
+mkdir -p bin
+javac -d bin -cp /usr/share/java/junit4.jar:../bcprov-jdk15on-159.jar  $(find ./src/* | grep ".java$")
