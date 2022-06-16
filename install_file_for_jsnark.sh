@@ -17,5 +17,5 @@ mv file_for_jsnark/run_ppzksnark_paillier.cpp jsnark/libsnark/libsnark/jsnark_in
 mv file_for_jsnark/CircuitGenerator.java jsnark/JsnarkCircuitBuilder/src/circuit/structure/
 mv file_for_jsnark/CircuitEvaluator.java jsnark/JsnarkCircuitBuilder/src/circuit/eval/
 
-rm jsnark/JsnarkCircuitBuilder/src/gadgets/math/LongIntegerModGadget.java
-mv file_for_jsnark/LongIntegerModGadget.java jsnark/JsnarkCircuitBuilder/src/gadgets/math/
+rm jsnark/JsnarkCircuitBuilder/src/examples/gadgets/math/LongIntegerModGadget.java
+mv file_for_jsnark/LongIntegerModGadget.java jsnark/JsnarkCircuitBuilder/src/examples/gadgets/math/
