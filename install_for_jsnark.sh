@@ -10,7 +10,7 @@ mkdir build && cd build && cmake ..
 make -j8
 
 echo "Install our script in jsnark"
-cd ../../.. && ./install_for_jsnark.sh
+cd ../../.. && ./install_file_for_jsnark.sh
 cd jsnark/libsnark/build/ && cmake ..
 make && cd ../../..	
 
