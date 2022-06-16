@@ -35,54 +35,19 @@ public class ModPowLongElementPaillier extends Gadget {
 		LongElement res = new LongElement(
 					new BigInteger[] { BigInteger.ONE });
 		
-		
-		/*System.out.println("");
-		System.out.println("//----------------------------------------------------------------------------");
-		System.out.println("");
-		System.out.println("In build circuit try to manipulate LongElement");
-		System.out.println("res value " + res.getSize());
-		WireArray resAsArraay = res.getBits();
-		System.out.println("Wire array of res " + resAsArraay.toString());
-		System.out.println("In build circuit finish our manipulation");
-		System.out.println("");
-		System.out.println("//----------------------------------------------------------------------------");
-		System.out.println("");
-		System.out.println("");
-		System.out.println("");
-		exit(0) ;*/
-		
 		//fast exponentiation
 		int bitLengthB = b.bitLength();
-		System.out.println("Bit length b " + b.bitLength());
-		for(int j = 0; j < 25; j++){
-			/*if(bitLengthB == j){
-				break;
-			}*/
-			System.out.println("In fast expo iteration " + j);
-			//if(b.getLowestSetBit() == 0){ //b is odd
+		for(int j = 0; j < bitLengthB; j++){
+			if(b.getLowestSetBit() == 0){ //b is odd
 				res = res.mul(msgA);
 				res = new LongIntegerModGadget(res, this.paillierModulus, 
-						this.paillierKeyBitLength, true).getRemainder();
-			//} 
-			this.b = this.b.shiftRight(1);
-			msgA = msgA.mul(msgA);
-			msgA = new LongIntegerModGadget(msgA, this.paillierModulus, 
-					this.paillierKeyBitLength, true).getRemainder();
-		}
-		
-		/*while(this.b.compareTo(BigInteger.ONE) == 1 || this.b.equals(BigInteger.ONE)){ //equal b > 1
-			System.out.println("In fast expo while " + i);
-			if(!this.b.mod(BigInteger.TWO).equals(BigInteger.ZERO)){ //b is odd
-				res = res.mul(msgA);
-				res = new LongIntegerModGadget(res, this.paillierModulus, this.paillierKeyBitLength, true).getRemainder();
-				//this.b = this.b.subtract(BigInteger.ONE);
+						this.paillierKeyBitLength, false, true).getRemainder();
 			} 
 			this.b = this.b.shiftRight(1);
 			msgA = msgA.mul(msgA);
-			msgA = new LongIntegerModGadget(msgA, this.paillierModulus, this.paillierKeyBitLength, true).getRemainder();
-			i ++;
+			msgA = new LongIntegerModGadget(msgA, this.paillierModulus, 
+					this.paillierKeyBitLength, false,  true).getRemainder();
 		}
-		System.out.println("After the fast exponentiation");*/
 
 		this.result = res.getBits(-1).packBitsIntoWords(8);
 	}

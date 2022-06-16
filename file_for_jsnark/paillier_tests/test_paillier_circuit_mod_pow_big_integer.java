@@ -121,6 +121,5 @@ public class test_paillier_circuit_mod_pow_big_integer {
 
         BigInteger res = encryptedCoef0.modPow(x, this.publicKey.getnSquared());
         Assert.assertEquals(t, res);
-
 	}
 }

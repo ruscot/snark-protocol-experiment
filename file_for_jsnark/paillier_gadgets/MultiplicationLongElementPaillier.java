@@ -34,7 +34,7 @@ public class MultiplicationLongElementPaillier extends Gadget {
 		WireArray allBitsB = new WireArray(this.b).getBits(8);
 	 	LongElement msgB = new LongElement(allBitsB);
 		msgA = msgA.mul(msgB);
-		msgA = new LongIntegerModGadget(msgA, this.paillierModulus, this.paillierKeyBitLength, true).getRemainder();
+		msgA = new LongIntegerModGadget(msgA, this.paillierModulus, this.paillierKeyBitLength, false, true).getRemainder();
 		this.result = msgA.getBits(-1).packBitsIntoWords(8);
 	}
 	

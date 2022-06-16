@@ -36,7 +36,7 @@ public class ModPowPaillier extends Gadget {
 		//Naive approach
 		for(int i = 0; i < this.b; i++){
 			res = res.mul(msgA);
-			res = new LongIntegerModGadget(res, this.paillierModulus, this.paillierKeyBitLength, true).getRemainder();
+			res = new LongIntegerModGadget(res, this.paillierModulus, this.paillierKeyBitLength, false, true).getRemainder();
 		}
 		
 		this.result = res.getBits(-1).packBitsIntoWords(8);

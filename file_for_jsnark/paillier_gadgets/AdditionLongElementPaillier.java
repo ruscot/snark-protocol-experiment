@@ -36,7 +36,7 @@ public class AdditionLongElementPaillier extends Gadget {
 		WireArray allBitsB = new WireArray(this.b).getBits(32);
 	 	LongElement msgB = new LongElement(allBitsB);
 		msgA = msgA.add(msgB);
-		msgA = new LongIntegerModGadget(msgA, this.paillierModulus, this.paillierKeyBitLength, true).getRemainder();
+		msgA = new LongIntegerModGadget(msgA, this.paillierModulus, this.paillierKeyBitLength, false, true).getRemainder();
 		this.result = msgA.getBits(-1).packBitsIntoWords(8);
 	}
 	
