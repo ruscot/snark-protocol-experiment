@@ -48,7 +48,8 @@ void test_polynomial_in_clear_update(vector<libff::Fr<default_r1cs_ppzksnark_pp>
                                 protoboard<FieldT> protoboard_for_poly, r1cs_variable_assignment<FieldT> full_variable_assignment_update,
                                 const r1cs_constraint_system<FieldT> constraint_system, 
                                 std::tuple<r1cs_ppzksnark_keypair<default_r1cs_ppzksnark_pp>,std::tuple<libff::Fr<default_r1cs_ppzksnark_pp>, 
-                                random_container_key<default_r1cs_ppzksnark_pp>>> ret_val, const r1cs_ppzksnark_keypair<default_r1cs_ppzksnark_pp> keypair, uint64_t coef_to_update)
+                                random_container_key<default_r1cs_ppzksnark_pp>>> ret_val, const r1cs_ppzksnark_keypair<default_r1cs_ppzksnark_pp> keypair, uint64_t coef_to_update,
+                                R1CS_Polynomial_factory<FieldT, default_r1cs_ppzksnark_pp> r1cs_polynomial_factory)
 {
     libff::enter_block("test_polynomial_in_clear_update");
     
@@ -58,10 +59,9 @@ void test_polynomial_in_clear_update(vector<libff::Fr<default_r1cs_ppzksnark_pp>
 
     libff::Fr<default_r1cs_ppzksnark_pp> save_last_value_of_the_coef = polynomial[coef_to_update];
     polynomial[coef_to_update] = libff::Fr<default_r1cs_ppzksnark_pp>::random_element();
-    
-    libff::Fr<default_r1cs_ppzksnark_pp> res = evaluation_polynomial_horner<default_r1cs_ppzksnark_pp>(polynomial, degree, 
-                                                                            protoboard_for_poly.auxiliary_input()[0]);
-    update_constraint_horner_method<FieldT, default_r1cs_ppzksnark_pp>(polynomial[coef_to_update], &protoboard_for_poly, coef_to_update, degree);
+    r1cs_polynomial_factory.update_polynomial_coefficient(polynomial[coef_to_update], coef_to_update);
+    libff::Fr<default_r1cs_ppzksnark_pp> res = r1cs_polynomial_factory.evaluation_polynomial_horner(protoboard_for_poly.auxiliary_input()[0]);
+    r1cs_polynomial_factory.update_constraint_horner_method(polynomial[coef_to_update], &protoboard_for_poly, coef_to_update, degree);
     
     //Compute the witness and output of our polynomial
     full_variable_assignment_update.push_back(protoboard_for_poly.auxiliary_input()[0]);
@@ -87,7 +87,7 @@ void test_polynomial_in_clear_update(vector<libff::Fr<default_r1cs_ppzksnark_pp>
     } else if (coef_to_update == degree - 1) {
         index = 1;
     } else {
-        index = 2 + (degree - coef_to_update - 2) * 2 +1;
+        index = degree - coef_to_update;
     }
 
     r1cs_ppzksnark_keypair<default_r1cs_ppzksnark_pp> test_res_keypair = update_proving_key_compilation(constraint_system, save_last_value_of_the_coef, polynomial[coef_to_update], 
@@ -161,9 +161,13 @@ void test_polynomial_in_clear(uint64_t degree){
 
     //Create our protoboard which will stock our R1CS    
     protoboard<FieldT> protoboard_for_poly;
-    //Creation of the polynomial
-    vector<libff::Fr<default_r1cs_ppzksnark_pp>> polynomial = create_polynomials<default_r1cs_ppzksnark_pp>(degree);
 
+    R1CS_Polynomial_factory<FieldT, default_r1cs_ppzksnark_pp> r1cs_polynomial_factory(degree);
+
+    //Creation of the polynomial
+    r1cs_polynomial_factory.create_random_coefficients_for_polynomial();
+    vector<libff::Fr<default_r1cs_ppzksnark_pp>> polynomial = r1cs_polynomial_factory.get_random_polynomial();
+    
     //Timer setup 
     Chrono c_setup; 
     /**
@@ -172,9 +176,9 @@ void test_polynomial_in_clear(uint64_t degree){
     //Start the timer for the setup phase
     c_setup.start();
     //Create our R1CS constraint and get our input variable x
-    std::tuple<pb_variable<FieldT>,pb_variable<FieldT>> x_and_out = create_constraint_horner_method<FieldT, 
-                                                default_r1cs_ppzksnark_pp>(polynomial, &protoboard_for_poly, degree);
-
+    r1cs_polynomial_factory.create_constraint_horner_method(&protoboard_for_poly);
+    std::tuple<pb_variable<FieldT>,pb_variable<FieldT>> x_and_out = r1cs_polynomial_factory.get_out_and_in_variable();
+    
     //Choose a random x on which we want to eval our polynomial
     protoboard_for_poly.val(std::get<0>(x_and_out)) = libff::Fr<default_r1cs_ppzksnark_pp>::random_element();
     protoboard_for_poly.val(std::get<1>(x_and_out)) = 0;
@@ -215,8 +219,7 @@ void test_polynomial_in_clear(uint64_t degree){
     }
     printf("[TIMINGS ] | %lu | setup : %f | audit-client : %f | audit-server : %f \n=== end ===\n\n", 
         degree+1, time_i, time_client, time_server);
-    libff::Fr<default_r1cs_ppzksnark_pp> res = evaluation_polynomial_horner<default_r1cs_ppzksnark_pp>(polynomial, 
-                                                                                degree, 
+    libff::Fr<default_r1cs_ppzksnark_pp> res = r1cs_polynomial_factory.evaluation_polynomial_horner(
                                                                                 protoboard_for_poly.auxiliary_input()[0]);
     bool test = res == protoboard_for_poly.primary_input()[0];
     if(test == 0) {
@@ -244,7 +247,7 @@ void test_polynomial_in_clear(uint64_t degree){
     
     test_polynomial_in_clear_update<FieldT>(polynomial, degree, protoboard_for_poly, 
                                 full_variable_assignment_update, constraint_system, 
-                                ret_val, keypair, degree  - 1);
+                                ret_val, keypair, degree  - 5, r1cs_polynomial_factory);
     
     libff::leave_block("test_polynomial_in_clear");
 }
