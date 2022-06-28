@@ -337,19 +337,18 @@ template<typename FieldT>
 FieldT r1cs_to_qap_instance_map_with_evaluation_At(const r1cs_constraint_system<FieldT> &cs,
                                 const FieldT &t, FieldT At, FieldT new_coef, FieldT coef_save, uint64_t index)
 {
-    libff::enter_block("Call to r1cs_to_qap_instance_map_with_evaluation");
+    libff::enter_block("Call to r1cs_to_qap_instance_map_with_evaluation_At");
 
     const std::shared_ptr<libfqfft::evaluation_domain<FieldT> > domain = libfqfft::get_evaluation_domain<FieldT>(cs.num_constraints() + cs.num_inputs() + 1);
-
-    const std::vector<FieldT> u = domain->evaluate_all_lagrange_polynomials(t);
+    const FieldT u = domain->evaluate_one_lagrange_polynomials(t, index);
 
     /*std::cout << "At : " << At << std::endl;
     std::cout << "index : " << index << std::endl;
     std::cout << "u : " << u[index] << std::endl;*/
-    At -= u[index] * coef_save;
-    At += u[index] * new_coef; 
+    At -= u * coef_save;
+    At += u * new_coef; 
     //std::cout << "At new : " << At << std::endl;
-    libff::leave_block("Call to r1cs_to_qap_instance_map_with_evaluation");
+    libff::leave_block("Call to r1cs_to_qap_instance_map_with_evaluation_At");
     return At;
 
 }
@@ -358,20 +357,19 @@ template<typename FieldT>
 FieldT r1cs_to_qap_instance_map_with_evaluation_Bt(const r1cs_constraint_system<FieldT> &cs,
                                 const FieldT &t, FieldT At, FieldT new_coef, FieldT coef_save, uint64_t index)
 {
-//TODO change this function
-    libff::enter_block("Call to r1cs_to_qap_instance_map_with_evaluation");
+    libff::enter_block("Call to r1cs_to_qap_instance_map_with_evaluation_Bt");
 
     const std::shared_ptr<libfqfft::evaluation_domain<FieldT> > domain = libfqfft::get_evaluation_domain<FieldT>(cs.num_constraints() + cs.num_inputs() + 1);
-
-    const std::vector<FieldT> u = domain->evaluate_all_lagrange_polynomials(t);
+    const FieldT u = domain->evaluate_one_lagrange_polynomials(t, 5);
+    //const std::vector<FieldT> u = domain->evaluate_all_lagrange_polynomials(t);
 
     /*std::cout << "At : " << At << std::endl;
     std::cout << "index : " << index << std::endl;
     std::cout << "u : " << u[index] << std::endl;*/
-    At -= u[index] * coef_save;
-    At += u[index] * new_coef; 
+    At -= u * coef_save;
+    At += u * new_coef; 
     //std::cout << "At new : " << At << std::endl;
-    libff::leave_block("Call to r1cs_to_qap_instance_map_with_evaluation");
+    libff::leave_block("Call to r1cs_to_qap_instance_map_with_evaluation_Bt");
     return At;
 
 }
@@ -381,19 +379,19 @@ FieldT r1cs_to_qap_instance_map_with_evaluation_Zt(const r1cs_constraint_system<
                                     const FieldT &t, FieldT Zt, FieldT new_coef, FieldT coef_save, 
                                     uint64_t index, FieldT rA, FieldT beta)
 {
-    libff::enter_block("Call to r1cs_to_qap_instance_map_with_evaluation");
+    libff::enter_block("Call to r1cs_to_qap_instance_map_with_evaluation_Zt");
 
     const std::shared_ptr<libfqfft::evaluation_domain<FieldT> > domain = libfqfft::get_evaluation_domain<FieldT>(cs.num_constraints() + cs.num_inputs() + 1);
 
-    const std::vector<FieldT> u = domain->evaluate_all_lagrange_polynomials(t);
+    const FieldT u = domain->evaluate_one_lagrange_polynomials(t, 5);
 
     /*std::cout << "At : " << Zt << std::endl;
     std::cout << "index : " << index << std::endl;
     std::cout << "u : " << u[index] << std::endl;*/
-    Zt -= u[index] * coef_save * rA * beta;
-    Zt += u[index] * new_coef  * rA * beta; 
+    Zt -= u * coef_save * rA * beta;
+    Zt += u * new_coef  * rA * beta; 
     //std::cout << "At new : " << Zt << std::endl;
-    libff::leave_block("Call to r1cs_to_qap_instance_map_with_evaluation");
+    libff::leave_block("Call to r1cs_to_qap_instance_map_with_evaluation_Zt");
     return Zt;
 
 }
@@ -403,11 +401,11 @@ FieldT r1cs_to_qap_instance_map_with_evaluation_Zt2(const r1cs_constraint_system
                                                                          const FieldT &t, FieldT Zt, FieldT At_save, FieldT new_At, 
                                                                          uint64_t index, FieldT rA, FieldT beta)
 {
-    libff::enter_block("Call to r1cs_to_qap_instance_map_with_evaluation");
+    libff::enter_block("Call to r1cs_to_qap_instance_map_with_evaluation_Zt2");
 
     const std::shared_ptr<libfqfft::evaluation_domain<FieldT> > domain = libfqfft::get_evaluation_domain<FieldT>(cs.num_constraints() + cs.num_inputs() + 1);
 
-    const std::vector<FieldT> u = domain->evaluate_all_lagrange_polynomials(t);
+    const FieldT u = domain->evaluate_one_lagrange_polynomials(t, 5);
 
     /*std::cout << "At : " << Zt << std::endl;
     std::cout << "index : " << index << std::endl;
@@ -415,7 +413,7 @@ FieldT r1cs_to_qap_instance_map_with_evaluation_Zt2(const r1cs_constraint_system
     Zt -=  At_save * rA * beta;
     Zt += new_At  * rA * beta; 
     //std::cout << "At new : " << Zt << std::endl;
-    libff::leave_block("Call to r1cs_to_qap_instance_map_with_evaluation");
+    libff::leave_block("Call to r1cs_to_qap_instance_map_with_evaluation_Zt2");
     return Zt;
 
 }

@@ -8,8 +8,19 @@ public:
         this->polynomial_degree = degree;
     }
 
+    uint64_t get_polynomial_degree(){
+        return this->polynomial_degree;
+    }
+    
     vector<libff::Fr<ppT>> get_random_polynomial(){
         return this->poly;
+    }
+
+    std::tuple<pb_variable<FieldT>,pb_variable<FieldT>> get_out_and_in_variable(){
+        std::tuple<pb_variable<FieldT>,pb_variable<FieldT>> return_value;
+        std::get<0>(return_value) = x;
+        std::get<1>(return_value) = out;
+        return return_value;
     }    
 
     void update_polynomial_coefficient(libff::Fr<ppT> new_coef, uint64_t index_of_coefficient){
@@ -52,12 +63,6 @@ public:
         return last_var_1;
     }
 
-    std::tuple<pb_variable<FieldT>,pb_variable<FieldT>> get_out_and_in_variable(){
-        std::tuple<pb_variable<FieldT>,pb_variable<FieldT>> return_value;
-        std::get<0>(return_value) = x;
-        std::get<1>(return_value) = out;
-        return return_value;
-    }
 
     /**
      * @brief Create the R1CS constraint for a given polynomial "poly" with the horner method (https://en.wikipedia.org/wiki/Horner%27s_method)
@@ -78,38 +83,26 @@ public:
     */
     void create_constraint_horner_method(protoboard<FieldT> *pb)
     {
-        libff::enter_block("Create constraint");
+        libff::enter_block("Create constraint horner method");
         this->out.allocate(*pb, "out");
         this->x.allocate(*pb, "x");
-        
+
         if(this->polynomial_degree == 0){
             printf("Not a polynomial\n");
         } else {
             pb_variable<FieldT> last_var_1;
             last_var_1.allocate(*pb, "0");
             (*pb).add_r1cs_constraint(r1cs_constraint<FieldT>(this->x, this->poly[this->polynomial_degree], last_var_1));
-            if(this->polynomial_degree == 1){
-                (*pb).add_r1cs_constraint(r1cs_constraint<FieldT>(last_var_1 + this->poly[this->polynomial_degree-1], 1, out));
-            } else {
-                pb_variable<FieldT> last_var_2;
-                last_var_2.allocate(*pb, "1");
-                (*pb).add_r1cs_constraint(r1cs_constraint<FieldT>(last_var_1 + this->poly[this->polynomial_degree-1], this->x, last_var_2));
-                string last_var_name = "2";
-                for(uint64_t i = this->polynomial_degree-1; i > 0; i-=1){
-                    if(i == 1){
-                        (*pb).add_r1cs_constraint(r1cs_constraint<FieldT>(this->poly[i-1] + last_var_2, 1, this->out));
-                    } else {
-                        last_var_2 = create_constraint_for_x_coefficient_horner(this->poly[i-1], pb, last_var_2, &last_var_name);
-                    }
-                    
-                }
+            string last_var_name = "1";
+            for(uint64_t i = this->polynomial_degree; i > 1; i-=1){
+                last_var_1 = create_constraint_for_x_coefficient_horner(this->poly[i-1], pb, last_var_1, &last_var_name);
             }
+            (*pb).add_r1cs_constraint(r1cs_constraint<FieldT>(this->poly[0] + last_var_1, 1, this->out));
         }
         
-        libff::leave_block("Create constraint");
+        libff::leave_block("Create constraint horner method");
         
     }
-
 
     /**
      * @brief Just a function to check our computation with the R1CS. Compute the polynomial on "x_value" with the horner method
@@ -126,22 +119,22 @@ public:
         return res;
     }
 
-    void update_constraint_horner_method(libff::Fr<ppT> coef, protoboard<FieldT> *pb, uint64_t coef_index, uint64_t degree)
+    void update_constraint_horner_method(protoboard<FieldT> *pb, uint64_t coef_index)
     {
         libff::enter_block("Update constraint");
-    
-        if(coef_index == degree){
+
+        if(coef_index == this->polynomial_degree){
             r1cs_constraint<FieldT> constraint = (*pb).get_constraint_system().constraints[0];
-            constraint.b.terms[0].coeff = coef;
+            constraint.b.terms[0].coeff = this->poly[coef_index];
             (*pb).protoboard_update_r1cs_constraint(constraint, 0, "");
-        } else if (coef_index == degree - 1) {
+        } else if (coef_index == this->polynomial_degree - 1) {
             r1cs_constraint<FieldT> constraint = (*pb).get_constraint_system().constraints[1];
-            constraint.a.terms[0].coeff = coef;
+            constraint.a.terms[0].coeff = this->poly[coef_index];
             (*pb).protoboard_update_r1cs_constraint(constraint, 1, "");
         } else {
-            uint64_t index = degree - coef_index;
+            uint64_t index = this->polynomial_degree - coef_index;
             r1cs_constraint<FieldT> constraint = (*pb).get_constraint_system().constraints[index];
-            constraint.a.terms[0].coeff = coef;
+            constraint.a.terms[0].coeff = this->poly[coef_index];
             (*pb).protoboard_update_r1cs_constraint(constraint, index, "");
         }
         libff::leave_block("Update constraint");
