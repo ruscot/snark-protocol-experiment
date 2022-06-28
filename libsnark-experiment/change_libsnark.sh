@@ -23,6 +23,6 @@ mv save_files/geometric_sequence_domain.hpp depends/libsnark/depends/libfqfft/li
 
 mv save_files/step_radix2_domain.hpp depends/libsnark/depends/libfqfft/libfqfft/evaluation_domain/domains/
 
-mv save_files/step_radix2_domain.cpp depends/libsnark/depends/libfqfft/libfqfft/evaluation_domain/domains/
+mv save_files/step_radix2_domain.tcc depends/libsnark/depends/libfqfft/libfqfft/evaluation_domain/domains/
 
 mv save_files/evaluation_domain.hpp depends/libsnark/depends/libfqfft/libfqfft/evaluation_domain/
