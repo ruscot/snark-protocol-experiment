@@ -71,23 +71,31 @@ r1cs_variable_assignment<FieldT> compute_polynomial_witness_output(protoboard<Fi
 
 
 template<typename FieldT>
-void test_polynomial_in_clear_update(protoboard<FieldT> protoboard_for_poly, r1cs_variable_assignment<FieldT> full_variable_assignment_update,
+void test_polynomial_in_clear_update(r1cs_variable_assignment<FieldT> full_variable_assignment_update,
                                 const r1cs_constraint_system<FieldT> constraint_system, 
                                 std::tuple<r1cs_ppzksnark_keypair<default_r1cs_ppzksnark_pp>,std::tuple<libff::Fr<default_r1cs_ppzksnark_pp>, 
                                 random_container_key<default_r1cs_ppzksnark_pp>>> ret_val, const r1cs_ppzksnark_keypair<default_r1cs_ppzksnark_pp> keypair, uint64_t coef_to_update,
                                 R1CS_Polynomial_factory<FieldT, default_r1cs_ppzksnark_pp> r1cs_polynomial_factory)
 {
     libff::enter_block("test_polynomial_in_clear_update");
-    
+    double time_polynomial_coef_update=0., time_polynomial_horner_update=0., time_key_update=0.;
     if(coef_to_update > r1cs_polynomial_factory.get_polynomial_degree() || coef_to_update < 0){
         throw std::runtime_error("Coefficient of the polynomial not in the polynomial ");
     }
-    libff::Fr<default_r1cs_ppzksnark_pp> save_last_value_of_the_coef = r1cs_polynomial_factory.get_random_polynomial()[coef_to_update];
+    Chrono c_setup; 
+    /*Change one polynomial coefficient*/
+    c_setup.start();
+    libff::Fr<default_r1cs_ppzksnark_pp> save_last_value_of_the_coef = r1cs_polynomial_factory.get_polynomial_coefficients(coef_to_update);
     r1cs_polynomial_factory.update_polynomial_coefficient(libff::Fr<default_r1cs_ppzksnark_pp>::random_element(), coef_to_update);
-    libff::Fr<default_r1cs_ppzksnark_pp> res = r1cs_polynomial_factory.evaluation_polynomial_horner(protoboard_for_poly.auxiliary_input()[0]);
-    r1cs_polynomial_factory.update_constraint_horner_method(&protoboard_for_poly, coef_to_update);
+    time_polynomial_coef_update = c_setup.stop();
+    libff::Fr<default_r1cs_ppzksnark_pp> res = r1cs_polynomial_factory.evaluation_polynomial_horner();
+    
+    c_setup.start();
+    r1cs_polynomial_factory.update_constraint_horner_method(coef_to_update);
+    time_polynomial_horner_update = c_setup.stop();
     
     //Compute the witness and output of our polynomial
+    protoboard<FieldT> protoboard_for_poly = r1cs_polynomial_factory.get_protoboard();
     full_variable_assignment_update.push_back(protoboard_for_poly.auxiliary_input()[0]);
     const r1cs_constraint_system<FieldT> constraint_system_update = protoboard_for_poly.get_constraint_system();
     for(r1cs_constraint<FieldT> cs : constraint_system_update.constraints){
@@ -104,7 +112,7 @@ void test_polynomial_in_clear_update(protoboard<FieldT> protoboard_for_poly, r1c
         }
         full_variable_assignment_update.push_back(cValue);
     }
-    
+    c_setup.start();    
     uint64_t index = 0;
     if(coef_to_update == r1cs_polynomial_factory.get_polynomial_degree()){
         index = 0;
@@ -117,6 +125,7 @@ void test_polynomial_in_clear_update(protoboard<FieldT> protoboard_for_poly, r1c
     r1cs_ppzksnark_keypair<default_r1cs_ppzksnark_pp> test_res_keypair = update_proving_key_compilation(constraint_system, 
                                     save_last_value_of_the_coef, r1cs_polynomial_factory.get_random_polynomial()[coef_to_update], 
                                     index, r1cs_polynomial_factory.get_polynomial_degree(), std::get<0>(std::get<1>(ret_val)), std::get<1>(std::get<1>(ret_val)), keypair);
+    time_key_update = c_setup.stop();
     test_res_keypair.pk.constraint_system = constraint_system_update;
     const r1cs_ppzksnark_proof<default_r1cs_ppzksnark_pp> proof = r1cs_ppzksnark_prover<default_r1cs_ppzksnark_pp>(test_res_keypair.pk, 
                                             protoboard_for_poly.primary_input(), 
@@ -147,6 +156,8 @@ void test_polynomial_in_clear_update(protoboard<FieldT> protoboard_for_poly, r1c
 
     cout << "Check if our keypair updated is correct " << endl;
     compare_keypair(newkeypair,test_res_keypair);
+    printf("[TIMINGS for update] | %lu | polynomial coef update : %f | key update : %f | time_polynomial_horner_update : %f | total : %f \n=== end ===\n\n", 
+        r1cs_polynomial_factory.get_polynomial_degree(), time_polynomial_coef_update, time_key_update, time_polynomial_horner_update, time_polynomial_horner_update + time_key_update + time_polynomial_coef_update);
     libff::leave_block("test_polynomial_in_clear_update");
 }
 
@@ -220,8 +231,8 @@ void test_polynomial_in_clear(uint64_t degree){
     }
     printf("[TIMINGS ] | %lu | setup : %f | audit-client : %f | audit-server : %f \n=== end ===\n\n", 
         degree+1, time_i, time_client, time_server);
-    libff::Fr<default_r1cs_ppzksnark_pp> res = r1cs_polynomial_factory.evaluation_polynomial_horner(
-                                                                                protoboard_for_poly.auxiliary_input()[0]);
+    r1cs_polynomial_factory.set_protoboard(protoboard_for_poly);
+    libff::Fr<default_r1cs_ppzksnark_pp> res = r1cs_polynomial_factory.evaluation_polynomial_horner();
     bool test = res == protoboard_for_poly.primary_input()[0];
     if(test == 0) {
         throw std::runtime_error("Result for the polynomial didn't match");
@@ -245,9 +256,7 @@ void test_polynomial_in_clear(uint64_t degree){
     cout << "   - proof " << proof.size_in_bits() << endl;
     cout << "   - result " << libff::size_in_bits(protoboard_for_poly.primary_input()) << endl;
     cout << "   - Total " << libff::size_in_bits(protoboard_for_poly.primary_input()) +  proof.size_in_bits() << endl;
-    
-    test_polynomial_in_clear_update<FieldT>(protoboard_for_poly, 
-                                full_variable_assignment_update, constraint_system, 
+    test_polynomial_in_clear_update<FieldT>(full_variable_assignment_update, constraint_system, 
                                 ret_val, keypair, 0 , r1cs_polynomial_factory);
     
     libff::leave_block("test_polynomial_in_clear");

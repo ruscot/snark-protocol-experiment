@@ -16,6 +16,10 @@ public:
         return this->poly;
     }
 
+    libff::Fr<ppT> get_polynomial_coefficients(uint64_t coef){
+        return this->poly[coef];
+    }
+
     std::tuple<pb_variable<FieldT>,pb_variable<FieldT>> get_out_and_in_variable(){
         std::tuple<pb_variable<FieldT>,pb_variable<FieldT>> return_value;
         std::get<0>(return_value) = x;
@@ -111,7 +115,8 @@ public:
      * @param x_value The value of x
      * @return libff::Fr<ppT> The result of our computation
      */
-    libff::Fr<ppT> evaluation_polynomial_horner(libff::Fr<ppT> x_value) {
+    libff::Fr<ppT> evaluation_polynomial_horner() {
+        libff::Fr<ppT> x_value = this->protoboard_for_poly.auxiliary_input()[0];
         libff::Fr<ppT> res = this->poly[this->polynomial_degree];
         for(uint64_t i = this->polynomial_degree; i > 0; i-=1){
             res = res*x_value + this->poly[i-1];
@@ -119,25 +124,33 @@ public:
         return res;
     }
 
-    void update_constraint_horner_method(protoboard<FieldT> *pb, uint64_t coef_index)
+    void update_constraint_horner_method(uint64_t coef_index)
     {
         libff::enter_block("Update constraint");
 
         if(coef_index == this->polynomial_degree){
-            r1cs_constraint<FieldT> constraint = (*pb).get_constraint_system().constraints[0];
+            r1cs_constraint<FieldT> constraint = ((this->protoboard_for_poly)).get_constraint_system().constraints[0];
             constraint.b.terms[0].coeff = this->poly[coef_index];
-            (*pb).protoboard_update_r1cs_constraint(constraint, 0, "");
+            ((this->protoboard_for_poly)).protoboard_update_r1cs_constraint(constraint, 0, "");
         } else if (coef_index == this->polynomial_degree - 1) {
-            r1cs_constraint<FieldT> constraint = (*pb).get_constraint_system().constraints[1];
+            r1cs_constraint<FieldT> constraint = ((this->protoboard_for_poly)).get_constraint_system().constraints[1];
             constraint.a.terms[0].coeff = this->poly[coef_index];
-            (*pb).protoboard_update_r1cs_constraint(constraint, 1, "");
+            ((this->protoboard_for_poly)).protoboard_update_r1cs_constraint(constraint, 1, "");
         } else {
             uint64_t index = this->polynomial_degree - coef_index;
-            r1cs_constraint<FieldT> constraint = (*pb).get_constraint_system().constraints[index];
+            r1cs_constraint<FieldT> constraint = ((this->protoboard_for_poly)).get_constraint_system().constraints[index];
             constraint.a.terms[0].coeff = this->poly[coef_index];
-            (*pb).protoboard_update_r1cs_constraint(constraint, index, "");
+            ((this->protoboard_for_poly)).protoboard_update_r1cs_constraint(constraint, index, "");
         }
         libff::leave_block("Update constraint");
+    }
+
+    void set_protoboard(protoboard<FieldT> protoboard_for_poly){
+        this->protoboard_for_poly = protoboard_for_poly;
+    }
+
+    protoboard<FieldT> get_protoboard(){
+        return this->protoboard_for_poly;
     }
 
 private:
@@ -146,4 +159,5 @@ private:
 
     pb_variable<FieldT> out;
     pb_variable<FieldT> x;
+    protoboard<FieldT> protoboard_for_poly;
 };
