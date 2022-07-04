@@ -621,25 +621,28 @@ T batch_exp_monomial(const size_t scalar_size,
                          const window_table<T> &table,
                          const FieldT &v)
 {
+    std::cout << "In batch exp monomial " << std::endl;
     if (!inhibit_profiling_info)
     {
         print_indent();
     }
     T res = table[0][0];
-    res = windowed_exp(scalar_size, window, table, v);
-/*#ifdef MULTICORE
-#pragma omp parallel for
-#endif
-    for (size_t i = 0; i < v.size(); ++i)
-    {
-        res[i] = windowed_exp(scalar_size, window, table, v[i]);
+    const size_t outerc = (scalar_size+window-1)/window;
+    const bigint<FieldT::num_limbs> pow_val = v.as_bigint();
 
-        if (!inhibit_profiling_info && (i % 10000 == 0))
+    for (size_t outer = 0; outer < outerc; ++outer)
+    {
+        size_t inner = 0;
+        for (size_t i = 0; i < window; ++i)
         {
-            printf(".");
-            fflush(stdout);
+            if (pow_val.test_bit(outer*window + i))
+            {
+                inner |= 1u << i;
+            }
         }
-    }*/
+
+        res = res + table[outer][inner];
+    }
 
     if (!inhibit_profiling_info)
     {

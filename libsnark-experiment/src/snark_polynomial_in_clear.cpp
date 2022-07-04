@@ -21,6 +21,27 @@
 using namespace libsnark;
 using namespace std;
 
+/**
+ * @brief 
+ * TODO 
+ * voir timing qui prend du temps
+ * 
+ * utiliser ^ 
+ * 
+ * tout passer par le polynomial factory et voir si on gagne du temps 
+ * 
+ * essayer de ne plus passer d'énorme objets dans les fonctions
+ * corriger update
+ * 
+ * 
+ * PB base exposant modulo public
+ * res = base^exp[mod]  temps W
+ * certificat res is correct travail en plus O(W)
+ * preuve o(W) 
+ * avec ou sans secret
+ *  
+ */
+
 //Some structures and definitions to get the time of the computation
 #ifndef CLOCKTYPE
 #  ifdef CLOCK_PROCESS_CPUTIME_ID
@@ -33,7 +54,7 @@ using namespace std;
 #  endif
 #endif
 #define VESPO_NANO_FACTOR 1.0e9
-struct Chrono {
+/*struct Chrono {
     struct timespec begin_time,end_time;
     void start() { clock_gettime(CLOCKTYPE, &begin_time); }
     double stop() {
@@ -41,7 +62,7 @@ struct Chrono {
 	double ttime(difftime(end_time.tv_sec, begin_time.tv_sec));
 	return ttime += ((double) (end_time.tv_nsec - begin_time.tv_nsec) )/ VESPO_NANO_FACTOR;
     }
-};
+};*/
 
 template<typename FieldT, typename default_r1cs_ppzksnark_pp>
 r1cs_variable_assignment<FieldT> compute_polynomial_witness_output(protoboard<FieldT> &protoboard_for_poly, 
@@ -74,7 +95,7 @@ template<typename FieldT>
 void test_polynomial_in_clear_update(r1cs_variable_assignment<FieldT> full_variable_assignment_update,
                                 const r1cs_constraint_system<FieldT> constraint_system, 
                                 std::tuple<r1cs_ppzksnark_keypair<default_r1cs_ppzksnark_pp>,std::tuple<libff::Fr<default_r1cs_ppzksnark_pp>, 
-                                random_container_key<default_r1cs_ppzksnark_pp>>> ret_val, const r1cs_ppzksnark_keypair<default_r1cs_ppzksnark_pp> keypair, uint64_t coef_to_update,
+                                random_container_key<default_r1cs_ppzksnark_pp>>> ret_val, r1cs_ppzksnark_keypair<default_r1cs_ppzksnark_pp> keypair, uint64_t coef_to_update,
                                 R1CS_Polynomial_factory<FieldT, default_r1cs_ppzksnark_pp> r1cs_polynomial_factory)
 {
     libff::enter_block("test_polynomial_in_clear_update");
@@ -124,7 +145,9 @@ void test_polynomial_in_clear_update(r1cs_variable_assignment<FieldT> full_varia
 
     r1cs_ppzksnark_keypair<default_r1cs_ppzksnark_pp> test_res_keypair = update_proving_key_compilation(constraint_system, 
                                     save_last_value_of_the_coef, r1cs_polynomial_factory.get_random_polynomial()[coef_to_update], 
-                                    index, r1cs_polynomial_factory.get_polynomial_degree(), std::get<0>(std::get<1>(ret_val)), std::get<1>(std::get<1>(ret_val)), keypair);
+                                    index, std::get<0>(std::get<1>(ret_val)), 
+                                    std::get<1>(std::get<1>(ret_val)), keypair);
+
     time_key_update = c_setup.stop();
     test_res_keypair.pk.constraint_system = constraint_system_update;
     const r1cs_ppzksnark_proof<default_r1cs_ppzksnark_pp> proof = r1cs_ppzksnark_prover<default_r1cs_ppzksnark_pp>(test_res_keypair.pk, 
@@ -144,15 +167,13 @@ void test_polynomial_in_clear_update(r1cs_variable_assignment<FieldT> full_varia
     cout << "test after update equal or not " << test << endl;
 
     r1cs_ppzksnark_keypair<default_r1cs_ppzksnark_pp> oldKeyPair = r1cs_ppzksnark_generator55<default_r1cs_ppzksnark_pp>(constraint_system, 
-                                    save_last_value_of_the_coef, r1cs_polynomial_factory.get_random_polynomial()[coef_to_update], 
-                                    coef_to_update, r1cs_polynomial_factory.get_polynomial_degree(), std::get<0>(std::get<1>(ret_val)), std::get<1>(std::get<1>(ret_val)) );
+                                        std::get<0>(std::get<1>(ret_val)), std::get<1>(std::get<1>(ret_val)) );
 
     
 
     r1cs_ppzksnark_keypair<default_r1cs_ppzksnark_pp> newkeypair = r1cs_ppzksnark_generator_with_t_and_random<default_r1cs_ppzksnark_pp>(
                                                     constraint_system_update, std::get<0>(std::get<1>(ret_val)),  
-                                                    std::get<1>(std::get<1>(ret_val)), r1cs_polynomial_factory.get_random_polynomial()[coef_to_update], 
-                                                    coef_to_update, r1cs_polynomial_factory.get_polynomial_degree() );
+                                                    std::get<1>(std::get<1>(ret_val)));
 
     cout << "Check if our keypair updated is correct " << endl;
     compare_keypair(newkeypair,test_res_keypair);
@@ -196,7 +217,7 @@ void test_polynomial_in_clear(uint64_t degree){
     protoboard_for_poly.val(std::get<1>(x_and_out)) = 0;
     protoboard_for_poly.set_input_sizes(1);
     const r1cs_constraint_system<FieldT> constraint_system = protoboard_for_poly.get_constraint_system();
-
+    
     //Creation of our keys for the zkSNARK protocol from our R1CS constraints
     std::tuple<r1cs_ppzksnark_keypair<default_r1cs_ppzksnark_pp>,std::tuple<libff::Fr<default_r1cs_ppzksnark_pp>, 
         random_container_key<default_r1cs_ppzksnark_pp>>> ret_val = r1cs_ppzksnark_generator2<default_r1cs_ppzksnark_pp>(constraint_system);

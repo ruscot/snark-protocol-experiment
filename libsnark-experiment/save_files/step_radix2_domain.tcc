@@ -157,9 +157,32 @@ void step_radix2_domain<FieldT>::icosetFFT(std::vector<FieldT> &a, const FieldT 
     _multiply_by_coset(a, g.inverse());
 }
 
+//Some structures and definitions to get the time of the computation
+#ifndef CLOCKTYPE
+#  ifdef CLOCK_PROCESS_CPUTIME_ID
+/* cpu time in the current process */
+#    define CLOCKTYPE  CLOCK_PROCESS_CPUTIME_ID
+// #    define CLOCKTYPE  CLOCK_REALTIME
+#  else
+/* this one should be appropriate to avoid errors on multiprocessors systems */
+#    define CLOCKTYPE  CLOCK_MONOTONIC
+#  endif
+#endif
+#define VESPO_NANO_FACTOR 1.0e9
+struct Chrono {
+    struct timespec begin_time,end_time;
+    void start() { clock_gettime(CLOCKTYPE, &begin_time); }
+    double stop() {
+	clock_gettime(CLOCKTYPE, &end_time);
+	double ttime(difftime(end_time.tv_sec, begin_time.tv_sec));
+	return ttime += ((double) (end_time.tv_nsec - begin_time.tv_nsec) )/ VESPO_NANO_FACTOR;
+    }
+};
+
 template<typename FieldT>
 FieldT step_radix2_domain<FieldT>::evaluate_one_lagrange_polynomials(const FieldT &t, uint64_t index)
 {
+    std::cout << "Evaluate one lagrange polynomials" << std::endl;
     FieldT result = FieldT::zero();
     bool omega_i_equal_t = false;
     if(index < big_m){
@@ -283,7 +306,8 @@ FieldT step_radix2_domain<FieldT>::evaluate_one_lagrange_polynomials(const Field
 
 template<typename FieldT>
 std::vector<FieldT> step_radix2_domain<FieldT>::evaluate_all_lagrange_polynomials(const FieldT &t)
-{
+{   
+    std::cout << "Evaluate all lagrange polynomials step_radix2_domain" << std::endl;
     std::vector<FieldT> inner_big = _basic_radix2_evaluate_all_lagrange_polynomials(big_m, t);
     std::vector<FieldT> inner_small = _basic_radix2_evaluate_all_lagrange_polynomials(small_m, t * omega.inverse());
 

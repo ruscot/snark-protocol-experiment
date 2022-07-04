@@ -110,13 +110,15 @@ void extended_radix2_domain<FieldT>::icosetFFT(std::vector<FieldT> &a, const Fie
 template<typename FieldT>
 FieldT extended_radix2_domain<FieldT>::evaluate_one_lagrange_polynomials(const FieldT &t, uint64_t index)
 {
-    FieldT result = FieldT::zero();
-    return result;
+    //Todo change this 
+    std::vector<FieldT> u = evaluate_all_lagrange_polynomials(t);
+    return u[index];
 }
 
 template<typename FieldT>
 std::vector<FieldT> extended_radix2_domain<FieldT>::evaluate_all_lagrange_polynomials(const FieldT &t)
 {
+    std::cout << "Evaluate all lagrange polynomials extended_radix2_domain" << std::endl;
     const std::vector<FieldT> T0 = _basic_radix2_evaluate_all_lagrange_polynomials(small_m, t);
     const std::vector<FieldT> T1 = _basic_radix2_evaluate_all_lagrange_polynomials(small_m, t * shift.inverse());
 

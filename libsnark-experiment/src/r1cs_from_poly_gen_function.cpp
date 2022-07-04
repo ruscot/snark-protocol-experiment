@@ -1,5 +1,26 @@
 #include <tuple>
 
+#ifndef CLOCKTYPE
+#  ifdef CLOCK_PROCESS_CPUTIME_ID
+/* cpu time in the current process */
+#    define CLOCKTYPE  CLOCK_PROCESS_CPUTIME_ID
+// #    define CLOCKTYPE  CLOCK_REALTIME
+#  else
+/* this one should be appropriate to avoid errors on multiprocessors systems */
+#    define CLOCKTYPE  CLOCK_MONOTONIC
+#  endif
+#endif
+#define VESPO_NANO_FACTOR 1.0e9
+struct Chrono {
+    struct timespec begin_time,end_time;
+    void start() { clock_gettime(CLOCKTYPE, &begin_time); }
+    double stop() {
+	clock_gettime(CLOCKTYPE, &end_time);
+	double ttime(difftime(end_time.tv_sec, begin_time.tv_sec));
+	return ttime += ((double) (end_time.tv_nsec - begin_time.tv_nsec) )/ VESPO_NANO_FACTOR;
+    }
+};
+
 template<typename FieldT, typename ppT>
 class R1CS_Polynomial_factory{
 public:
@@ -126,22 +147,44 @@ public:
 
     void update_constraint_horner_method(uint64_t coef_index)
     {
+        Chrono c_setup; 
+        double get_constraint=0., change_coef=0., update_constraint=0.;
         libff::enter_block("Update constraint");
 
         if(coef_index == this->polynomial_degree){
-            r1cs_constraint<FieldT> constraint = ((this->protoboard_for_poly)).get_constraint_system().constraints[0];
+            c_setup.start();
+            r1cs_constraint<FieldT> constraint = ((this->protoboard_for_poly)).get_specific_constraint_in_r1cs(0);
+            get_constraint = c_setup.stop();
+            c_setup.start();
             constraint.b.terms[0].coeff = this->poly[coef_index];
-            ((this->protoboard_for_poly)).protoboard_update_r1cs_constraint(constraint, 0, "");
+            change_coef = c_setup.stop();
+            c_setup.start();
+            ((this->protoboard_for_poly)).protoboard_update_r1cs_constraint(constraint, 0);
+            update_constraint = c_setup.stop();
         } else if (coef_index == this->polynomial_degree - 1) {
-            r1cs_constraint<FieldT> constraint = ((this->protoboard_for_poly)).get_constraint_system().constraints[1];
+            c_setup.start();
+            r1cs_constraint<FieldT> constraint = ((this->protoboard_for_poly)).get_specific_constraint_in_r1cs(1);
+            get_constraint = c_setup.stop();
+            c_setup.start();
             constraint.a.terms[0].coeff = this->poly[coef_index];
-            ((this->protoboard_for_poly)).protoboard_update_r1cs_constraint(constraint, 1, "");
+            change_coef = c_setup.stop();
+            c_setup.start();
+            ((this->protoboard_for_poly)).protoboard_update_r1cs_constraint(constraint, 1);
+            update_constraint = c_setup.stop();
         } else {
+            c_setup.start();
             uint64_t index = this->polynomial_degree - coef_index;
-            r1cs_constraint<FieldT> constraint = ((this->protoboard_for_poly)).get_constraint_system().constraints[index];
+            r1cs_constraint<FieldT> constraint = ((this->protoboard_for_poly)).get_specific_constraint_in_r1cs(index);
+            get_constraint = c_setup.stop();
+            c_setup.start();
             constraint.a.terms[0].coeff = this->poly[coef_index];
-            ((this->protoboard_for_poly)).protoboard_update_r1cs_constraint(constraint, index, "");
+            change_coef = c_setup.stop();
+            c_setup.start();
+            ((this->protoboard_for_poly)).protoboard_update_r1cs_constraint(constraint, index);
+            update_constraint = c_setup.stop();
         }
+        printf("[TIMINGS for r1cs] | get_constraint : %f | change_coef : %f | update_constraint : %f \n=== end ===\n\n", 
+                get_constraint, change_coef, update_constraint);
         libff::leave_block("Update constraint");
     }
 

@@ -113,8 +113,9 @@ void arithmetic_sequence_domain<FieldT>::icosetFFT(std::vector<FieldT> &a, const
 template<typename FieldT>
 FieldT arithmetic_sequence_domain<FieldT>::evaluate_one_lagrange_polynomials(const FieldT &t, uint64_t index)
 {
-  FieldT result = FieldT::zero();
-  return result;
+      //Todo change this 
+  std::vector<FieldT> u = evaluate_all_lagrange_polynomials(t);
+  return u[index];
 }
 
 template<typename FieldT>
@@ -123,7 +124,7 @@ std::vector<FieldT> arithmetic_sequence_domain<FieldT>::evaluate_all_lagrange_po
   /* Compute Lagrange polynomial of size m, with m+1 points (x_0, y_0), ... ,(x_m, y_m) */
   /* Evaluate for x = t */
   /* Return coeffs for each l_j(x) = (l / l_i[j]) * w[j] */
-
+  std::cout << "Evaluate all lagrange polynomials arithmetic_sequence_domain" << std::endl;
   if (!this->precomputation_sentinel) do_precomputation();
 
   /**

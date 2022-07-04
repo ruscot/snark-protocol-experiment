@@ -63,10 +63,11 @@ public:
     r1cs_primary_input<FieldT> primary_input() const;
     r1cs_auxiliary_input<FieldT> auxiliary_input() const;
     r1cs_constraint_system<FieldT> get_constraint_system() const;
+    r1cs_constraint<FieldT> get_specific_constraint_in_r1cs(uint64_t coef_index) const;
 
     friend class pb_variable<FieldT>;
     friend class pb_linear_combination<FieldT>;
-    void protoboard_update_r1cs_constraint(const r1cs_constraint<FieldT> &constr, uint64_t constraint_index, const std::string &annotation="");
+    void protoboard_update_r1cs_constraint(const r1cs_constraint<FieldT> &constr, uint64_t constraint_index);
 
 
 private:

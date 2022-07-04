@@ -35,7 +35,7 @@ void protoboard<FieldT>::clear_values()
 }
 
 template<typename FieldT>
-void protoboard<FieldT>::protoboard_update_r1cs_constraint(const r1cs_constraint<FieldT> &constr, uint64_t constraint_index, const std::string &annotation)
+void protoboard<FieldT>::protoboard_update_r1cs_constraint(const r1cs_constraint<FieldT> &constr, uint64_t constraint_index)
 {
     constraint_system.constraints[constraint_index] = constr;
 }
@@ -191,6 +191,13 @@ r1cs_constraint_system<FieldT> protoboard<FieldT>::get_constraint_system() const
 {
     return constraint_system;
 }
+
+template<typename FieldT>
+r1cs_constraint<FieldT> protoboard<FieldT>::get_specific_constraint_in_r1cs(uint64_t coef_index) const
+{
+    return constraint_system.constraints[coef_index];
+}
+
 
 } // libsnark
 #endif // PROTOBOARD_TCC_

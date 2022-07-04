@@ -76,8 +76,9 @@ void basic_radix2_domain<FieldT>::icosetFFT(std::vector<FieldT> &a, const FieldT
 template<typename FieldT>
 FieldT basic_radix2_domain<FieldT>::evaluate_one_lagrange_polynomials(const FieldT &t, uint64_t index)
 {
-    FieldT result = FieldT::zero();
-    return result;
+    //Todo change this 
+    std::vector<FieldT> u = evaluate_all_lagrange_polynomials(t);
+    return u[index];
 }
 
 template<typename FieldT>

@@ -31,10 +31,12 @@ public:
     libff::Fr<ppT> beta;
     libff::Fr<ppT> gamma;
     Fr<ppT> At_save;
-    Fr<ppT> Bt_save;
     Fr<ppT> Kt_save;
+    Fr<ppT> Bt_save;
     size_t g1_window;
+    libff::window_table<libff::G1<ppT> > g1_table;
     size_t g2_window;
+    libff::window_table<libff::G2<ppT> > g2_table;
 
     random_container_key(libff::Fr<ppT> alphaA,
         libff::Fr<ppT> alphaB,
@@ -47,7 +49,9 @@ public:
         Fr<ppT> Kt_save,
         Fr<ppT> Bt_save,
         size_t g1_window, 
-        size_t g2_window) :
+        libff::window_table<libff::G1<ppT> > g1_table,
+        size_t g2_window,
+        libff::window_table<libff::G2<ppT> > g2_table) :
         alphaA(alphaA),
         alphaB(alphaB),
         alphaC(alphaC),
@@ -59,7 +63,9 @@ public:
         Kt_save(Kt_save),
         Bt_save(Bt_save),
         g1_window(g1_window),
-        g2_window(g2_window)
+        g1_table(g1_table),
+        g2_window(g2_window),
+        g2_table(g2_table)
     {};
 };
 
@@ -149,8 +155,7 @@ r1cs_ppzksnark_keypair<ppT> r1cs_ppzksnark_update_proving_key_test(const r1cs_pp
 }
 
 template <typename ppT>
-r1cs_ppzksnark_keypair<ppT> r1cs_ppzksnark_generator55(const r1cs_ppzksnark_constraint_system<ppT> &cs,libff::Fr<ppT> coef_save, 
-                    libff::Fr<ppT> new_coef, uint64_t coef_index, uint64_t degree, 
+r1cs_ppzksnark_keypair<ppT> r1cs_ppzksnark_generator55(const r1cs_ppzksnark_constraint_system<ppT> &cs, 
                     libff::Fr<ppT> t, random_container_key<ppT> random_container)
 {
     libff::enter_block("Call to r1cs_ppzksnark_generator");
@@ -541,8 +546,10 @@ std::tuple<r1cs_ppzksnark_keypair<ppT>,std::tuple<libff::Fr<ppT>, random_contain
                                                                         At_save,
                                                                         Kt[0],
                                                                         Bt_save,
-                                                                        g1_window, 
-                                                                        g2_window);
+                                                                        g1_window,
+                                                                        g1_table,
+                                                                        g2_window,
+                                                                        g2_table);
 
     pk.print_size();
     vk.print_size();
@@ -555,7 +562,7 @@ std::tuple<r1cs_ppzksnark_keypair<ppT>,std::tuple<libff::Fr<ppT>, random_contain
 
 template <typename ppT>
 r1cs_ppzksnark_keypair<ppT> r1cs_ppzksnark_generator_with_t_and_random(const r1cs_ppzksnark_constraint_system<ppT> &cs, const libff::Fr<ppT> t, 
-                    random_container_key<ppT> random_container, libff::Fr<ppT> coef_save, uint64_t coef_index, uint64_t degree)
+                    random_container_key<ppT> random_container)
 {
     libff::enter_block("Call to r1cs_ppzksnark_generator_with_t");
 
@@ -792,7 +799,7 @@ void compare_keypair(r1cs_ppzksnark_keypair<ppT> ref_keypair, r1cs_ppzksnark_key
     
     string text = "OK";
     if(ref_keypair.vk.encoded_IC_query.first == new_keypair.vk.encoded_IC_query.first){
-        for(int i = 0; i < ref_keypair.vk.encoded_IC_query.rest.values.size() && i < new_keypair.vk.encoded_IC_query.rest.values.size(); i++){
+        for(unsigned int i = 0; i < ref_keypair.vk.encoded_IC_query.rest.values.size() && i < new_keypair.vk.encoded_IC_query.rest.values.size(); i++){
             if(ref_keypair.vk.encoded_IC_query.rest.values[i] != new_keypair.vk.encoded_IC_query.rest.values[i]) {
                 //cout << text << endl;
                 cout << "index " << i  << " not ok for K_query "<< endl;
@@ -814,7 +821,7 @@ void compare_keypair(r1cs_ppzksnark_keypair<ppT> ref_keypair, r1cs_ppzksnark_key
     cout << "A_query.......................";
     
     text = "OK";
-    for(int i = 0; i < ref_keypair.pk.A_query.values.size() && i < new_keypair.pk.A_query.values.size(); i++){
+    for(unsigned int i = 0; i < ref_keypair.pk.A_query.values.size() && i < new_keypair.pk.A_query.values.size(); i++){
         if(ref_keypair.pk.A_query.values[i] != new_keypair.pk.A_query.values[i]) {
             text = "NOT OK";
             break;
@@ -823,7 +830,7 @@ void compare_keypair(r1cs_ppzksnark_keypair<ppT> ref_keypair, r1cs_ppzksnark_key
     cout << text << endl;   
     
     text = "OK";
-    for(int i = 0; i < ref_keypair.pk.B_query.values.size() && i < new_keypair.pk.B_query.values.size(); i++){
+    for(unsigned int i = 0; i < ref_keypair.pk.B_query.values.size() && i < new_keypair.pk.B_query.values.size(); i++){
         if(ref_keypair.pk.B_query.values[i] != new_keypair.pk.B_query.values[i]) {
             cout << "index " << i  << " not ok for B_query "<< endl;
             text = "NOT OK";
@@ -836,7 +843,7 @@ void compare_keypair(r1cs_ppzksnark_keypair<ppT> ref_keypair, r1cs_ppzksnark_key
     cout << "C_query.......................";
     
     text = "OK";
-    for(int i = 0; i < ref_keypair.pk.C_query.values.size() && i < new_keypair.pk.C_query.values.size(); i++){
+    for(unsigned int i = 0; i < ref_keypair.pk.C_query.values.size() && i < new_keypair.pk.C_query.values.size(); i++){
         if(ref_keypair.pk.C_query.values[i] != new_keypair.pk.C_query.values[i]) {
             text = "NOT OK";
             break;
@@ -847,7 +854,7 @@ void compare_keypair(r1cs_ppzksnark_keypair<ppT> ref_keypair, r1cs_ppzksnark_key
     cout << "H_query.......................";
     
     text = "OK";
-    for(int i = 0; i < ref_keypair.pk.H_query.size() && i < new_keypair.pk.H_query.size(); i++){
+    for(unsigned int i = 0; i < ref_keypair.pk.H_query.size() && i < new_keypair.pk.H_query.size(); i++){
         if(ref_keypair.pk.H_query[i] != new_keypair.pk.H_query[i]) {
             text = "NOT OK";
             break;
@@ -858,7 +865,7 @@ void compare_keypair(r1cs_ppzksnark_keypair<ppT> ref_keypair, r1cs_ppzksnark_key
     
     
     text = "OK";
-    for(int i = 0; i < ref_keypair.pk.K_query.size() && i < new_keypair.pk.K_query.size(); i++){
+    for(unsigned int i = 0; i < ref_keypair.pk.K_query.size() && i < new_keypair.pk.K_query.size(); i++){
         if(ref_keypair.pk.K_query[i] != new_keypair.pk.K_query[i]) {
             cout << "index " << i  << " not ok for K_query "<< endl;
             text = "NOT OK";
@@ -873,25 +880,26 @@ void compare_keypair(r1cs_ppzksnark_keypair<ppT> ref_keypair, r1cs_ppzksnark_key
     libff::leave_block("Call to compare_keypair");
 }
 
-
 template <typename ppT>
 r1cs_ppzksnark_keypair<ppT> update_proving_key_compilation(const r1cs_ppzksnark_constraint_system<ppT> &cs,libff::Fr<ppT> coef_save, 
-                    libff::Fr<ppT> new_coef, uint64_t coef_index, uint64_t degree, 
+                    libff::Fr<ppT> new_coef, uint64_t coef_index, 
                     libff::Fr<ppT> t, random_container_key<ppT> random_container, r1cs_ppzksnark_keypair<ppT> ref_keypair)
-{   
+{
     if(0 == coef_index){
         Fr<ppT> Bt_save = random_container.Bt_save;
         random_container.Bt_save = r1cs_to_qap_instance_map_with_evaluation_Bt(cs, t, 
                             random_container.Bt_save, new_coef, 
                             coef_save, coef_index);
-        Fr<ppT> Bt_save_index_0 = random_container.At_save;
-        random_container.Kt_save = r1cs_to_qap_instance_map_with_evaluation_Zt2(cs, t, 
+        random_container.Kt_save = r1cs_to_qap_instance_map_with_evaluation_Zt2(
                             random_container.Kt_save, Bt_save, 
-                            random_container.Bt_save, 0, random_container.rB, random_container.beta);
-        libff::window_table<libff::G1<ppT> > g1_table = get_window_table(libff::Fr<ppT>::size_in_bits(), random_container.g1_window, libff::G1<ppT>::one());
-        ref_keypair.pk.K_query[0] = batch_exp_monomial(libff::Fr<ppT>::size_in_bits(), random_container.g1_window, g1_table, random_container.Kt_save);
-        libff::window_table<libff::G2<ppT> > g2_table = get_window_table(libff::Fr<ppT>::size_in_bits(), random_container.g2_window, libff::G2<ppT>::one());
+                            random_container.Bt_save, random_container.rB, random_container.beta);
+
+        libff::window_table<libff::G1<ppT> > g1_table = random_container.g1_table;//get_window_table(libff::Fr<ppT>::size_in_bits(), random_container.g1_window, libff::G1<ppT>::one());
         
+        ref_keypair.pk.K_query[0] = batch_exp_monomial(libff::Fr<ppT>::size_in_bits(), random_container.g1_window, g1_table, random_container.Kt_save);
+           
+        libff::window_table<libff::G2<ppT> > g2_table = random_container.g2_table;//get_window_table(libff::Fr<ppT>::size_in_bits(), random_container.g2_window, libff::G2<ppT>::one());
+
         ref_keypair.pk.B_query.values[0] = knowledge_commitment<libff::G2<ppT>, libff::G1<ppT>>(
                                     windowed_exp(libff::Fr<ppT>::size_in_bits(), random_container.g2_window, 
                                                     g2_table, random_container.rB * random_container.Bt_save),
@@ -904,16 +912,18 @@ r1cs_ppzksnark_keypair<ppT> update_proving_key_compilation(const r1cs_ppzksnark_
                             random_container.At_save, new_coef, 
                             coef_save, coef_index);
         Fr<ppT> At_save_index_0 = random_container.At_save;
-        random_container.Kt_save = r1cs_to_qap_instance_map_with_evaluation_Zt2(cs, t, 
-                            random_container.Kt_save, At_save, 
-                            random_container.At_save, 0, random_container.rA, random_container.beta);
-        libff::window_table<libff::G1<ppT> > g1_table = get_window_table(libff::Fr<ppT>::size_in_bits(), random_container.g1_window, libff::G1<ppT>::one());
+        random_container.Kt_save = r1cs_to_qap_instance_map_with_evaluation_Zt2(random_container.Kt_save, At_save, 
+                            random_container.At_save, random_container.rA, random_container.beta);
+
+        libff::window_table<libff::G1<ppT> > g1_table = random_container.g1_table;//get_window_table(libff::Fr<ppT>::size_in_bits(), random_container.g1_window, libff::G1<ppT>::one());
+
         ref_keypair.pk.K_query[0] = batch_exp_monomial(libff::Fr<ppT>::size_in_bits(), random_container.g1_window, g1_table, random_container.Kt_save);
+        
         libff::G1<ppT> encoded_IC_base = (random_container.rA * At_save_index_0) * libff::G1<ppT>::one();
+        
         ref_keypair.vk.encoded_IC_query.first = encoded_IC_base;
         return r1cs_ppzksnark_keypair<ppT>(std::move(ref_keypair.pk), std::move(ref_keypair.vk));
     }
-
 }
 
 } // libsnark
