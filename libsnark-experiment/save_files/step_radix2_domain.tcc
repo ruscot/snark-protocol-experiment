@@ -182,7 +182,6 @@ struct Chrono {
 template<typename FieldT>
 FieldT step_radix2_domain<FieldT>::evaluate_one_lagrange_polynomials(const FieldT &t, uint64_t index)
 {
-    std::cout << "Evaluate one lagrange polynomials" << std::endl;
     FieldT result = FieldT::zero();
     bool omega_i_equal_t = false;
     if(index < big_m){
@@ -194,7 +193,6 @@ FieldT step_radix2_domain<FieldT>::evaluate_one_lagrange_polynomials(const Field
 
         FieldT elt = FieldT::one();
 
-        //Function basic_radix for inner_big
         FieldT inner_big;
         if(big_m == 1){
             inner_big = FieldT::one();
@@ -205,46 +203,31 @@ FieldT step_radix2_domain<FieldT>::evaluate_one_lagrange_polynomials(const Field
             if ((t^big_m) == (FieldT::one()))
             {
                 FieldT omega_i = FieldT::one();
-                for(uint64_t FE_index = index; FE_index; FE_index >>= 1)
-                {
-                    if (FE_index & 1)
-                        omega_i *= omega;
-                    omega *= omega;
-                }
-                if(omega_i == t){
+                if(index == 0 && omega_i == t){
                     inner_big = FieldT::one();
                     omega_i_equal_t = true;
+                } else {
+                    omega_i = omega;
+                    omega_i ^=index;
+                    if(omega_i == t){
+                        inner_big = FieldT::one();
+                        omega_i_equal_t = true;
+                    }
                 }
-
             } 
             if(!omega_i_equal_t) {
                 const FieldT Z = (t^big_m)-FieldT::one();
 
                 FieldT l = Z * FieldT(big_m).inverse();
-                FieldT r = FieldT::one();
                 omega = libff::get_root_of_unity<FieldT>(big_m);
-
-                for(uint64_t FE_index = index; FE_index; FE_index >>= 1)
-                {
-                    if (FE_index & 1){
-                        l *= omega;
-                        r *= omega;
-                    }
-                    omega *= omega;
-                }
-                inner_big = l * (t - r).inverse();
+                FieldT omega_exp = omega;
+                omega_exp ^= index;
+                inner_big = (l*omega_exp) * (t - omega_exp).inverse();
             }
         }
         
-
-        //Fast exponentiation 
-        for(uint64_t FE_index = index; FE_index; FE_index >>= 1)
-        {
-            if (FE_index & 1)
-                elt *= big_omega_to_small_m;
-            big_omega_to_small_m *= big_omega_to_small_m;
-        }
-        result= inner_big * L0 * (elt - omega_to_small_m).inverse();
+        big_omega_to_small_m ^= index;
+        result= inner_big * L0 * (elt*big_omega_to_small_m - omega_to_small_m).inverse();
 
     }
     
@@ -264,34 +247,25 @@ FieldT step_radix2_domain<FieldT>::evaluate_one_lagrange_polynomials(const Field
         if ((t_omaga_inv^small_m) == (FieldT::one()))
         {
             FieldT omega_i = FieldT::one();
-
-            for(uint64_t FE_index = index - big_m; FE_index; FE_index >>= 1)
-            {
-                if (FE_index & 1)
-                    omega_i *= omega;
-                omega *= omega;
-            }
-            if(omega_i == t){
+            if(index == 0 && omega_i == t){
                 inner_small = FieldT::one();
                 omega_i_equal_t = true;
+            } else {
+                omega_i = omega;
+                omega_i ^=index;
+                if(omega_i == t){
+                    inner_small = FieldT::one();
+                    omega_i_equal_t = true;
+                }
             }
         }
         if(!omega_i_equal_t) {
             const FieldT Z = (t_omaga_inv^small_m)-FieldT::one();
             FieldT l = Z * FieldT(small_m).inverse();
-            FieldT r = FieldT::one();
  
             omega = libff::get_root_of_unity<FieldT>(small_m);
-
-            for(uint64_t FE_index = index - big_m; FE_index; FE_index >>= 1)
-            {
-                if (FE_index & 1){
-                    l *= omega;
-                    r *= omega;
-                }
-                omega *= omega;
-            }
-            inner_small = l * (t_omaga_inv - r).inverse();
+            omega ^= index;
+            inner_small = (l*omega) * (t_omaga_inv - omega).inverse();
         }
     }
 
@@ -306,8 +280,7 @@ FieldT step_radix2_domain<FieldT>::evaluate_one_lagrange_polynomials(const Field
 
 template<typename FieldT>
 std::vector<FieldT> step_radix2_domain<FieldT>::evaluate_all_lagrange_polynomials(const FieldT &t)
-{   
-    std::cout << "Evaluate all lagrange polynomials step_radix2_domain" << std::endl;
+{
     std::vector<FieldT> inner_big = _basic_radix2_evaluate_all_lagrange_polynomials(big_m, t);
     std::vector<FieldT> inner_small = _basic_radix2_evaluate_all_lagrange_polynomials(small_m, t * omega.inverse());
 

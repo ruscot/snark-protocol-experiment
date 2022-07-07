@@ -76,9 +76,38 @@ void basic_radix2_domain<FieldT>::icosetFFT(std::vector<FieldT> &a, const FieldT
 template<typename FieldT>
 FieldT basic_radix2_domain<FieldT>::evaluate_one_lagrange_polynomials(const FieldT &t, uint64_t index)
 {
-    //Todo change this 
-    std::vector<FieldT> u = evaluate_all_lagrange_polynomials(t);
-    return u[index];
+    FieldT u;
+    if (this->m == 1) {
+        return FieldT::one();
+    } else {
+        if (this->m != (1u << libff::log2(this->m))) throw DomainSizeException("expected m == (1u << log2(m))");
+
+        const FieldT omega = libff::get_root_of_unity<FieldT>(this->m);
+
+        u = FieldT::zero();
+
+        if ((t^(this->m)) == (FieldT::one()))
+        {
+            FieldT omega_i = FieldT::one();
+            if(index == 0 && omega_i == t){
+                return FieldT::one();
+            } else {
+                omega_i = omega;
+                omega_i ^=index;
+                if(omega_i == t){
+                    return FieldT::one();
+                }
+            }
+        }
+
+        const FieldT Z = (t^(this->m))-FieldT::one();
+        FieldT l = Z * FieldT(this->m).inverse();
+        FieldT omega_i = omega;
+        omega_i ^= index;
+        u = (l*omega_i) * (t - omega_i).inverse();
+    }
+
+    return u;
 }
 
 template<typename FieldT>

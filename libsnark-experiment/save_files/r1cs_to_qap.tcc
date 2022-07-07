@@ -368,7 +368,7 @@ FieldT r1cs_to_qap_instance_map_with_evaluation_Zt2(FieldT Zt, FieldT At_save, F
                                                         FieldT rA, FieldT beta)
 {
     libff::enter_block("Call to r1cs_to_qap_instance_map_with_evaluation_Zt2");
-    Zt -=  At_save * rA * beta;
+    Zt -= At_save * rA * beta;
     Zt += new_At  * rA * beta; 
     libff::leave_block("Call to r1cs_to_qap_instance_map_with_evaluation_Zt2");
     return Zt;

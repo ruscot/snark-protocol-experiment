@@ -110,7 +110,7 @@ void extended_radix2_domain<FieldT>::icosetFFT(std::vector<FieldT> &a, const Fie
 template<typename FieldT>
 FieldT extended_radix2_domain<FieldT>::evaluate_one_lagrange_polynomials(const FieldT &t, uint64_t index)
 {
-    //Todo change this 
+    throw std::invalid_argument( "Evaluate one lagrange polynomials extended_radix2_domain not implemented yet" );
     std::vector<FieldT> u = evaluate_all_lagrange_polynomials(t);
     return u[index];
 }

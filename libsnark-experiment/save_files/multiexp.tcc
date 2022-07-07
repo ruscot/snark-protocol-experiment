@@ -621,7 +621,6 @@ T batch_exp_monomial(const size_t scalar_size,
                          const window_table<T> &table,
                          const FieldT &v)
 {
-    std::cout << "In batch exp monomial " << std::endl;
     if (!inhibit_profiling_info)
     {
         print_indent();
