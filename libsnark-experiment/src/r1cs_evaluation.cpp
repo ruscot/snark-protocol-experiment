@@ -1,3 +1,5 @@
+#include "r1cs_evaluation.hpp"
+
 /**
  * @brief Evaluate a R1CS cosntraint with the current variable assignment
  * Recall an R1CS constraint is as follow 

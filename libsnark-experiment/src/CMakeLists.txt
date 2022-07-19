@@ -1,13 +1,13 @@
 include_directories(.)
 
-add_executable(
-  snark_polynomial_in_clear
+set(MySourcesList "main.cpp")# "r1cs_evaluation.cpp")
 
-  snark_polynomial_in_clear.cpp
+add_executable(
+  snark_polynomial_in_clear ${MySourcesList}
 )
 target_link_libraries(
   snark_polynomial_in_clear
-
+  
   snark
 )
 target_include_directories(
