@@ -35,7 +35,7 @@ using namespace std;
  * @return r1cs_variable_assignment<FieldT> 
  */
 template<typename FieldT, typename default_r1cs_ppzksnark_pp>
-r1cs_variable_assignment<FieldT> compute_polynomial_witness_output(protoboard<FieldT> &protoboard_for_poly, 
+void compute_polynomial_witness_output(protoboard<FieldT> &protoboard_for_poly, 
     r1cs_ppzksnark_proving_key<default_r1cs_ppzksnark_pp> pk);
 
 /**
@@ -64,6 +64,10 @@ vector<double> test_polynomial_in_clear_update(r1cs_variable_assignment<FieldT> 
  * @param number_of_try 
  */
 void test_polynomial_in_clear(uint64_t polynomial_degree, int number_of_try);
+
+void test_update_index_1(uint64_t polynomial_degree);
+
+void test_update_index_0(uint64_t polynomial_degree);
 
 #include "snark_polynomial_in_clear.cpp"
 

@@ -413,7 +413,6 @@ void compare_keypair(r1cs_ppzksnark_keypair<ppT> ref_keypair, r1cs_ppzksnark_key
         if(ref_keypair.pk.B_query.indices[i] != new_keypair.pk.B_query.indices[i]) {
             cout << "index " << i  << " not ok for B_query "<< endl;
             text = "NOT OK";
-            //break;
         }
     }
     cout << "B_query_indices..........................";
@@ -426,7 +425,7 @@ void compare_keypair(r1cs_ppzksnark_keypair<ppT> ref_keypair, r1cs_ppzksnark_key
             text = "NOT OK";
         }
     }
-    cout << "B_query..................................";
+    cout << "B_query_values...........................";
     cout << text << endl; 
     cout << endl; 
 
