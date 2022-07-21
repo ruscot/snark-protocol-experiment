@@ -82,7 +82,7 @@ r1cs_ppzksnark_keypair<ppT> r1cs_ppzksnark_update_proving_key_test(const r1cs_pp
 }
 
 template <typename ppT>
-r1cs_ppzksnark_keypair<ppT> r1cs_ppzksnark_generator_with_FFT_evaluation_point_and_random_values(const r1cs_ppzksnark_constraint_system<ppT> &cs, const libff::Fr<ppT> FFT_evaluation_point, 
+std::tuple<r1cs_ppzksnark_keypair<ppT>, libff::Fr_vector<ppT>> r1cs_ppzksnark_generator_with_FFT_evaluation_point_and_random_values(const r1cs_ppzksnark_constraint_system<ppT> &cs, const libff::Fr<ppT> FFT_evaluation_point, 
                     random_container_key<ppT> random_container)
 {
     libff::enter_block("Call to r1cs_ppzksnark_generator_with_t");
@@ -187,6 +187,7 @@ r1cs_ppzksnark_keypair<ppT> r1cs_ppzksnark_generator_with_FFT_evaluation_point_a
 
     libff::enter_block("Generate knowledge commitments");
     libff::enter_block("Compute the A-query", false);
+    libff::Fr_vector<ppT> At_save = At;
     knowledge_commitment_vector<libff::G1<ppT>, libff::G1<ppT> > A_query = kc_batch_exp(libff::Fr<ppT>::size_in_bits(), g1_window, g1_window, g1_table, g1_table, rA, rA*alphaA, At, chunks);
     libff::leave_block("Compute the A-query", false);
 
@@ -258,8 +259,8 @@ r1cs_ppzksnark_keypair<ppT> r1cs_ppzksnark_generator_with_FFT_evaluation_point_a
                                                                          std::move(H_query),
                                                                          std::move(K_query),
                                                                          std::move(cs_copy));
-
-    return r1cs_ppzksnark_keypair<ppT>(std::move(pk), std::move(vk));
+    std::tuple<r1cs_ppzksnark_keypair<ppT>, libff::Fr_vector<ppT>> foo (r1cs_ppzksnark_keypair<ppT>(std::move(pk), std::move(vk)), At_save);
+    return foo;
 }
 
 template <typename ppT>
@@ -268,70 +269,92 @@ void compare_keypair(r1cs_ppzksnark_keypair<ppT> ref_keypair, r1cs_ppzksnark_key
 
     libff::enter_block("Compare verification key");
 
-    cout << "AlphaA_g2.....................";
+    cout << "AlphaA_g2................................";
     if(ref_keypair.vk.alphaA_g2 == new_keypair.vk.alphaA_g2){
         cout << "OK" << endl;
     } else {
         cout << "NOT OK" << endl;
     }
 
-    cout << "alphaB_g1.....................";
+    cout << "alphaB_g1................................";
     if(ref_keypair.vk.alphaB_g1 == new_keypair.vk.alphaB_g1){
         cout << "OK" << endl;
     } else {
         cout << "NOT OK" << endl;
     }
 
-    cout << "alphaC_g2.....................";
+    cout << "alphaC_g2................................";
     if(ref_keypair.vk.alphaC_g2 == new_keypair.vk.alphaC_g2){
         cout << "OK" << endl;
     } else {
         cout << "NOT OK" << endl;
     }
 
-    cout << "gamma_g2......................";
+    cout << "gamma_g2.................................";
     if(ref_keypair.vk.gamma_g2 == new_keypair.vk.gamma_g2){
         cout << "OK" << endl;
     } else {
         cout << "NOT OK" << endl;
     }
 
-    cout << "gamma_beta_g1.................";
+    cout << "gamma_beta_g1............................";
     if(ref_keypair.vk.gamma_beta_g1 == new_keypair.vk.gamma_beta_g1){
         cout << "OK" << endl;
     } else {
         cout << "NOT OK" << endl;
     }
 
-    cout << "gamma_beta_g2.................";
+    cout << "gamma_beta_g2............................";
     if(ref_keypair.vk.gamma_beta_g2 == new_keypair.vk.gamma_beta_g2){
         cout << "OK" << endl;
     } else {
         cout << "NOT OK" << endl;
     }
 
-    cout << "rC_Z_g2.......................";
+    cout << "rC_Z_g2..................................";
     if(ref_keypair.vk.rC_Z_g2 == new_keypair.vk.rC_Z_g2){
         cout << "OK" << endl;
     } else {
         cout << "NOT OK" << endl;
     }
+    cout << endl;
 
     
     string text = "OK";
     if(ref_keypair.vk.encoded_IC_query.first == new_keypair.vk.encoded_IC_query.first){
-        for(unsigned int i = 0; i < ref_keypair.vk.encoded_IC_query.rest.values.size() && i < new_keypair.vk.encoded_IC_query.rest.values.size(); i++){
-            if(ref_keypair.vk.encoded_IC_query.rest.values[i] != new_keypair.vk.encoded_IC_query.rest.values[i]) {
-                //cout << text << endl;
-                cout << "index " << i  << " not ok for K_query "<< endl;
+        if(ref_keypair.pk.A_query.domain_size_ != new_keypair.pk.A_query.domain_size_){
+            cout << "encoded_IC_query_domain_size_............NOT OK"<<endl;
+        } else {
+            cout << "encoded_IC_query_domain_size_............OK"<<endl;
+        }
+
+        if(ref_keypair.pk.A_query.values.size() != new_keypair.pk.A_query.values.size()){
+            cout << "encoded_IC_query_values_size.............NOT OK"<<endl;
+        } else {
+            cout << "encoded_IC_query_values_size.............OK"<<endl;
+        }
+
+        for(unsigned int i = 0; i < ref_keypair.pk.A_query.indices.size() && i < new_keypair.pk.A_query.indices.size(); i++){
+            if(ref_keypair.pk.A_query.indices[i] != new_keypair.pk.A_query.indices[i]) {
+                cout << "index " << i  << " not ok for A_query "<< endl;
                 text = "NOT OK";
-                break;
+                //break;
             }
         }
-        cout << "encoded_IC_query..............";
+        cout << "encoded_IC_query_indices.................";
         cout << text << endl;
+
+        for(unsigned int i = 0; i < ref_keypair.vk.encoded_IC_query.rest.values.size() && i < new_keypair.vk.encoded_IC_query.rest.values.size(); i++){
+            if(ref_keypair.vk.encoded_IC_query.rest.values[i] != new_keypair.vk.encoded_IC_query.rest.values[i]) {
+                cout << "index " << i  << " not ok for K_query "<< endl;
+                text = "NOT OK";
+            }
+        }
+        cout << "encoded_IC_query_values..................";
+        cout << text << endl;
+        
     } else {
-        cout << "encoded_IC_query..............";
+        cout << "encoded_IC_query_first...................";
         cout << "NOT OK" << endl;
     }
 
@@ -339,61 +362,140 @@ void compare_keypair(r1cs_ppzksnark_keypair<ppT> ref_keypair, r1cs_ppzksnark_key
 
     libff::enter_block("Compare proving key");
 
-    cout << "A_query.......................";
-    
+    if(ref_keypair.pk.A_query.domain_size_ != new_keypair.pk.A_query.domain_size_){
+        cout << "A_query_domain_size_.....................NOT OK"<<endl;
+    } else {
+        cout << "A_query_domain_size_.....................OK"<<endl;
+    }
+
+    if(ref_keypair.pk.A_query.values.size() != new_keypair.pk.A_query.values.size()){
+        cout << "A_query_values_size......................NOT OK"<<endl;
+    } else {
+        cout << "A_query_values_size......................OK"<<endl;
+    }
+
+    for(unsigned int i = 0; i < ref_keypair.pk.A_query.indices.size() && i < new_keypair.pk.A_query.indices.size(); i++){
+        if(ref_keypair.pk.A_query.indices[i] != new_keypair.pk.A_query.indices[i]) {
+            cout << "index " << i  << " not ok for A_query "<< endl;
+            text = "NOT OK";
+            //break;
+        }
+    }
+    cout << "A_query_indices..........................";
+    cout << text << endl;
+
     text = "OK";
     for(unsigned int i = 0; i < ref_keypair.pk.A_query.values.size() && i < new_keypair.pk.A_query.values.size(); i++){
         if(ref_keypair.pk.A_query.values[i] != new_keypair.pk.A_query.values[i]) {
+            cout << "index " << i  << " not ok for A_query "<< endl;
             text = "NOT OK";
-            break;
+            //break;
         }
     }
-    cout << text << endl;   
+    cout << "A_query_values...........................";
+    cout << text << endl;  
+    cout << endl; 
+
     
+    if(ref_keypair.pk.B_query.domain_size_ != new_keypair.pk.B_query.domain_size_){
+        cout << "B_query_domain_size_.....................NOT OK"<<endl;
+    } else {
+        cout << "B_query_domain_size_.....................OK"<<endl;
+    }
+
+    if(ref_keypair.pk.B_query.values.size() != new_keypair.pk.B_query.values.size()){
+        cout << "B_query_values_size......................NOT OK"<<endl;
+    } else {
+        cout << "B_query_values_size......................OK"<<endl;
+    }
+
+    for(unsigned int i = 0; i < ref_keypair.pk.B_query.indices.size() && i < new_keypair.pk.B_query.indices.size(); i++){
+        if(ref_keypair.pk.B_query.indices[i] != new_keypair.pk.B_query.indices[i]) {
+            cout << "index " << i  << " not ok for B_query "<< endl;
+            text = "NOT OK";
+            //break;
+        }
+    }
+    cout << "B_query_indices..........................";
+    cout << text << endl;
+
     text = "OK";
     for(unsigned int i = 0; i < ref_keypair.pk.B_query.values.size() && i < new_keypair.pk.B_query.values.size(); i++){
         if(ref_keypair.pk.B_query.values[i] != new_keypair.pk.B_query.values[i]) {
             cout << "index " << i  << " not ok for B_query "<< endl;
             text = "NOT OK";
-            break;
         }
     }
-    cout << "B_query.......................";
+    cout << "B_query..................................";
     cout << text << endl; 
+    cout << endl; 
 
-    cout << "C_query.......................";
-    
+
+    if(ref_keypair.pk.C_query.domain_size_ != new_keypair.pk.C_query.domain_size_){
+        cout << "C_query_domain_size_.....................NOT OK"<<endl;
+    } else {
+        cout << "C_query_domain_size_.....................OK"<<endl;
+    }
+
+    if(ref_keypair.pk.C_query.values.size() != new_keypair.pk.C_query.values.size()){
+        cout << "C_query_values_size......................NOT OK"<<endl;
+    } else {
+        cout << "C_query_values_size......................OK"<<endl;
+    }
+
+    for(unsigned int i = 0; i < ref_keypair.pk.C_query.indices.size() && i < new_keypair.pk.C_query.indices.size(); i++){
+        if(ref_keypair.pk.C_query.indices[i] != new_keypair.pk.C_query.indices[i]) {
+            cout << "index " << i  << " not ok for C_query "<< endl;
+            text = "NOT OK";
+        }
+    }
+    cout << "C_query_indices..........................";
+    cout << text << endl;
+
     text = "OK";
     for(unsigned int i = 0; i < ref_keypair.pk.C_query.values.size() && i < new_keypair.pk.C_query.values.size(); i++){
         if(ref_keypair.pk.C_query.values[i] != new_keypair.pk.C_query.values[i]) {
+            cout << "index " << i  << " not ok for C_query "<< endl;
             text = "NOT OK";
-            break;
         }
     }
+    cout << "C_query..................................";
     cout << text << endl; 
+    cout << endl;
 
-    cout << "H_query.......................";
-    
+
+    if(ref_keypair.pk.H_query.size() != new_keypair.pk.H_query.size()){
+        cout << "H_query_size.............................NOT OK"<<endl;
+    } else {
+        cout << "H_query_size.............................OK"<<endl;
+    }
+
     text = "OK";
     for(unsigned int i = 0; i < ref_keypair.pk.H_query.size() && i < new_keypair.pk.H_query.size(); i++){
         if(ref_keypair.pk.H_query[i] != new_keypair.pk.H_query[i]) {
+            cout << "index " << i  << " not ok for C_query "<< endl;
             text = "NOT OK";
-            break;
         }
     }
+    cout << "H_query..................................";
     cout << text << endl; 
+    cout << endl; 
 
-    
-    
+
+    if(ref_keypair.pk.K_query.size() != new_keypair.pk.K_query.size()){
+        cout << "K_query_size.............................NOT OK"<<endl;
+    } else {
+        cout << "K_query_size.............................OK"<<endl;
+    }
+
     text = "OK";
     for(unsigned int i = 0; i < ref_keypair.pk.K_query.size() && i < new_keypair.pk.K_query.size(); i++){
         if(ref_keypair.pk.K_query[i] != new_keypair.pk.K_query[i]) {
             cout << "index " << i  << " not ok for K_query "<< endl;
             text = "NOT OK";
-            break;
         }
     }
-    cout << "K_query.......................";
+    cout << "K_query..................................";
     cout << text << endl; 
 
     libff::leave_block("Compare proving key");
