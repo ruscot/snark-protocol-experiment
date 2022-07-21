@@ -105,16 +105,16 @@ public:
         } else {
             pb_variable<FieldT> last_var_1;
             last_var_1.allocate(*this->protoboard_for_poly, "0");
-            (*this->protoboard_for_poly).add_r1cs_constraint(r1cs_constraint<FieldT>(this->poly[this->polynomial_degree], this->x, last_var_1));
+            (*this->protoboard_for_poly).add_r1cs_constraint(r1cs_constraint<FieldT>(this->poly[this->polynomial_degree] + 0 * this->x, this->x, last_var_1));
             string last_var_name = "1";
             for(uint64_t i = this->polynomial_degree; i > 1; i-=1){
                 pb_variable<FieldT> last_var_2;
                 last_var_name = std::to_string(stoi(last_var_name) + 1);
                 last_var_2.allocate(*this->protoboard_for_poly, last_var_name);
-                (*this->protoboard_for_poly).add_r1cs_constraint(r1cs_constraint<FieldT>(this->poly[i-1] + last_var_1, this->x, last_var_2));
+                (*this->protoboard_for_poly).add_r1cs_constraint(r1cs_constraint<FieldT>(this->poly[i-1] + last_var_1 + 0 * this->x, this->x, last_var_2));
                 last_var_1 = last_var_2;
             }
-            (*this->protoboard_for_poly).add_r1cs_constraint(r1cs_constraint<FieldT>(this->poly[0] + last_var_1, 1, this->y));
+            (*this->protoboard_for_poly).add_r1cs_constraint(r1cs_constraint<FieldT>(this->poly[0] + last_var_1 + 0 * this->x, 1, this->y));
         }
         libff::leave_block("Create constraint horner method");
         
@@ -143,6 +143,45 @@ public:
         r1cs_constraint<FieldT> constraint = (*this->protoboard_for_poly).get_specific_constraint_in_r1cs(index_in_the_r1cs);
         constraint.a.terms[0].coeff = this->poly[index_of_the_coefficient];
         (*this->protoboard_for_poly).protoboard_update_r1cs_constraint(constraint, index_in_the_r1cs);
+        libff::leave_block("Update constraint");
+    }
+
+    void update_constraint_horner_method_aude_version(uint64_t index_of_the_coefficient, libff::Fr<ppT> delta)
+    {
+        libff::enter_block("Update constraint");      
+        uint64_t index_in_the_r1cs = this->polynomial_degree - index_of_the_coefficient;
+        FieldT random_k = libff::Fr<ppT>::random_element();
+        r1cs_constraint<FieldT> constraint_a_d_3_j = (*this->protoboard_for_poly).get_specific_constraint_in_r1cs(index_in_the_r1cs);
+        this->save_constraint_a_d_3_j_b_terms = constraint_a_d_3_j.b.terms[0].coeff;
+        constraint_a_d_3_j.b.terms[0].coeff *= random_k;
+        this->new_constraint_a_d_3_j_b_terms = constraint_a_d_3_j.b.terms[0].coeff;
+        cout << "index of constraint_a_d_3_j" << endl;
+        cout << constraint_a_d_3_j.b.terms[0].index << endl;
+        r1cs_constraint<FieldT> constraint_a_d_4_j = (*this->protoboard_for_poly).get_specific_constraint_in_r1cs(
+                                                                                index_in_the_r1cs + 1);
+        this->save_constraint_a_d_4_j_a_terms = constraint_a_d_4_j.a.terms[1].coeff;
+        constraint_a_d_4_j.a.terms[1].coeff = constraint_a_d_4_j.a.terms[1].coeff * random_k +
+                                                delta * constraint_a_d_3_j.b.terms[0].coeff; 
+        this->new_constraint_a_d_4_j_a_terms = constraint_a_d_4_j.a.terms[1].coeff;
+        cout << "index of constraint_a_d_4_j" << endl;
+        cout << constraint_a_d_4_j.a.terms[1].index << endl;
+        FieldT constraint_a_d_4_j_b_save = constraint_a_d_4_j.b.terms[0].coeff;
+        this->save_constraint_a_d_4_j_b_terms = constraint_a_d_4_j.b.terms[0].coeff;
+        constraint_a_d_4_j.b.terms[0].coeff *= random_k.inverse();
+        this->new_constraint_a_d_4_j_b_terms = constraint_a_d_4_j.b.terms[0].coeff;
+        cout << "index of constraint_a_d_4_j" << endl;
+        cout << constraint_a_d_4_j.b.terms[0].index << endl;
+        r1cs_constraint<FieldT> constraint_a_d_5_j = (*this->protoboard_for_poly).get_specific_constraint_in_r1cs(index_in_the_r1cs + 2);
+        this->save_constraint_a_d_5_j_a_terms = constraint_a_d_5_j.a.terms[1].coeff;
+        constraint_a_d_5_j.a.terms[1].coeff += (libff::Fr<ppT>::one() - random_k.inverse()) * constraint_a_d_4_j.a.terms[0].coeff * 
+                                                    constraint_a_d_4_j_b_save;
+        this->new_constraint_a_d_5_j_a_terms = constraint_a_d_5_j.a.terms[1].coeff;
+        cout << "index of constraint_a_d_5_j" << endl;
+        cout << constraint_a_d_5_j.a.terms[1].index << endl;
+        (*this->protoboard_for_poly).protoboard_update_r1cs_constraint(constraint_a_d_3_j, index_in_the_r1cs);
+        (*this->protoboard_for_poly).protoboard_update_r1cs_constraint(constraint_a_d_4_j, index_in_the_r1cs + 1);
+        (*this->protoboard_for_poly).protoboard_update_r1cs_constraint(constraint_a_d_5_j, index_in_the_r1cs + 2);
+        
         libff::leave_block("Update constraint");
     }
 
@@ -185,10 +224,12 @@ public:
     r1cs_ppzksnark_keypair<ppT> update_proving_key_compilation(libff::Fr<ppT> coef_save,  uint64_t coef_to_update,
                         uint64_t coef_index, 
                         libff::Fr<ppT> FFT_evaluation_point, r1cs_ppzksnark_keypair<ppT> ref_keypair){
+
+        //Change At for save_constraint_a_d_3_j_b_terms
         Fr<ppT> At_save = random_container.At_save;
         random_container.At_save = r1cs_to_qap_instance_map_with_evaluation_At(FFT_evaluation_point, 
                             random_container.At_save, this->poly[coef_to_update], 
-                            coef_save, coef_index);
+                            this->save_constraint_a_d_3_j_b_terms, coef_index);
         Fr<ppT> At_save_index_0 = random_container.At_save;
         random_container.Kt_save = random_container.Kt_save - At_save * random_container.rA * 
                     random_container.beta + random_container.At_save  * random_container.rA * 
@@ -272,7 +313,8 @@ public:
         Bt.emplace_back(qap_inst.Zt);
         Ct.emplace_back(qap_inst.Zt);
         
-        Fr<ppT> At_save = At[0];
+        Fr<ppT> At_save = At[2];
+        Fr<ppT> Bt_save = Bt[2];
 
         const  libff::Fr<ppT> alphaA = libff::Fr<ppT>::random_element(),
             alphaB = libff::Fr<ppT>::random_element(),
@@ -408,6 +450,7 @@ public:
                                                                             beta,
                                                                             gamma,
                                                                             At_save,
+                                                                            Bt_save,
                                                                             Kt[0]);
 
         pk.print_size();
@@ -432,5 +475,15 @@ private:
     libff::Fr<ppT> save_coefficient_zero;
     libff::Fr<ppT> save_coefficient_one;
     libff::Fr<ppT> x_value;
+
+    libff::Fr<ppT> save_constraint_a_d_3_j_b_terms;
+    libff::Fr<ppT> save_constraint_a_d_4_j_b_terms;
+    libff::Fr<ppT> save_constraint_a_d_4_j_a_terms;
+    libff::Fr<ppT> save_constraint_a_d_5_j_a_terms;
+
+    libff::Fr<ppT> new_constraint_a_d_3_j_b_terms;
+    libff::Fr<ppT> new_constraint_a_d_4_j_b_terms;
+    libff::Fr<ppT> new_constraint_a_d_4_j_a_terms;
+    libff::Fr<ppT> new_constraint_a_d_5_j_a_terms;
     
 };

@@ -16,6 +16,7 @@ public:
     libff::Fr<ppT> beta;
     libff::Fr<ppT> gamma;
     Fr<ppT> At_save;
+    Fr<ppT> Bt_save;
     Fr<ppT> Kt_save;
     random_container_key(libff::Fr<ppT> alphaA,
         libff::Fr<ppT> alphaB,
@@ -25,6 +26,7 @@ public:
         libff::Fr<ppT> beta,
         libff::Fr<ppT> gamma,
         Fr<ppT> At_save,
+        Fr<ppT> Bt_save,
         Fr<ppT> Kt_save) :
         alphaA(alphaA),
         alphaB(alphaB),
@@ -34,6 +36,7 @@ public:
         beta(beta),
         gamma(gamma),
         At_save(At_save),
+        Bt_save(Bt_save),
         Kt_save(Kt_save)
     {};
     random_container_key()

@@ -101,14 +101,16 @@ vector<double> test_polynomial_in_clear_update(r1cs_variable_assignment<FieldT> 
         Chrono c_setup; 
         c_setup.start();
         /*Change one polynomial coefficient*/
+        libff::Fr<default_r1cs_ppzksnark_pp> new_coef_value = libff::Fr<default_r1cs_ppzksnark_pp>::random_element();
         libff::Fr<default_r1cs_ppzksnark_pp> save_last_value_of_the_coef = r1cs_polynomial_factory.get_polynomial_coefficients(index_of_the_coef_to_update);
-        r1cs_polynomial_factory.update_polynomial_coefficient(libff::Fr<default_r1cs_ppzksnark_pp>::random_element(), index_of_the_coef_to_update);
+        r1cs_polynomial_factory.update_polynomial_coefficient(new_coef_value, index_of_the_coef_to_update);
         time_polynomial_coef_update = c_setup.stop();
 
         libff::Fr<default_r1cs_ppzksnark_pp> result_with_horners_method = r1cs_polynomial_factory.evaluation_polynomial_horner();
         
         c_setup.start();
-        r1cs_polynomial_factory.update_constraint_horner_method(index_of_the_coef_to_update);
+        libff::Fr<default_r1cs_ppzksnark_pp> delta = new_coef_value - save_last_value_of_the_coef;
+        r1cs_polynomial_factory.update_constraint_horner_method_aude_version(index_of_the_coef_to_update, delta);
         time_polynomial_horner_update = c_setup.stop();
         
         //Compute the witness and output of our polynomial
@@ -130,7 +132,7 @@ vector<double> test_polynomial_in_clear_update(r1cs_variable_assignment<FieldT> 
             full_variable_assignment_update.push_back(cValue);
         }
 
-        c_setup.start();
+        /*c_setup.start();
         uint64_t index_in_the_r1cs = r1cs_polynomial_factory.get_polynomial_degree() - index_of_the_coef_to_update;
 
         r1cs_ppzksnark_keypair<default_r1cs_ppzksnark_pp> test_res_keypair = r1cs_polynomial_factory.update_proving_key_compilation( 
@@ -140,29 +142,29 @@ vector<double> test_polynomial_in_clear_update(r1cs_variable_assignment<FieldT> 
         time_key_update = c_setup.stop();
         //r1cs_ppzksnark_keypair<default_r1cs_ppzksnark_pp> test_res_keypair = r1cs_polynomial_factory.get_update_key_pair();
 
-        test_res_keypair.pk.constraint_system = constraint_system_update;
+        /*test_res_keypair.pk.constraint_system = constraint_system_update;
         const r1cs_ppzksnark_proof<default_r1cs_ppzksnark_pp> proof = r1cs_ppzksnark_prover<default_r1cs_ppzksnark_pp>(test_res_keypair.pk, 
                                                 protoboard_for_poly.primary_input(), 
                                                 protoboard_for_poly.auxiliary_input());
         bool verified = r1cs_ppzksnark_verifier_strong_IC<default_r1cs_ppzksnark_pp>(test_res_keypair.vk, protoboard_for_poly.primary_input(), proof);
-        
+        */
         bool test = result_with_horners_method == protoboard_for_poly.primary_input()[0];
 
         if(test == 0) {
             throw std::runtime_error("The result for polynomial eval is not correct abort");
         }
 
-        if(verified == 0) {
+        /*if(verified == 0) {
             throw std::runtime_error("The proof is not correct abort");
-        }
+        }*/
         //Test after update to check if our key is correct
 
-        r1cs_ppzksnark_keypair<default_r1cs_ppzksnark_pp> newkeypair = r1cs_ppzksnark_generator_with_FFT_evaluation_point_and_random_values<default_r1cs_ppzksnark_pp>(
+        /*r1cs_ppzksnark_keypair<default_r1cs_ppzksnark_pp> newkeypair = r1cs_ppzksnark_generator_with_FFT_evaluation_point_and_random_values<default_r1cs_ppzksnark_pp>(
                                                         constraint_system_update, container_for_update.get_FFT_evaluation_point(),  
                                                         container_for_update.get_random_container());
 
         //Check if our key pair is correct
-        compare_keypair(newkeypair,test_res_keypair);
+        compare_keypair(newkeypair,test_res_keypair);*/
         
         printf("[TIMINGS for update] | %lu | polynomial coef update : %f | key update : %f | time_polynomial_horner_update : %f | total : %f \n=== end ===\n\n", 
             r1cs_polynomial_factory.get_polynomial_degree(), time_polynomial_coef_update, time_key_update, time_polynomial_horner_update, time_polynomial_horner_update + time_key_update + time_polynomial_coef_update);
@@ -292,7 +294,7 @@ void test_polynomial_in_clear(uint64_t polynomial_degree, int number_of_try){
         r1cs_polynomial_factory.set_random_container(element_for_update.get_random_container());
 
         vector<double> timings_for_update = test_polynomial_in_clear_update<FieldT>(full_variable_assignment_update, 
-                                    element_for_update, keypair, 0, r1cs_polynomial_factory);
+                                    element_for_update, keypair, 3, r1cs_polynomial_factory);
 
         //Get the timing of the update to perform a mean
         time_polynomial_coef_update_sum += timings_for_update[0];
