@@ -2,10 +2,11 @@
 #include <unistd.h>
 #include <fstream> 
 #include <iostream>
-
 #include <stdio.h>
 #include <string>
-#include <stdlib.h> 
+#include <stdlib.h>
+
+
 int main(int argc, char * argv[])
 {
     if (argc < 4) {
@@ -48,10 +49,10 @@ int main(int argc, char * argv[])
             printf(".........NOT OK\n");
             printf("\tError message : %s\n\n", error_msg.c_str());
         }
-        printf("We'll do 10 test with random index to update\n"); 
+        printf("We'll do 10 test with random index to update\n\n"); 
         int random_index_to_update;
         srand (time(NULL));
-        for(int i = 0; i < 100; i++){
+        for(int i = 0; i < 10; i++){
             old_stdout = dup(fileno(stdout));
             random_index_to_update = rand() % (polynomial_degree-1) + 2;
             printf("Test the update part of our protocol with the random index \"%d\" ", random_index_to_update);

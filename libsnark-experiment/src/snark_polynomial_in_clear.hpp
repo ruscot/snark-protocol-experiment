@@ -1,5 +1,5 @@
-#ifndef SNARk_POLYNOMIAL_IN_CLEAR_HPP
-#define SNARk_POLYNOMIAL_IN_CLEAR_HPP
+#ifndef SNARK_POLYNOMIAL_IN_CLEAR_HPP
+#define SNARK_POLYNOMIAL_IN_CLEAR_HPP
 
 #include <stdlib.h>
 #include <iostream>
@@ -12,13 +12,12 @@
 #include "libsnark/gadgetlib1/pb_variable.hpp"
 
 #include "libsnark/gadgetlib2/variable.hpp"
-#include "libsnark/gadgetlib2/variable.cpp"
 
 #include "util.hpp"
 #include "r1cs_from_poly_gen_function.hpp"
 #include "r1cs_update_keys.hpp"
 
-#include "r1cs_evaluation.hpp"
+//#include "r1cs_evaluation.hpp"
 
 #include <stdexcept>
 #include <tuple>
@@ -58,6 +57,19 @@ vector<double> test_polynomial_in_clear_update(r1cs_variable_assignment<FieldT> 
                                 R1CS_Polynomial_factory<FieldT, default_r1cs_ppzksnark_pp> r1cs_polynomial_factory);
 
 /**
+ * @brief Evaluate a R1CS cosntraint with the current variable assignment
+ * Recall an R1CS constraint is as follow 
+ * A * B = C
+ * @tparam FieldT Field for the constraint
+ * @param a Our A
+ * @param b Our B
+ * @param assignment 
+ * @return FieldT corresponding to the value of C 
+ */
+template<typename FieldT>
+FieldT evaluation_on_linear_combination(linear_combination<FieldT> a, linear_combination<FieldT> b, std::vector<FieldT> &assignment) ; 
+
+/**
  * @brief This function will execute the different phases of our protocol on a polynomial
  * of degree polynomial_degree. We'll execute our protocol number_of_try time, to do a mean on 
  * the different timing of our protocol.
@@ -73,6 +85,6 @@ void test_update_index_1(uint64_t polynomial_degree);
 
 void test_update_random_index(uint64_t polynomial_degree, int random_index_to_update);
 
-#include "snark_polynomial_in_clear.cpp"
+//#include "snark_polynomial_in_clear.cpp"
 
 #endif
