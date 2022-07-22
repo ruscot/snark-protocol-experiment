@@ -3,6 +3,8 @@
 
 #include <stdlib.h>
 #include <iostream>
+#include <stdio.h>
+#include <time.h>
 
 #include "libff/algebra/fields/field_utils.hpp"
 #include "libsnark/zk_proof_systems/ppzksnark/r1cs_ppzksnark/r1cs_ppzksnark.hpp"
@@ -65,9 +67,11 @@ vector<double> test_polynomial_in_clear_update(r1cs_variable_assignment<FieldT> 
  */
 void test_polynomial_in_clear(uint64_t polynomial_degree, int number_of_try);
 
+void test_update_index_0(uint64_t polynomial_degree);
+
 void test_update_index_1(uint64_t polynomial_degree);
 
-void test_update_index_0(uint64_t polynomial_degree);
+void test_update_random_index(uint64_t polynomial_degree, int random_index_to_update);
 
 #include "snark_polynomial_in_clear.cpp"
 

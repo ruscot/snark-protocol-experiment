@@ -153,9 +153,9 @@ vector<double> test_polynomial_in_clear_update(
             throw std::runtime_error("The result for polynomial eval is not correct abort");
         }
 
-        /*if(verified == 0) {
+        if(verified == 0) {
             throw std::runtime_error("The proof is not correct abort");
-        }*/
+        }
         //Test after update to check if our key is correct
         std::tuple<r1cs_ppzksnark_keypair<default_r1cs_ppzksnark_pp>, libff::Fr_vector<default_r1cs_ppzksnark_pp>> foo = r1cs_ppzksnark_generator_with_FFT_evaluation_point_and_random_values<default_r1cs_ppzksnark_pp>(
                                                         constraint_system_update, container_for_update.get_FFT_evaluation_point(),  
@@ -314,6 +314,98 @@ void test_polynomial_in_clear(uint64_t polynomial_degree, int number_of_try){
         time_polynomial_horner_update_sum/number_of_try, sum_update_timing_sum/number_of_try);
 }
 
+void test_update_index_0(uint64_t polynomial_degree){
+    typedef libff::Fr<default_r1cs_ppzksnark_pp> FieldT;
+    //Container of our R1CS with our function on it 
+    R1CS_Polynomial_factory<FieldT, default_r1cs_ppzksnark_pp> r1cs_polynomial_factory(polynomial_degree);
+    libff::enter_block("test_polynomial_in_clear");
+
+    // Initialize the curve parameters
+    default_r1cs_ppzksnark_pp::init_public_params();
+
+    //Create our protoboard which will stock our R1CS corresponding to our polynomial 
+    protoboard<FieldT> protoboard_for_poly;
+
+    //Creation of a polynomial of degree polynomial_degree with random coefficients
+    r1cs_polynomial_factory.create_random_coefficients_for_polynomial();
+    vector<libff::Fr<default_r1cs_ppzksnark_pp>> polynomial = r1cs_polynomial_factory.get_polynomial();
+    r1cs_polynomial_factory.set_protoboard(&protoboard_for_poly);
+
+    /**
+     * SETUP PHASES
+     */
+    //Create our R1CS constraint and get our input variable x and our output variable y
+    r1cs_polynomial_factory.create_constraint_horner_method();
+    pb_variable<FieldT> x = r1cs_polynomial_factory.get_x_variable();
+    pb_variable<FieldT> y = r1cs_polynomial_factory.get_y_variable();
+    
+    //Choose a random x on which we want to eval our polynomial
+    libff::Fr<default_r1cs_ppzksnark_pp> x_value =  libff::Fr<default_r1cs_ppzksnark_pp>::random_element();
+    protoboard_for_poly.val(x) = x_value;
+    r1cs_polynomial_factory.set_x_value(x_value);
+    protoboard_for_poly.val(y) = 0;
+    protoboard_for_poly.set_input_sizes(1);
+    
+    //Creation of our keys for the zkSNARK protocol from our R1CS constraints
+    return_container_key_generator_for_update<default_r1cs_ppzksnark_pp> element_for_update = 
+                    r1cs_polynomial_factory.r1cs_ppzksnark_key_generator_for_update();
+
+    const r1cs_ppzksnark_keypair<default_r1cs_ppzksnark_pp> keypair = element_for_update.get_key_pair();
+
+    /**
+     * SERVER PHASES
+     */
+    const r1cs_constraint_system<FieldT> constraint_system = protoboard_for_poly.get_constraint_system();
+
+    compute_polynomial_witness_output<FieldT, default_r1cs_ppzksnark_pp>(protoboard_for_poly, keypair.pk);
+
+    //From our witnes and input output compute the proof for the client
+    const r1cs_ppzksnark_proof<default_r1cs_ppzksnark_pp> proof = r1cs_ppzksnark_prover<default_r1cs_ppzksnark_pp>(
+                                            keypair.pk, 
+                                            protoboard_for_poly.primary_input(), 
+                                            protoboard_for_poly.auxiliary_input());
+    //server part end
+    /**
+     * CLIENT START
+     */
+    //Check that the proof send by the server is correct
+    bool verified = r1cs_ppzksnark_verifier_strong_IC<default_r1cs_ppzksnark_pp>(keypair.vk, protoboard_for_poly.primary_input(), proof);
+
+    if(verified == 0) {
+        throw std::runtime_error("The proof is not correct abort");
+    }
+    r1cs_polynomial_factory.set_protoboard(&protoboard_for_poly);
+
+    //Check that the result is correct (verify that our protocol gaves the good result)
+    libff::Fr<default_r1cs_ppzksnark_pp> res = r1cs_polynomial_factory.evaluation_polynomial_horner();
+    bool test = res == protoboard_for_poly.primary_input()[0];
+    if(test == 0) {
+        throw std::runtime_error("Result for the polynomial didn't match");
+    }
+
+    r1cs_polynomial_factory.set_constraint_system(constraint_system);
+    r1cs_polynomial_factory.set_random_container(element_for_update.get_random_container());
+    try{
+        vector<double> timings_for_update = test_polynomial_in_clear_update<FieldT>( 
+                                element_for_update, keypair, 0, &r1cs_polynomial_factory);
+    }catch(std::runtime_error& e) {
+        string error_msg = e.what();
+        throw std::runtime_error("Error catch during first update \"" + error_msg + "\"");
+    }
+    
+    try{
+        //Try to do another update to see if it works too
+        test_polynomial_in_clear_update<FieldT>( 
+                                element_for_update, keypair, 0, &r1cs_polynomial_factory);
+    }catch(std::runtime_error& e) {
+        string error_msg = e.what();
+        throw std::runtime_error("Error catch during second update \"" + error_msg + "\"");
+    }
+    
+    r1cs_polynomial_factory.clear_polynomial();
+    libff::leave_block("test_polynomial_in_clear");
+}
+
 void test_update_index_1(uint64_t polynomial_degree){
     typedef libff::Fr<default_r1cs_ppzksnark_pp> FieldT;
     //Container of our R1CS with our function on it 
@@ -407,7 +499,7 @@ void test_update_index_1(uint64_t polynomial_degree){
     libff::leave_block("test_polynomial_in_clear");
 }
 
-void test_update_index_0(uint64_t polynomial_degree){
+void test_update_random_index(uint64_t polynomial_degree, int random_index_to_update){
     typedef libff::Fr<default_r1cs_ppzksnark_pp> FieldT;
     //Container of our R1CS with our function on it 
     R1CS_Polynomial_factory<FieldT, default_r1cs_ppzksnark_pp> r1cs_polynomial_factory(polynomial_degree);
@@ -478,9 +570,10 @@ void test_update_index_0(uint64_t polynomial_degree){
 
     r1cs_polynomial_factory.set_constraint_system(constraint_system);
     r1cs_polynomial_factory.set_random_container(element_for_update.get_random_container());
+    
     try{
         vector<double> timings_for_update = test_polynomial_in_clear_update<FieldT>( 
-                                element_for_update, keypair, 0, &r1cs_polynomial_factory);
+                                element_for_update, keypair, random_index_to_update, &r1cs_polynomial_factory);
     }catch(std::runtime_error& e) {
         string error_msg = e.what();
         throw std::runtime_error("Error catch during first update \"" + error_msg + "\"");
@@ -489,11 +582,12 @@ void test_update_index_0(uint64_t polynomial_degree){
     try{
         //Try to do another update to see if it works too
         test_polynomial_in_clear_update<FieldT>( 
-                                element_for_update, keypair, 0, &r1cs_polynomial_factory);
+                                element_for_update, keypair, random_index_to_update, &r1cs_polynomial_factory);
     }catch(std::runtime_error& e) {
         string error_msg = e.what();
         throw std::runtime_error("Error catch during second update \"" + error_msg + "\"");
     }
+    
     
     r1cs_polynomial_factory.clear_polynomial();
     libff::leave_block("test_polynomial_in_clear");

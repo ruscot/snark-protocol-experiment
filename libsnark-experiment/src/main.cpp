@@ -23,7 +23,6 @@ int main(int argc, char * argv[])
         printf("Test the update part of our protocol on the index 0");
         int old_stdout = dup(1);
         fclose(stdout);
-        FILE *fp2 = freopen("output.txt", "a+", stdout);
         try{
             //Try to do another update to see if it works too
             test_update_index_0(polynomial_degree);
@@ -35,20 +34,40 @@ int main(int argc, char * argv[])
             printf(".........NOT OK\n");
             printf("\tError message : %s\n\n", error_msg.c_str());
         }
-        int old_stdout2 = dup(fileno(stdout));
+        old_stdout = dup(fileno(stdout));
         printf("Test the update part of our protocol on the index 1");
         fclose(stdout);
         try{
             //Try to do another update to see if it works too
             test_update_index_1(polynomial_degree);
-            stdout = fdopen(old_stdout2, "w");
+            stdout = fdopen(old_stdout, "w");
             printf(".........OK\n\n");
         }catch(std::runtime_error& e) {
-            stdout = fdopen(old_stdout2, "w");
+            stdout = fdopen(old_stdout, "w");
             string error_msg = e.what();
             printf(".........NOT OK\n");
             printf("\tError message : %s\n\n", error_msg.c_str());
-        }   
+        }
+        printf("We'll do 10 test with random index to update\n"); 
+        int random_index_to_update;
+        srand (time(NULL));
+        for(int i = 0; i < 100; i++){
+            old_stdout = dup(fileno(stdout));
+            random_index_to_update = rand() % (polynomial_degree-1) + 2;
+            printf("Test the update part of our protocol with the random index \"%d\" ", random_index_to_update);
+            fclose(stdout);
+            try{
+                //Try to do another update to see if it works too
+                test_update_random_index(polynomial_degree, random_index_to_update);
+                stdout = fdopen(old_stdout, "w");
+                printf(".........OK\n\n");
+            }catch(std::runtime_error& e) {
+                stdout = fdopen(old_stdout, "w");
+                string error_msg = e.what();
+                printf(".........NOT OK\n");
+                printf("\tError message : %s\n\n", error_msg.c_str());
+            }   
+        }
         
     } else {
         test_polynomial_in_clear(polynomial_degree, number_of_try);

@@ -322,31 +322,31 @@ void compare_keypair(r1cs_ppzksnark_keypair<ppT> ref_keypair, r1cs_ppzksnark_key
     
     string text = "OK";
     if(ref_keypair.vk.encoded_IC_query.first == new_keypair.vk.encoded_IC_query.first){
-        if(ref_keypair.pk.A_query.domain_size_ != new_keypair.pk.A_query.domain_size_){
+        if(ref_keypair.vk.encoded_IC_query.rest.domain_size_ != new_keypair.vk.encoded_IC_query.rest.domain_size_){
             cout << "encoded_IC_query_domain_size_............NOT OK"<<endl;
         } else {
             cout << "encoded_IC_query_domain_size_............OK"<<endl;
         }
 
-        if(ref_keypair.pk.A_query.values.size() != new_keypair.pk.A_query.values.size()){
+        if(ref_keypair.vk.encoded_IC_query.rest.values.size() != new_keypair.vk.encoded_IC_query.rest.values.size()){
             cout << "encoded_IC_query_values_size.............NOT OK"<<endl;
         } else {
             cout << "encoded_IC_query_values_size.............OK"<<endl;
         }
 
-        for(unsigned int i = 0; i < ref_keypair.pk.A_query.indices.size() && i < new_keypair.pk.A_query.indices.size(); i++){
-            if(ref_keypair.pk.A_query.indices[i] != new_keypair.pk.A_query.indices[i]) {
-                cout << "index " << i  << " not ok for A_query "<< endl;
+        for(unsigned int i = 0; i < ref_keypair.vk.encoded_IC_query.rest.indices.size() && i < new_keypair.vk.encoded_IC_query.rest.indices.size(); i++){
+            if(ref_keypair.vk.encoded_IC_query.rest.indices[i] != new_keypair.vk.encoded_IC_query.rest.indices[i]) {
+                cout << "index " << i  << " not ok for encoded_IC_query "<< endl;
                 text = "NOT OK";
-                //break;
             }
         }
         cout << "encoded_IC_query_indices.................";
         cout << text << endl;
 
+        text = "OK";
         for(unsigned int i = 0; i < ref_keypair.vk.encoded_IC_query.rest.values.size() && i < new_keypair.vk.encoded_IC_query.rest.values.size(); i++){
             if(ref_keypair.vk.encoded_IC_query.rest.values[i] != new_keypair.vk.encoded_IC_query.rest.values[i]) {
-                cout << "index " << i  << " not ok for K_query "<< endl;
+                cout << "index " << i  << " not ok for encoded_IC_query "<< endl;
                 text = "NOT OK";
             }
         }
@@ -373,12 +373,11 @@ void compare_keypair(r1cs_ppzksnark_keypair<ppT> ref_keypair, r1cs_ppzksnark_key
     } else {
         cout << "A_query_values_size......................OK"<<endl;
     }
-
+    text = "OK";
     for(unsigned int i = 0; i < ref_keypair.pk.A_query.indices.size() && i < new_keypair.pk.A_query.indices.size(); i++){
         if(ref_keypair.pk.A_query.indices[i] != new_keypair.pk.A_query.indices[i]) {
             cout << "index " << i  << " not ok for A_query "<< endl;
             text = "NOT OK";
-            //break;
         }
     }
     cout << "A_query_indices..........................";
@@ -389,7 +388,6 @@ void compare_keypair(r1cs_ppzksnark_keypair<ppT> ref_keypair, r1cs_ppzksnark_key
         if(ref_keypair.pk.A_query.values[i] != new_keypair.pk.A_query.values[i]) {
             cout << "index " << i  << " not ok for A_query "<< endl;
             text = "NOT OK";
-            //break;
         }
     }
     cout << "A_query_values...........................";
@@ -408,7 +406,7 @@ void compare_keypair(r1cs_ppzksnark_keypair<ppT> ref_keypair, r1cs_ppzksnark_key
     } else {
         cout << "B_query_values_size......................OK"<<endl;
     }
-
+    text="OK";
     for(unsigned int i = 0; i < ref_keypair.pk.B_query.indices.size() && i < new_keypair.pk.B_query.indices.size(); i++){
         if(ref_keypair.pk.B_query.indices[i] != new_keypair.pk.B_query.indices[i]) {
             cout << "index " << i  << " not ok for B_query "<< endl;
@@ -441,7 +439,7 @@ void compare_keypair(r1cs_ppzksnark_keypair<ppT> ref_keypair, r1cs_ppzksnark_key
     } else {
         cout << "C_query_values_size......................OK"<<endl;
     }
-
+    text = "OK";
     for(unsigned int i = 0; i < ref_keypair.pk.C_query.indices.size() && i < new_keypair.pk.C_query.indices.size(); i++){
         if(ref_keypair.pk.C_query.indices[i] != new_keypair.pk.C_query.indices[i]) {
             cout << "index " << i  << " not ok for C_query "<< endl;

@@ -229,73 +229,39 @@ public:
 
     r1cs_ppzksnark_keypair<ppT> update_proving_key_compilation(uint64_t coef_index, 
                         libff::Fr<ppT> FFT_evaluation_point, r1cs_ppzksnark_keypair<ppT> ref_keypair){
-        if(this->save_constraint_a_d_5_j_a_terms == libff::Fr<ppT>::zero()){
-            Fr<ppT> At_save = random_container.At_save;
-            Fr<ppT> Bt_save = random_container.Bt_save;
-            //Change At for constraint_a_d_4_j
-            random_container.At_save = r1cs_to_qap_instance_map_with_evaluation_At(FFT_evaluation_point, 
-                                random_container.At_save, this->new_constraint_a_d_4_j_a_terms, 
-                                this->save_constraint_a_d_4_j_a_terms, coef_index + 1);
+        Fr<ppT> At_save = random_container.At_save;
+        Fr<ppT> Bt_save = random_container.Bt_save;
+        //Change At for constraint_a_d_4_j
+        random_container.At_save = r1cs_to_qap_instance_map_with_evaluation_At(FFT_evaluation_point, 
+                    random_container.At_save, this->new_constraint_a_d_4_j_a_terms, 
+                    this->save_constraint_a_d_4_j_a_terms, coef_index + 1);
 
-            //Change At for constraint_a_d_5_j
-            random_container.At_save = r1cs_to_qap_instance_map_with_evaluation_At(FFT_evaluation_point, 
-                                random_container.At_save, this->new_constraint_a_d_5_j_a_terms, 
-                                this->save_constraint_a_d_5_j_a_terms, coef_index + 2);
+        //Change At for constraint_a_d_5_j
+        random_container.At_save = r1cs_to_qap_instance_map_with_evaluation_At(FFT_evaluation_point, 
+                    random_container.At_save, this->new_constraint_a_d_5_j_a_terms, 
+                    this->save_constraint_a_d_5_j_a_terms, coef_index + 2);
 
-            ref_keypair.pk.A_query.values.emplace(ref_keypair.pk.A_query.values.begin(), knowledge_commitment<libff::G1<ppT>, libff::G1<ppT>>(
-                                random_container.At_save * random_container.rA * libff::G1<ppT>::one(),
-                                random_container.At_save * random_container.rA*random_container.alphaA * libff::G1<ppT>::one()));
-            ref_keypair.pk.A_query.indices.emplace(ref_keypair.pk.A_query.indices.begin(), 2);
+        ref_keypair.pk.A_query.values.emplace(ref_keypair.pk.A_query.values.begin(), knowledge_commitment<libff::G1<ppT>, libff::G1<ppT>>(
+                    random_container.At_save * random_container.rA * libff::G1<ppT>::one(),
+                    random_container.At_save * random_container.rA*random_container.alphaA * libff::G1<ppT>::one()));
+        ref_keypair.pk.A_query.indices.emplace(ref_keypair.pk.A_query.indices.begin(), 2);
 
-            random_container.Bt_save = r1cs_to_qap_instance_map_with_evaluation_At(FFT_evaluation_point, 
-                            random_container.Bt_save, this->new_constraint_a_d_3_j_b_terms, 
-                            this->save_constraint_a_d_3_j_b_terms, coef_index);
-            random_container.Bt_save = r1cs_to_qap_instance_map_with_evaluation_At(FFT_evaluation_point, 
-                                random_container.Bt_save, this->new_constraint_a_d_4_j_b_terms, 
-                                this->save_constraint_a_d_4_j_b_terms, coef_index + 1);
-            ref_keypair.pk.B_query.values[1] = knowledge_commitment<libff::G2<ppT>, libff::G1<ppT>>(
-                                    random_container.Bt_save * random_container.rB * libff::G2<ppT>::one() ,
-                                    random_container.Bt_save * random_container.rB * random_container.alphaB * libff::G1<ppT>::one() );
+        random_container.Bt_save = r1cs_to_qap_instance_map_with_evaluation_At(FFT_evaluation_point, 
+                    random_container.Bt_save, this->new_constraint_a_d_3_j_b_terms, 
+                    this->save_constraint_a_d_3_j_b_terms, coef_index);
+        random_container.Bt_save = r1cs_to_qap_instance_map_with_evaluation_At(FFT_evaluation_point, 
+                    random_container.Bt_save, this->new_constraint_a_d_4_j_b_terms, 
+                    this->save_constraint_a_d_4_j_b_terms, coef_index + 1);
+        ref_keypair.pk.B_query.values[1] = knowledge_commitment<libff::G2<ppT>, libff::G1<ppT>>(
+                    random_container.Bt_save * random_container.rB * libff::G2<ppT>::one() ,
+                    random_container.Bt_save * random_container.rB * random_container.alphaB * libff::G1<ppT>::one() );
 
-            random_container.Kt_save = random_container.Kt_save - At_save * random_container.rA * 
-                        random_container.beta + random_container.At_save  * random_container.rA * 
-                        random_container.beta - Bt_save * random_container.rB * 
-                        random_container.beta + random_container.Bt_save  * random_container.rB * 
-                        random_container.beta;
-            ref_keypair.pk.K_query[2] = random_container.Kt_save * libff::G1<ppT>::one();
-        } else {
-            Fr<ppT> At_save = random_container.At_save;
-            Fr<ppT> Bt_save = random_container.Bt_save;
-            random_container.At_save = r1cs_to_qap_instance_map_with_evaluation_At(FFT_evaluation_point, 
-                                random_container.At_save, this->new_constraint_a_d_4_j_a_terms, 
-                                this->save_constraint_a_d_4_j_a_terms, coef_index + 1);
-
-            //Change At for constraint_a_d_5_j
-            random_container.At_save = r1cs_to_qap_instance_map_with_evaluation_At(FFT_evaluation_point, 
-                                random_container.At_save, this->new_constraint_a_d_5_j_a_terms, 
-                                this->save_constraint_a_d_5_j_a_terms, coef_index + 2);
-
-            random_container.Bt_save = r1cs_to_qap_instance_map_with_evaluation_At(FFT_evaluation_point, 
-                            random_container.Bt_save, this->new_constraint_a_d_3_j_b_terms, 
-                            this->save_constraint_a_d_3_j_b_terms, coef_index);
-            random_container.Bt_save = r1cs_to_qap_instance_map_with_evaluation_At(FFT_evaluation_point, 
-                                random_container.Bt_save, this->new_constraint_a_d_4_j_b_terms, 
-                                this->save_constraint_a_d_4_j_b_terms, coef_index + 1);
-
-            random_container.Kt_save = random_container.Kt_save - At_save * random_container.rA * 
-                        random_container.beta + random_container.At_save  * random_container.rA * 
-                        random_container.beta - Bt_save * random_container.rB * 
-                        random_container.beta + random_container.Bt_save  * random_container.rB * 
-                        random_container.beta;
-            ref_keypair.pk.K_query[2] = random_container.Kt_save * libff::G1<ppT>::one();
-            //throw std::runtime_error("Case where we have already done an update not done yet");
-        }
-        
-        //this->At[2]= random_container.At_save;
-        /*ref_keypair.pk.A_query = kc_batch_exp(libff::Fr<ppT>::size_in_bits(), this->g1_window, this->g1_window, 
-                                                    this->g1_table, this->g1_table, random_container.rA, random_container.rA*random_container.alphaA, 
-                                                    this->At, 1);*/
-        //Changement for the B_query
+        random_container.Kt_save = random_container.Kt_save - At_save * random_container.rA * 
+                    random_container.beta + random_container.At_save  * random_container.rA * 
+                    random_container.beta - Bt_save * random_container.rB * 
+                    random_container.beta + random_container.Bt_save  * random_container.rB * 
+                    random_container.beta;
+        ref_keypair.pk.K_query[2] = random_container.Kt_save * libff::G1<ppT>::one();
         
 
         return r1cs_ppzksnark_keypair<ppT>(std::move(ref_keypair.pk), std::move(ref_keypair.vk));
