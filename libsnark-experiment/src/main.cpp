@@ -85,7 +85,6 @@ int main(int argc, char * argv[])
             printf("\t\t\t\t\t\t.........FAILED\n\n");
         }catch(std::runtime_error& e) {
             stdout = fdopen(old_stdout, "w");
-            string error_msg = e.what();
             printf("\t\t\t\t\t\t.........PASS\n\n");
         }   
 
@@ -99,7 +98,6 @@ int main(int argc, char * argv[])
             printf("\t\t.........FAILED\n\n");
         }catch(std::runtime_error& e) {
             stdout = fdopen(old_stdout, "w");
-            string error_msg = e.what();
             printf("\t\t.........PASS\n\n");
         }   
 
@@ -113,7 +111,6 @@ int main(int argc, char * argv[])
             printf("\t\t.........FAILED\n\n");
         }catch(std::runtime_error& e) {
             stdout = fdopen(old_stdout, "w");
-            string error_msg = e.what();
             printf("\t\t.........PASS\n\n");
         }
 
@@ -136,7 +133,6 @@ int main(int argc, char * argv[])
                 printf("\t\t\t\t\t\t\t.........FAILED\n\n");
             }catch(std::runtime_error& e) {
                 stdout = fdopen(old_stdout, "w");
-                string error_msg = e.what();
                 printf("\t\t\t\t\t\t\t.........PASS\n\n");
             } 
         }
@@ -152,7 +148,8 @@ int main(int argc, char * argv[])
         }catch(std::runtime_error& e) {
             stdout = fdopen(old_stdout, "w");
             string error_msg = e.what();
-            printf("\t.........FAILED\n\n");
+            printf("\t.........FAILED\n");
+            printf("\tError message : %s\n\n", error_msg.c_str());
         }   
 
         old_stdout = dup(fileno(stdout));
@@ -166,7 +163,8 @@ int main(int argc, char * argv[])
         }catch(std::runtime_error& e) {
             stdout = fdopen(old_stdout, "w");
             string error_msg = e.what();
-            printf("\t.........FAILED\n\n");
+            printf("\t.........FAILED\n");
+            printf("\tError message : %s\n\n", error_msg.c_str());
         }
 
 
@@ -188,10 +186,34 @@ int main(int argc, char * argv[])
                 printf("\t\t\t\t\t\t\t.........FAILED\n\n");
             }catch(std::runtime_error& e) {
                 stdout = fdopen(old_stdout, "w");
-                string error_msg = e.what();
                 printf("\t\t\t\t\t\t\t.........PASS\n\n");
             } 
         }
+
+        printf("We'll try to update 10 random coefficient on the same polynomial and see if everything is correct\n\n");
+        vector<int> random_coefficient_to_update;
+        for(int i = 0; i < 100; i++){     
+            random_index_to_update = rand() % (polynomial_degree-1);
+            random_coefficient_to_update.push_back(random_index_to_update);
+            if(random_index_to_update < 10){
+                printf("\tCoefficient index to update \"0%d\"\n", random_index_to_update);
+            } else {
+                printf("\tCoefficient index to update \"%d\"\n", random_index_to_update);
+            }
+        }
+        old_stdout = dup(fileno(stdout));
+        fclose(stdout);
+        try{
+            //Try to do another update to see if it works too
+            test_update_multiple_index(polynomial_degree, random_coefficient_to_update);
+            stdout = fdopen(old_stdout, "w");
+            printf("\t\t\t\t\t\t\t\t\t\t\t\t.........PASS\n\n");
+        }catch(std::runtime_error& e) {
+            stdout = fdopen(old_stdout, "w");
+            string error_msg = e.what();
+            printf("\t\t\t\t\t\t\t\t\t\t\t\t.........FAILED\n");
+            printf("\tError message : %s\n\n", error_msg.c_str());
+        } 
     } else {
         test_polynomial_in_clear(polynomial_degree, number_of_try);
     }

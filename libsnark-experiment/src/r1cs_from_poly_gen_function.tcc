@@ -3,12 +3,13 @@ R1CS_Polynomial_factory<FieldT, ppT>::R1CS_Polynomial_factory(uint64_t degree, i
     this->polynomial_degree = degree;
     this->insert_error_for_test = insert_error_for_test;
     this->protoboard_for_poly = NULL;
+    this->already_changed_one_time = false;
     this->coefficient_one_updated = libff::Fr<ppT>::zero();
     this->coefficient_zero_updated = libff::Fr<ppT>::zero();
 }
 
 template<typename FieldT, typename ppT>
-void R1CS_Polynomial_factory<FieldT, ppT>::update_zero_coefficient(libff::Fr<ppT> new_zero_coefficient_value, libff::Fr<ppT> last_zero_coefficient_value){
+void R1CS_Polynomial_factory<FieldT, ppT>::update_coefficient_zero(libff::Fr<ppT> new_zero_coefficient_value, libff::Fr<ppT> last_zero_coefficient_value){
     if(this->insert_error_for_test == 1){
         this->coefficient_zero_updated = new_zero_coefficient_value;
         this->save_coefficient_zero = last_zero_coefficient_value;
@@ -24,7 +25,7 @@ pb_variable<FieldT> R1CS_Polynomial_factory<FieldT, ppT>::get_y_variable(){
 }
 
 template<typename FieldT, typename ppT>
-void R1CS_Polynomial_factory<FieldT, ppT>::update_one_coefficient(libff::Fr<ppT> new_one_coefficient_value, libff::Fr<ppT> last_one_coefficient_value){
+void R1CS_Polynomial_factory<FieldT, ppT>::update_coefficient_one(libff::Fr<ppT> new_one_coefficient_value, libff::Fr<ppT> last_one_coefficient_value){
     if(this->insert_error_for_test == 1){
         this->coefficient_one_updated = new_one_coefficient_value;
         this->save_coefficient_one = last_one_coefficient_value;
@@ -157,26 +158,27 @@ void R1CS_Polynomial_factory<FieldT, ppT>::update_constraint_horner_method(uint6
     if(this->insert_error_for_test == 1){
         this->save_constraint_a_d_3_j_b_terms = constraint_a_d_3_j.b.terms[0].coeff;
         constraint_a_d_3_j.b.terms[0].coeff = random_k;
-        this->new_constraint_a_d_3_j_b_terms = constraint_a_d_3_j.b.terms[0].coeff;        
+        this->new_constraint_a_d_3_j_b_terms = constraint_a_d_3_j.b.terms[0].coeff;    
     } else {
         this->save_constraint_a_d_3_j_b_terms = constraint_a_d_3_j.b.terms[0].coeff;
         constraint_a_d_3_j.b.terms[0].coeff *= random_k;
         this->new_constraint_a_d_3_j_b_terms = constraint_a_d_3_j.b.terms[0].coeff;
     }
 
-    r1cs_constraint<FieldT> constraint_a_d_4_j = (*this->protoboard_for_poly).get_specific_constraint_in_r1cs(
-                                                                            index_in_the_r1cs + 1);
+    r1cs_constraint<FieldT> constraint_a_d_4_j = (*this->protoboard_for_poly).get_specific_constraint_in_r1cs(index_in_the_r1cs + 1);
+    r1cs_constraint<FieldT> constraint_a_d_5_j = (*this->protoboard_for_poly).get_specific_constraint_in_r1cs(index_in_the_r1cs + 2);
     this->save_constraint_a_d_4_j_a_terms = constraint_a_d_4_j.a.terms[1].coeff;
+
     constraint_a_d_4_j.a.terms[1].coeff = constraint_a_d_4_j.a.terms[1].coeff * random_k +
-                                            delta * constraint_a_d_3_j.b.terms[0].coeff; 
+                                            delta * random_k * constraint_a_d_4_j.b.terms[0].coeff.inverse() * 
+                                            constraint_a_d_5_j.b.terms[0].coeff.inverse();
+
     this->new_constraint_a_d_4_j_a_terms = constraint_a_d_4_j.a.terms[1].coeff;
 
     this->save_constraint_a_d_4_j_b_terms = constraint_a_d_4_j.b.terms[0].coeff;
     constraint_a_d_4_j.b.terms[0].coeff *= random_k.inverse();
     this->new_constraint_a_d_4_j_b_terms = constraint_a_d_4_j.b.terms[0].coeff;
-
-
-    r1cs_constraint<FieldT> constraint_a_d_5_j = (*this->protoboard_for_poly).get_specific_constraint_in_r1cs(index_in_the_r1cs + 2);
+    
     this->save_constraint_a_d_5_j_a_terms = constraint_a_d_5_j.a.terms[1].coeff;
     constraint_a_d_5_j.a.terms[1].coeff += (libff::Fr<ppT>::one() - random_k.inverse()) * constraint_a_d_4_j.a.terms[0].coeff * 
                                                 this->save_constraint_a_d_4_j_b_terms;
@@ -233,8 +235,7 @@ FieldT R1CS_Polynomial_factory<FieldT, ppT>::r1cs_to_qap_instance_map_with_evalu
 
 template<typename FieldT, typename ppT>
 r1cs_ppzksnark_keypair<ppT> R1CS_Polynomial_factory<FieldT, ppT>::update_proving_key_compilation(uint64_t coef_index, 
-                    libff::Fr<ppT> FFT_evaluation_point, r1cs_ppzksnark_keypair<ppT> ref_keypair){
-    
+                    libff::Fr<ppT> FFT_evaluation_point){
     Fr<ppT> At_save = random_container.At_save;
     Fr<ppT> Bt_save = random_container.Bt_save;
     
@@ -244,35 +245,62 @@ r1cs_ppzksnark_keypair<ppT> R1CS_Polynomial_factory<FieldT, ppT>::update_proving
                 random_container.At_save, this->new_constraint_a_d_4_j_a_terms, 
                 this->save_constraint_a_d_4_j_a_terms, coef_index + 1);
     }
+    if(!this->already_changed_one_time){
+        //Change At for constraint_a_d_5_j
+        random_container.At_save = r1cs_to_qap_instance_map_with_evaluation_At(FFT_evaluation_point, 
+                    random_container.At_save, this->new_constraint_a_d_5_j_a_terms, 
+                    this->save_constraint_a_d_5_j_a_terms, coef_index + 2);
+        (*this->current_key_pair).pk.A_query.values.emplace((*this->current_key_pair).pk.A_query.values.begin(), knowledge_commitment<libff::G1<ppT>, libff::G1<ppT>>(
+                    random_container.At_save * random_container.rA * libff::G1<ppT>::one(),
+                    random_container.At_save * random_container.rA*random_container.alphaA * libff::G1<ppT>::one()));
+        (*this->current_key_pair).pk.A_query.indices.emplace((*this->current_key_pair).pk.A_query.indices.begin(), 2);
 
-    //Change At for constraint_a_d_5_j
-    random_container.At_save = r1cs_to_qap_instance_map_with_evaluation_At(FFT_evaluation_point, 
-                random_container.At_save, this->new_constraint_a_d_5_j_a_terms, 
-                this->save_constraint_a_d_5_j_a_terms, coef_index + 2);
+        random_container.Bt_save = r1cs_to_qap_instance_map_with_evaluation_At(FFT_evaluation_point, 
+                    random_container.Bt_save, this->new_constraint_a_d_3_j_b_terms, 
+                    this->save_constraint_a_d_3_j_b_terms, coef_index);
+        random_container.Bt_save = r1cs_to_qap_instance_map_with_evaluation_At(FFT_evaluation_point, 
+                    random_container.Bt_save, this->new_constraint_a_d_4_j_b_terms, 
+                    this->save_constraint_a_d_4_j_b_terms, coef_index + 1);
+        (*this->current_key_pair).pk.B_query.values[1] = knowledge_commitment<libff::G2<ppT>, libff::G1<ppT>>(
+                    random_container.Bt_save * random_container.rB * libff::G2<ppT>::one() ,
+                    random_container.Bt_save * random_container.rB * random_container.alphaB * libff::G1<ppT>::one() );
 
-    ref_keypair.pk.A_query.values.emplace(ref_keypair.pk.A_query.values.begin(), knowledge_commitment<libff::G1<ppT>, libff::G1<ppT>>(
-                random_container.At_save * random_container.rA * libff::G1<ppT>::one(),
-                random_container.At_save * random_container.rA*random_container.alphaA * libff::G1<ppT>::one()));
-    ref_keypair.pk.A_query.indices.emplace(ref_keypair.pk.A_query.indices.begin(), 2);
+        random_container.Kt_save = random_container.Kt_save - At_save * random_container.rA * 
+                    random_container.beta + random_container.At_save  * random_container.rA * 
+                    random_container.beta - Bt_save * random_container.rB * 
+                    random_container.beta + random_container.Bt_save  * random_container.rB * 
+                    random_container.beta;
+        
+        (*this->current_key_pair).pk.K_query[2] = random_container.Kt_save * libff::G1<ppT>::one();
+        this->already_changed_one_time = true;
+    } else {
+        random_container.At_save = r1cs_to_qap_instance_map_with_evaluation_At(FFT_evaluation_point, 
+                    random_container.At_save, this->new_constraint_a_d_5_j_a_terms, 
+                    this->save_constraint_a_d_5_j_a_terms, coef_index + 2);
+        (*this->current_key_pair).pk.A_query.values[0] = knowledge_commitment<libff::G1<ppT>, libff::G1<ppT>>(
+                    random_container.At_save * random_container.rA * libff::G1<ppT>::one(),
+                    random_container.At_save * random_container.rA*random_container.alphaA * libff::G1<ppT>::one());
 
-    random_container.Bt_save = r1cs_to_qap_instance_map_with_evaluation_At(FFT_evaluation_point, 
-                random_container.Bt_save, this->new_constraint_a_d_3_j_b_terms, 
-                this->save_constraint_a_d_3_j_b_terms, coef_index);
-    random_container.Bt_save = r1cs_to_qap_instance_map_with_evaluation_At(FFT_evaluation_point, 
-                random_container.Bt_save, this->new_constraint_a_d_4_j_b_terms, 
-                this->save_constraint_a_d_4_j_b_terms, coef_index + 1);
-    ref_keypair.pk.B_query.values[1] = knowledge_commitment<libff::G2<ppT>, libff::G1<ppT>>(
-                random_container.Bt_save * random_container.rB * libff::G2<ppT>::one() ,
-                random_container.Bt_save * random_container.rB * random_container.alphaB * libff::G1<ppT>::one() );
+        random_container.Bt_save = r1cs_to_qap_instance_map_with_evaluation_At(FFT_evaluation_point, 
+                    random_container.Bt_save, this->new_constraint_a_d_3_j_b_terms, 
+                    this->save_constraint_a_d_3_j_b_terms, coef_index);
+        random_container.Bt_save = r1cs_to_qap_instance_map_with_evaluation_At(FFT_evaluation_point, 
+                    random_container.Bt_save, this->new_constraint_a_d_4_j_b_terms, 
+                    this->save_constraint_a_d_4_j_b_terms, coef_index + 1);
+        (*this->current_key_pair).pk.B_query.values[1] = knowledge_commitment<libff::G2<ppT>, libff::G1<ppT>>(
+                    random_container.Bt_save * random_container.rB * libff::G2<ppT>::one() ,
+                    random_container.Bt_save * random_container.rB * random_container.alphaB * libff::G1<ppT>::one() );
 
-    random_container.Kt_save = random_container.Kt_save - At_save * random_container.rA * 
-                random_container.beta + random_container.At_save  * random_container.rA * 
-                random_container.beta - Bt_save * random_container.rB * 
-                random_container.beta + random_container.Bt_save  * random_container.rB * 
-                random_container.beta;
-    ref_keypair.pk.K_query[2] = random_container.Kt_save * libff::G1<ppT>::one();
+        random_container.Kt_save = random_container.Kt_save - At_save * random_container.rA * 
+                    random_container.beta + random_container.At_save  * random_container.rA * 
+                    random_container.beta - Bt_save * random_container.rB * 
+                    random_container.beta + random_container.Bt_save  * random_container.rB * 
+                    random_container.beta;
+        
+        (*this->current_key_pair).pk.K_query[2] = random_container.Kt_save * libff::G1<ppT>::one();
+    }
     
-    return r1cs_ppzksnark_keypair<ppT>(std::move(ref_keypair.pk), std::move(ref_keypair.vk));
+    return (*this->current_key_pair);
 }
 
 template<typename FieldT, typename ppT>
@@ -494,4 +522,29 @@ return_container_key_generator_for_update<ppT> R1CS_Polynomial_factory<FieldT, p
     vk.print_size();
     return_container_key_generator_for_update<ppT> return_container(t, container_random, r1cs_ppzksnark_keypair<ppT>(std::move(pk), std::move(vk)));
     return return_container;
+}
+
+template<typename FieldT, typename ppT>
+void R1CS_Polynomial_factory<FieldT, ppT>::set_current_key_pair(r1cs_ppzksnark_keypair<ppT> *key_pair){
+    this->current_key_pair = key_pair;
+}
+
+template<typename FieldT, typename ppT>
+r1cs_ppzksnark_keypair<ppT>* R1CS_Polynomial_factory<FieldT, ppT>::get_current_key_pair(){
+    return this->current_key_pair;
+}
+
+template<typename FieldT, typename ppT>
+void R1CS_Polynomial_factory<FieldT, ppT>::update_keypair_constraint_system(const r1cs_constraint_system<FieldT> constraint_system_update){
+    this->current_key_pair->pk.constraint_system = constraint_system_update;
+}
+
+template<typename FieldT, typename ppT>
+r1cs_ppzksnark_proving_key<ppT> R1CS_Polynomial_factory<FieldT, ppT>::get_proving_key(){
+    return this->current_key_pair->pk;
+}
+
+template<typename FieldT, typename ppT>
+r1cs_ppzksnark_verification_key<ppT> R1CS_Polynomial_factory<FieldT, ppT>::get_verification_key(){
+    return this->current_key_pair->vk;
 }

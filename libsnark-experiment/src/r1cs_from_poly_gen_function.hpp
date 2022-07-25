@@ -31,9 +31,9 @@ public:
 
     R1CS_Polynomial_factory(uint64_t degree, int insert_error_for_test);
 
-    void update_zero_coefficient(libff::Fr<ppT> new_zero_coefficient_value, libff::Fr<ppT> last_zero_coefficient_value);
+    void update_coefficient_zero(libff::Fr<ppT> new_zero_coefficient_value, libff::Fr<ppT> last_zero_coefficient_value);
 
-    void update_one_coefficient(libff::Fr<ppT> new_one_coefficient_value, libff::Fr<ppT> last_one_coefficient_value);
+    void update_coefficient_one(libff::Fr<ppT> new_one_coefficient_value, libff::Fr<ppT> last_one_coefficient_value);
 
     void set_x_value(libff::Fr<ppT> x_value);
 
@@ -110,7 +110,7 @@ public:
     void create_wrong_constraint_horner_method();
     
     r1cs_ppzksnark_keypair<ppT> update_proving_key_compilation(uint64_t coef_index, 
-                        libff::Fr<ppT> FFT_evaluation_point, r1cs_ppzksnark_keypair<ppT> ref_keypair);
+                        libff::Fr<ppT> FFT_evaluation_point);
 
     r1cs_constraint_system<FieldT> get_constraint_system();
 
@@ -121,6 +121,16 @@ public:
     void clear_polynomial();
 
     return_container_key_generator_for_update<ppT> r1cs_ppzksnark_key_generator_for_update();
+
+    void set_current_key_pair(r1cs_ppzksnark_keypair<ppT> *key_pair);
+    
+    r1cs_ppzksnark_keypair<ppT>* get_current_key_pair();
+
+    void update_keypair_constraint_system(const r1cs_constraint_system<FieldT> constraint_system_update);
+
+    r1cs_ppzksnark_proving_key<ppT> get_proving_key();
+
+    r1cs_ppzksnark_verification_key<ppT> get_verification_key();
 
 private:
     vector<libff::Fr<ppT>> poly;
@@ -149,6 +159,7 @@ private:
     libff::Fr<ppT> new_constraint_a_d_4_j_a_terms;
     libff::Fr<ppT> new_constraint_a_d_5_j_a_terms;
 
+    r1cs_ppzksnark_keypair<ppT> *current_key_pair;
 
     /**
      * @brief This variable is just here for the test to insert error in the 
@@ -158,6 +169,8 @@ private:
      * 2 -> wrong update of the key
      */
     int insert_error_for_test;
+
+    bool already_changed_one_time;
 };
 
 
