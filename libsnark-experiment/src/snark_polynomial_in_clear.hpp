@@ -51,10 +51,10 @@ void compute_polynomial_witness_output(protoboard<FieldT> &protoboard_for_poly,
  * @return vector<double> return the different computing time during the update
  */
 template<typename FieldT>
-vector<double> test_polynomial_in_clear_update(r1cs_variable_assignment<FieldT> full_variable_assignment_update, 
-                                return_container_key_generator_for_update<default_r1cs_ppzksnark_pp> container_for_update, 
-                                r1cs_ppzksnark_keypair<default_r1cs_ppzksnark_pp> last_keypair, uint64_t index_of_the_coef_to_update,
-                                R1CS_Polynomial_factory<FieldT, default_r1cs_ppzksnark_pp> r1cs_polynomial_factory);
+vector<double> test_polynomial_in_clear_update(
+    return_container_key_generator_for_update<default_r1cs_ppzksnark_pp> container_for_update, 
+    r1cs_ppzksnark_keypair<default_r1cs_ppzksnark_pp> last_keypair, uint64_t index_of_the_coef_to_update,
+    R1CS_Polynomial_factory<FieldT, default_r1cs_ppzksnark_pp> *r1cs_polynomial_factory);
 
 /**
  * @brief Evaluate a R1CS cosntraint with the current variable assignment
@@ -71,7 +71,7 @@ FieldT evaluation_on_linear_combination(linear_combination<FieldT> a, linear_com
 
 /**
  * @brief This function will execute the different phases of our protocol on a polynomial
- * of degree polynomial_degree. We'll execute our protocol number_of_try time, to do a mean on 
+ * of degree 'polynomial_degree'. We'll execute our protocol number_of_try time, to do a mean on 
  * the different timing of our protocol.
  * 
  * @param polynomial_degree 
@@ -79,12 +79,55 @@ FieldT evaluation_on_linear_combination(linear_combination<FieldT> a, linear_com
  */
 void test_polynomial_in_clear(uint64_t polynomial_degree, int number_of_try);
 
+/**
+ * @brief This function will test our protocol on a polynomial of degree 'polynomial_degree'. And we'll
+ * try to update the coefficient 0 of our polynomial 2 times.
+ * 
+ * @param polynomial_degree 
+ */
 void test_update_index_0(uint64_t polynomial_degree);
 
+/**
+ * @brief This function will test our protocol on a polynomial of degree 'polynomial_degree'. And we'll
+ * try to update the coefficient 1 of our polynomial 2 times.
+ * 
+ * @param polynomial_degree 
+ */
 void test_update_index_1(uint64_t polynomial_degree);
 
+/**
+ * @brief This function will test our protocol on a polynomial of degree 'polynomial_degree'. And we'll
+ * try to update the coefficient 'random_index_to_update' of our polynomial 2 times.
+ * 
+ * @param polynomial_degree 
+ */
 void test_update_random_index(uint64_t polynomial_degree, int random_index_to_update);
 
-//#include "snark_polynomial_in_clear.cpp"
+/**
+ * @brief This function will raised an error because the r1cs will not be generated correctly
+ * on a polynomial of degree 'polynomial_degree'.
+ * 
+ * @param polynomial_degree 
+ */
+void test_raise_error_for_wrong_r1cs_construction(uint64_t polynomial_degree);
+
+/**
+ * @brief This function will raised an error because the r1cs will not be update correctly
+ * on a polynomial of degree 'polynomial_degree' for the updated index 'random_index_to_update'
+ * 
+ * @param polynomial_degree 
+ * @param random_index_to_update 
+ */
+void test_raise_error_for_wrong_r1cs_update(uint64_t polynomial_degree, int random_index_to_update);
+
+/**
+ * @brief This function will raised an error because the key will not be update correctly (if
+ * the updated index 'random_index_to_update' > 1) on a polynomial of degree 'polynomial_degree' 
+ * for the updated index 'random_index_to_update'.
+ * 
+ * @param polynomial_degree 
+ * @param random_index_to_update 
+ */
+void test_raise_error_for_wrong_keys_update(uint64_t polynomial_degree, int random_index_to_update);
 
 #endif

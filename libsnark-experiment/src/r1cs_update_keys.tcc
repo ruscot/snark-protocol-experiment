@@ -4,7 +4,7 @@
 #include "r1cs_update_keys.tcc"
 
 template <typename ppT>
-std::tuple<r1cs_ppzksnark_keypair<ppT>, libff::Fr_vector<ppT>> r1cs_ppzksnark_generator_with_FFT_evaluation_point_and_random_values(const r1cs_ppzksnark_constraint_system<ppT> &cs, const libff::Fr<ppT> FFT_evaluation_point, 
+r1cs_ppzksnark_keypair<ppT> r1cs_ppzksnark_generator_with_FFT_evaluation_point_and_random_values(const r1cs_ppzksnark_constraint_system<ppT> &cs, const libff::Fr<ppT> FFT_evaluation_point, 
                     random_container_key<ppT> random_container)
 {
     libff::enter_block("Call to r1cs_ppzksnark_generator_with_t");
@@ -181,8 +181,7 @@ std::tuple<r1cs_ppzksnark_keypair<ppT>, libff::Fr_vector<ppT>> r1cs_ppzksnark_ge
                                                                          std::move(H_query),
                                                                          std::move(K_query),
                                                                          std::move(cs_copy));
-    std::tuple<r1cs_ppzksnark_keypair<ppT>, libff::Fr_vector<ppT>> foo (r1cs_ppzksnark_keypair<ppT>(std::move(pk), std::move(vk)), At_save);
-    return foo;
+    return r1cs_ppzksnark_keypair<ppT>(std::move(pk), std::move(vk));
 }
 
 template <typename ppT>

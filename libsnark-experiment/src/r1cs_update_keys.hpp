@@ -94,7 +94,7 @@ public:
 };
 
 template <typename ppT>
-std::tuple<r1cs_ppzksnark_keypair<ppT>, libff::Fr_vector<ppT>> r1cs_ppzksnark_generator_with_FFT_evaluation_point_and_random_values(const r1cs_ppzksnark_constraint_system<ppT> &cs, const libff::Fr<ppT> FFT_evaluation_point, 
+r1cs_ppzksnark_keypair<ppT> r1cs_ppzksnark_generator_with_FFT_evaluation_point_and_random_values(const r1cs_ppzksnark_constraint_system<ppT> &cs, const libff::Fr<ppT> FFT_evaluation_point, 
                     random_container_key<ppT> random_container);
 
 template < typename ppT >

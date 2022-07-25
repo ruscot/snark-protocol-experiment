@@ -29,7 +29,7 @@ template<typename FieldT, typename ppT>
 class R1CS_Polynomial_factory{
 public:
 
-    R1CS_Polynomial_factory(uint64_t degree);
+    R1CS_Polynomial_factory(uint64_t degree, int insert_error_for_test);
 
     void update_zero_coefficient(libff::Fr<ppT> new_zero_coefficient_value, libff::Fr<ppT> last_zero_coefficient_value);
 
@@ -93,9 +93,7 @@ public:
      */
     libff::Fr<ppT> evaluation_polynomial_horner();
 
-    void update_constraint_horner_method(uint64_t index_of_the_coefficient);
-
-    void update_constraint_horner_method_aude_version(uint64_t index_of_the_coefficient, libff::Fr<ppT> delta);
+    void update_constraint_horner_method(uint64_t index_of_the_coefficient, libff::Fr<ppT> delta);
 
     void set_protoboard(protoboard<FieldT>* protoboard_for_poly);
 
@@ -108,11 +106,11 @@ public:
 
     FieldT r1cs_to_qap_instance_map_with_evaluation_Zt(FieldT Zt, FieldT At_save, FieldT new_At, 
                                                             FieldT rA, FieldT beta);
-
+    
+    void create_wrong_constraint_horner_method();
+    
     r1cs_ppzksnark_keypair<ppT> update_proving_key_compilation(uint64_t coef_index, 
                         libff::Fr<ppT> FFT_evaluation_point, r1cs_ppzksnark_keypair<ppT> ref_keypair);
-
-    void compare_at(libff::Fr_vector<ppT> At_save, libff::Fr<ppT> FFT_evaluation_point, uint64_t coef_index);
 
     r1cs_constraint_system<FieldT> get_constraint_system();
 
@@ -152,9 +150,14 @@ private:
     libff::Fr<ppT> new_constraint_a_d_5_j_a_terms;
 
 
-    libff::window_table<libff::G1<ppT> > g1_table;  
-    size_t g1_window;
-    libff::Fr_vector<ppT> At;
+    /**
+     * @brief This variable is just here for the test to insert error in the 
+     * protocol depending of it's value;
+     * 0 -> no error inserted
+     * 1 -> wrong update of the R1CS
+     * 2 -> wrong update of the key
+     */
+    int insert_error_for_test;
 };
 
 

@@ -1,6 +1,7 @@
 template<typename FieldT, typename ppT>
-R1CS_Polynomial_factory<FieldT, ppT>::R1CS_Polynomial_factory(uint64_t degree){
+R1CS_Polynomial_factory<FieldT, ppT>::R1CS_Polynomial_factory(uint64_t degree, int insert_error_for_test){
     this->polynomial_degree = degree;
+    this->insert_error_for_test = insert_error_for_test;
     this->protoboard_for_poly = NULL;
     this->coefficient_one_updated = libff::Fr<ppT>::zero();
     this->coefficient_zero_updated = libff::Fr<ppT>::zero();
@@ -8,8 +9,13 @@ R1CS_Polynomial_factory<FieldT, ppT>::R1CS_Polynomial_factory(uint64_t degree){
 
 template<typename FieldT, typename ppT>
 void R1CS_Polynomial_factory<FieldT, ppT>::update_zero_coefficient(libff::Fr<ppT> new_zero_coefficient_value, libff::Fr<ppT> last_zero_coefficient_value){
-    this->coefficient_zero_updated += new_zero_coefficient_value;
-    this->save_coefficient_zero += last_zero_coefficient_value;
+    if(this->insert_error_for_test == 1){
+        this->coefficient_zero_updated = new_zero_coefficient_value;
+        this->save_coefficient_zero = last_zero_coefficient_value;
+    } else {
+        this->coefficient_zero_updated += new_zero_coefficient_value;
+        this->save_coefficient_zero += last_zero_coefficient_value;
+    }
 }
 
 template<typename FieldT, typename ppT>
@@ -19,8 +25,13 @@ pb_variable<FieldT> R1CS_Polynomial_factory<FieldT, ppT>::get_y_variable(){
 
 template<typename FieldT, typename ppT>
 void R1CS_Polynomial_factory<FieldT, ppT>::update_one_coefficient(libff::Fr<ppT> new_one_coefficient_value, libff::Fr<ppT> last_one_coefficient_value){
-    this->coefficient_one_updated += new_one_coefficient_value;
-    this->save_coefficient_one += last_one_coefficient_value;
+    if(this->insert_error_for_test == 1){
+        this->coefficient_one_updated = new_one_coefficient_value;
+        this->save_coefficient_one = last_one_coefficient_value;
+    } else {
+        this->coefficient_one_updated += new_one_coefficient_value;
+        this->save_coefficient_one += last_one_coefficient_value;
+    }
 }
 
 template<typename FieldT, typename ppT>
@@ -73,6 +84,33 @@ void R1CS_Polynomial_factory<FieldT, ppT>::create_random_coefficients_for_polyno
 }
 
 template<typename FieldT, typename ppT>
+void R1CS_Polynomial_factory<FieldT, ppT>::create_wrong_constraint_horner_method()
+{
+    libff::enter_block("Create constraint horner method");
+    this->y.allocate(*this->protoboard_for_poly, "out");
+    this->x.allocate(*this->protoboard_for_poly, "x");
+
+    if(this->polynomial_degree == 0){
+        throw std::runtime_error("Polynomial of degree 0, not valid");
+    } else {
+        pb_variable<FieldT> last_var_1;
+        last_var_1.allocate(*this->protoboard_for_poly, "0");
+        (*this->protoboard_for_poly).add_r1cs_constraint(r1cs_constraint<FieldT>(this->poly[0] + 0 * this->x, this->x, last_var_1));
+        string last_var_name = "1";
+        for(uint64_t i = this->polynomial_degree; i > 1; i-=1){
+            pb_variable<FieldT> last_var_2;
+            last_var_name = std::to_string(stoi(last_var_name) + 1);
+            last_var_2.allocate(*this->protoboard_for_poly, last_var_name);
+            (*this->protoboard_for_poly).add_r1cs_constraint(r1cs_constraint<FieldT>(this->poly[i-1] + last_var_1 + 0 * this->x, this->x, last_var_2));
+            last_var_1 = last_var_2;
+        }
+        (*this->protoboard_for_poly).add_r1cs_constraint(r1cs_constraint<FieldT>(this->poly[0] + last_var_1 + 0 * this->x, 1, this->y));
+    }
+    libff::leave_block("Create constraint horner method");
+    
+}
+
+template<typename FieldT, typename ppT>
 void R1CS_Polynomial_factory<FieldT, ppT>::create_constraint_horner_method()
 {
     libff::enter_block("Create constraint horner method");
@@ -80,7 +118,7 @@ void R1CS_Polynomial_factory<FieldT, ppT>::create_constraint_horner_method()
     this->x.allocate(*this->protoboard_for_poly, "x");
 
     if(this->polynomial_degree == 0){
-        printf("Not a polynomial\n");
+        throw std::runtime_error("Polynomial of degree 0, not valid");
     } else {
         pb_variable<FieldT> last_var_1;
         last_var_1.allocate(*this->protoboard_for_poly, "0");
@@ -110,29 +148,21 @@ libff::Fr<ppT> R1CS_Polynomial_factory<FieldT, ppT>::evaluation_polynomial_horne
 }
 
 template<typename FieldT, typename ppT>
-void R1CS_Polynomial_factory<FieldT, ppT>::update_constraint_horner_method(uint64_t index_of_the_coefficient)
+void R1CS_Polynomial_factory<FieldT, ppT>::update_constraint_horner_method(uint64_t index_of_the_coefficient, libff::Fr<ppT> delta)
 {
-    libff::enter_block("Update constraint");      
-    uint64_t index_in_the_r1cs = this->polynomial_degree - index_of_the_coefficient;
-    r1cs_constraint<FieldT> constraint = (*this->protoboard_for_poly).get_specific_constraint_in_r1cs(index_in_the_r1cs);
-    constraint.a.terms[0].coeff = this->poly[index_of_the_coefficient];
-    (*this->protoboard_for_poly).protoboard_update_r1cs_constraint(constraint, index_in_the_r1cs);
-    libff::leave_block("Update constraint");
-}
-
-template<typename FieldT, typename ppT>
-void R1CS_Polynomial_factory<FieldT, ppT>::update_constraint_horner_method_aude_version(uint64_t index_of_the_coefficient, libff::Fr<ppT> delta)
-{
-    libff::enter_block("Update constraint");      
+    libff::enter_block("Update constraint");
     uint64_t index_in_the_r1cs = this->polynomial_degree - index_of_the_coefficient;
     FieldT random_k = libff::Fr<ppT>::random_element();
     r1cs_constraint<FieldT> constraint_a_d_3_j = (*this->protoboard_for_poly).get_specific_constraint_in_r1cs(index_in_the_r1cs);
-    this->save_constraint_a_d_3_j_b_terms = constraint_a_d_3_j.b.terms[0].coeff;
-    constraint_a_d_3_j.b.terms[0].coeff *= random_k;
-    this->new_constraint_a_d_3_j_b_terms = constraint_a_d_3_j.b.terms[0].coeff;
-    cout << "REMOVE COMMENT index of constraint_a_d_3_j" << endl;
-    cout << constraint_a_d_3_j.b.terms[0].index << endl;
-
+    if(this->insert_error_for_test == 1){
+        this->save_constraint_a_d_3_j_b_terms = constraint_a_d_3_j.b.terms[0].coeff;
+        constraint_a_d_3_j.b.terms[0].coeff = random_k;
+        this->new_constraint_a_d_3_j_b_terms = constraint_a_d_3_j.b.terms[0].coeff;        
+    } else {
+        this->save_constraint_a_d_3_j_b_terms = constraint_a_d_3_j.b.terms[0].coeff;
+        constraint_a_d_3_j.b.terms[0].coeff *= random_k;
+        this->new_constraint_a_d_3_j_b_terms = constraint_a_d_3_j.b.terms[0].coeff;
+    }
 
     r1cs_constraint<FieldT> constraint_a_d_4_j = (*this->protoboard_for_poly).get_specific_constraint_in_r1cs(
                                                                             index_in_the_r1cs + 1);
@@ -140,14 +170,10 @@ void R1CS_Polynomial_factory<FieldT, ppT>::update_constraint_horner_method_aude_
     constraint_a_d_4_j.a.terms[1].coeff = constraint_a_d_4_j.a.terms[1].coeff * random_k +
                                             delta * constraint_a_d_3_j.b.terms[0].coeff; 
     this->new_constraint_a_d_4_j_a_terms = constraint_a_d_4_j.a.terms[1].coeff;
-    cout << "REMOVE COMMENT index of constraint_a_d_4_j" << endl;
-    cout << constraint_a_d_4_j.a.terms[1].index << endl;
 
     this->save_constraint_a_d_4_j_b_terms = constraint_a_d_4_j.b.terms[0].coeff;
     constraint_a_d_4_j.b.terms[0].coeff *= random_k.inverse();
     this->new_constraint_a_d_4_j_b_terms = constraint_a_d_4_j.b.terms[0].coeff;
-    cout << "REMOVE COMMENT index of constraint_a_d_4_j" << endl;
-    cout << constraint_a_d_4_j.b.terms[0].index << endl;
 
 
     r1cs_constraint<FieldT> constraint_a_d_5_j = (*this->protoboard_for_poly).get_specific_constraint_in_r1cs(index_in_the_r1cs + 2);
@@ -155,8 +181,6 @@ void R1CS_Polynomial_factory<FieldT, ppT>::update_constraint_horner_method_aude_
     constraint_a_d_5_j.a.terms[1].coeff += (libff::Fr<ppT>::one() - random_k.inverse()) * constraint_a_d_4_j.a.terms[0].coeff * 
                                                 this->save_constraint_a_d_4_j_b_terms;
     this->new_constraint_a_d_5_j_a_terms = constraint_a_d_5_j.a.terms[1].coeff;
-    cout << "REMOVE COMMENT index of constraint_a_d_5_j" << endl;
-    cout << constraint_a_d_5_j.a.terms[1].index << endl;
 
     
     (*this->protoboard_for_poly).protoboard_update_r1cs_constraint(constraint_a_d_3_j, index_in_the_r1cs);
@@ -210,12 +234,16 @@ FieldT R1CS_Polynomial_factory<FieldT, ppT>::r1cs_to_qap_instance_map_with_evalu
 template<typename FieldT, typename ppT>
 r1cs_ppzksnark_keypair<ppT> R1CS_Polynomial_factory<FieldT, ppT>::update_proving_key_compilation(uint64_t coef_index, 
                     libff::Fr<ppT> FFT_evaluation_point, r1cs_ppzksnark_keypair<ppT> ref_keypair){
+    
     Fr<ppT> At_save = random_container.At_save;
     Fr<ppT> Bt_save = random_container.Bt_save;
-    //Change At for constraint_a_d_4_j
-    random_container.At_save = r1cs_to_qap_instance_map_with_evaluation_At(FFT_evaluation_point, 
+    
+    if(this->insert_error_for_test != 2){
+        //Change At for constraint_a_d_4_j
+        random_container.At_save = r1cs_to_qap_instance_map_with_evaluation_At(FFT_evaluation_point, 
                 random_container.At_save, this->new_constraint_a_d_4_j_a_terms, 
                 this->save_constraint_a_d_4_j_a_terms, coef_index + 1);
+    }
 
     //Change At for constraint_a_d_5_j
     random_container.At_save = r1cs_to_qap_instance_map_with_evaluation_At(FFT_evaluation_point, 
@@ -244,29 +272,7 @@ r1cs_ppzksnark_keypair<ppT> R1CS_Polynomial_factory<FieldT, ppT>::update_proving
                 random_container.beta;
     ref_keypair.pk.K_query[2] = random_container.Kt_save * libff::G1<ppT>::one();
     
-
     return r1cs_ppzksnark_keypair<ppT>(std::move(ref_keypair.pk), std::move(ref_keypair.vk));
-}
-
-template<typename FieldT, typename ppT>
-void R1CS_Polynomial_factory<FieldT, ppT>::compare_at(libff::Fr_vector<ppT> At_save, libff::Fr<ppT> FFT_evaluation_point, uint64_t coef_index){
-    cout << "REMOVE COMMENT Compare At_save ----------------------------------------------------------------------------------"<< endl;
-    for(size_t i = 0; i < At_save.size(); i++){
-        if(At_save[i] != this->At[i]){
-            cout << "index " << i  << " not ok for At_save "<< endl;
-            this->At[i] = r1cs_to_qap_instance_map_with_evaluation_At(FFT_evaluation_point, 
-                        this->At[i], this->new_constraint_a_d_4_j_a_terms, 
-                        this->save_constraint_a_d_4_j_a_terms, coef_index + 1);
-
-            //Change At for constraint_a_d_5_j
-            this->At[i] = r1cs_to_qap_instance_map_with_evaluation_At(FFT_evaluation_point, 
-                                this->At[i], this->new_constraint_a_d_5_j_a_terms, 
-                                this->save_constraint_a_d_5_j_a_terms, coef_index + 2);
-            if(At_save[i] == this->At[i]){
-                cout << "index " << i  << " ok for At_save now"<< endl;
-            }
-        }
-    }
 }
 
 template<typename FieldT, typename ppT>
@@ -381,7 +387,6 @@ return_container_key_generator_for_update<ppT> R1CS_Polynomial_factory<FieldT, p
     const size_t g2_exp_count = non_zero_Bt;
 
     size_t g1_window = libff::get_exp_window_size<libff::G1<ppT> >(g1_exp_count);
-    this->g1_window = g1_window;
     size_t g2_window = libff::get_exp_window_size<libff::G2<ppT> >(g2_exp_count);
     libff::print_indent(); printf("* G1 window: %zu\n", g1_window);
     libff::print_indent(); printf("* G2 window: %zu\n", g2_window);
@@ -394,7 +399,6 @@ return_container_key_generator_for_update<ppT> R1CS_Polynomial_factory<FieldT, p
 
     libff::enter_block("Generating G1 multiexp table");
     libff::window_table<libff::G1<ppT> > g1_table = get_window_table(libff::Fr<ppT>::size_in_bits(), g1_window, libff::G1<ppT>::one());
-    this->g1_table = g1_table;
     libff::leave_block("Generating G1 multiexp table");
 
     libff::enter_block("Generating G2 multiexp table");
@@ -405,7 +409,6 @@ return_container_key_generator_for_update<ppT> R1CS_Polynomial_factory<FieldT, p
 
     libff::enter_block("Generate knowledge commitments");
     libff::enter_block("Compute the A-query", false);
-    this->At = At;
     knowledge_commitment_vector<libff::G1<ppT>, libff::G1<ppT> > A_query = kc_batch_exp(libff::Fr<ppT>::size_in_bits(), g1_window, g1_window, g1_table, g1_table, rA, rA*alphaA, At, chunks);
     libff::leave_block("Compute the A-query", false);
 
