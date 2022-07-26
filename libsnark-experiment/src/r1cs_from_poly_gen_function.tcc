@@ -80,7 +80,7 @@ void R1CS_Polynomial_factory<FieldT, ppT>::update_polynomial_coefficient(libff::
 template<typename FieldT, typename ppT>
 void R1CS_Polynomial_factory<FieldT, ppT>::create_random_coefficients_for_polynomial(){
     for(size_t i = 0; i <= this->polynomial_degree; ++i) {
-        this->poly.push_back(libff::Fr<ppT>::random_element());
+        this->poly.push_back(4);//libff::Fr<ppT>::random_element());
     }
 }
 
@@ -151,10 +151,18 @@ libff::Fr<ppT> R1CS_Polynomial_factory<FieldT, ppT>::evaluation_polynomial_horne
 template<typename FieldT, typename ppT>
 void R1CS_Polynomial_factory<FieldT, ppT>::update_constraint_horner_method(uint64_t index_of_the_coefficient, libff::Fr<ppT> delta)
 {
-    libff::enter_block("Update constraint");
+    libff::enter_block("Update constraint horner method");
     uint64_t index_in_the_r1cs = this->polynomial_degree - index_of_the_coefficient;
-    FieldT random_k = libff::Fr<ppT>::random_element();
+    FieldT random_k = 6;//libff::Fr<ppT>::random_element();
     r1cs_constraint<FieldT> constraint_a_d_3_j = (*this->protoboard_for_poly).get_specific_constraint_in_r1cs(index_in_the_r1cs);
+    random_k.print();
+    random_k.inverse().print();
+    /*cout << "\n\n////////////////////////////////////////////////////////////////////"<<endl;
+    cout << "constraint a  constraint_a_d_3_j"<<endl;
+    constraint_a_d_3_j.a.print();
+    cout << "constraint b "<<endl;
+    constraint_a_d_3_j.b.print();
+    cout << "//////////////////////////////////////////////////////////////"<<endl;*/
     if(this->insert_error_for_test == 1){
         this->save_constraint_a_d_3_j_b_terms = constraint_a_d_3_j.b.terms[0].coeff;
         constraint_a_d_3_j.b.terms[0].coeff = random_k;
@@ -164,24 +172,54 @@ void R1CS_Polynomial_factory<FieldT, ppT>::update_constraint_horner_method(uint6
         constraint_a_d_3_j.b.terms[0].coeff *= random_k;
         this->new_constraint_a_d_3_j_b_terms = constraint_a_d_3_j.b.terms[0].coeff;
     }
-
+    cout << "\n\n////////////////////////////////////////////////////////////////////"<<endl;
+    cout << "constraint a constraint_a_d_3_j"<<endl;
+    constraint_a_d_3_j.a.print();
+    cout << "constraint b "<<endl;
+    constraint_a_d_3_j.b.print();
+    cout << "//////////////////////////////////////////////////////////////"<<endl;
     r1cs_constraint<FieldT> constraint_a_d_4_j = (*this->protoboard_for_poly).get_specific_constraint_in_r1cs(index_in_the_r1cs + 1);
     r1cs_constraint<FieldT> constraint_a_d_5_j = (*this->protoboard_for_poly).get_specific_constraint_in_r1cs(index_in_the_r1cs + 2);
     this->save_constraint_a_d_4_j_a_terms = constraint_a_d_4_j.a.terms[1].coeff;
 
-    constraint_a_d_4_j.a.terms[1].coeff = constraint_a_d_4_j.a.terms[1].coeff * random_k +
-                                            delta * random_k * constraint_a_d_4_j.b.terms[0].coeff.inverse() * 
-                                            constraint_a_d_5_j.b.terms[0].coeff.inverse();
+    if(constraint_a_d_5_j.b.terms[0].coeff*constraint_a_d_4_j.b.terms[0].coeff != libff::Fr<ppT>::one()){
+        constraint_a_d_4_j.a.terms[1].coeff = constraint_a_d_4_j.a.terms[1].coeff * random_k +
+                                    delta * random_k * constraint_a_d_4_j.b.terms[0].coeff.inverse() *constraint_a_d_5_j.b.terms[0].coeff.inverse();
+    } else {
+        constraint_a_d_4_j.a.terms[1].coeff = constraint_a_d_4_j.a.terms[1].coeff * random_k +
+                                    delta * random_k * constraint_a_d_4_j.b.terms[0].coeff.inverse() * 
+                                    constraint_a_d_5_j.b.terms[0].coeff.inverse();
+    }
 
     this->new_constraint_a_d_4_j_a_terms = constraint_a_d_4_j.a.terms[1].coeff;
 
     this->save_constraint_a_d_4_j_b_terms = constraint_a_d_4_j.b.terms[0].coeff;
     constraint_a_d_4_j.b.terms[0].coeff *= random_k.inverse();
     this->new_constraint_a_d_4_j_b_terms = constraint_a_d_4_j.b.terms[0].coeff;
+
+    cout << "////////////////////////////////////////////////////////////////////"<<endl;
+    cout << "constraint a  constraint_a_d_4_j"<<endl;
+    constraint_a_d_4_j.a.print();
+    cout << "constraint b "<<endl;
+    constraint_a_d_4_j.b.print();
+    cout << "//////////////////////////////////////////////////////////////"<<endl;
     
     this->save_constraint_a_d_5_j_a_terms = constraint_a_d_5_j.a.terms[1].coeff;
+    /*cout << "////////////////////////////////////////////////////////////////////"<<endl;
+    cout << "constraint a  constraint_a_d_5_j"<<endl;
+    constraint_a_d_5_j.a.print();
+    cout << "constraint b "<<endl;
+    constraint_a_d_5_j.b.print();
+    cout << "//////////////////////////////////////////////////////////////"<<endl;*/
     constraint_a_d_5_j.a.terms[1].coeff += (libff::Fr<ppT>::one() - random_k.inverse()) * constraint_a_d_4_j.a.terms[0].coeff * 
-                                                this->save_constraint_a_d_4_j_b_terms;
+                                                this->save_constraint_a_d_4_j_b_terms ;
+    
+    cout << "////////////////////////////////////////////////////////////////////"<<endl;
+    cout << "constraint a  constraint_a_d_5_j"<<endl;
+    constraint_a_d_5_j.a.print();
+    cout << "constraint b "<<endl;
+    constraint_a_d_5_j.b.print();
+    cout << "//////////////////////////////////////////////////////////////"<<endl;
     this->new_constraint_a_d_5_j_a_terms = constraint_a_d_5_j.a.terms[1].coeff;
 
     
@@ -189,7 +227,7 @@ void R1CS_Polynomial_factory<FieldT, ppT>::update_constraint_horner_method(uint6
     (*this->protoboard_for_poly).protoboard_update_r1cs_constraint(constraint_a_d_4_j, index_in_the_r1cs + 1);
     (*this->protoboard_for_poly).protoboard_update_r1cs_constraint(constraint_a_d_5_j, index_in_the_r1cs + 2);
     
-    libff::leave_block("Update constraint");
+    libff::leave_block("Update constraint horner method");
 }
 
 template<typename FieldT, typename ppT>

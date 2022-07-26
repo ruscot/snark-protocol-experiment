@@ -116,7 +116,7 @@ vector<double> test_polynomial_in_clear_update(
         Chrono c_setup; 
         c_setup.start();
         /*Change one polynomial coefficient*/
-        libff::Fr<default_r1cs_ppzksnark_pp> new_coef_value = libff::Fr<default_r1cs_ppzksnark_pp>::random_element();
+        libff::Fr<default_r1cs_ppzksnark_pp> new_coef_value = 8;//libff::Fr<default_r1cs_ppzksnark_pp>::random_element();
         libff::Fr<default_r1cs_ppzksnark_pp> save_last_value_of_the_coef = (*r1cs_polynomial_factory).get_polynomial_coefficients(index_of_the_coef_to_update);
         (*r1cs_polynomial_factory).update_polynomial_coefficient(new_coef_value, index_of_the_coef_to_update);
         time_polynomial_coef_update = c_setup.stop();
@@ -231,7 +231,7 @@ void test_polynomial_in_clear(uint64_t polynomial_degree, int number_of_try){
         pb_variable<FieldT> y = r1cs_polynomial_factory.get_y_variable();
         
         //Choose a random x on which we want to eval our polynomial
-        libff::Fr<default_r1cs_ppzksnark_pp> x_value =  libff::Fr<default_r1cs_ppzksnark_pp>::random_element();
+        libff::Fr<default_r1cs_ppzksnark_pp> x_value =  5;//libff::Fr<default_r1cs_ppzksnark_pp>::random_element();
         protoboard_for_poly.val(x) = x_value;
         r1cs_polynomial_factory.set_x_value(x_value);
         protoboard_for_poly.val(y) = 0;
@@ -320,7 +320,8 @@ void test_polynomial_in_clear(uint64_t polynomial_degree, int number_of_try){
 	Coefficient index to update "21"
 */
         //vector<int> coefficient_to_update = {30, 1};
-        vector<int> coefficient_to_update = {68, 70};
+        //vector<int> coefficient_to_update = {68,69};
+        vector<int> coefficient_to_update = {68,69,70};
         r1cs_polynomial_factory.set_current_key_pair(&keypair);
         vector<double> timings_for_update = test_polynomial_in_clear_update<FieldT>( 
                                                 element_for_update, coefficient_to_update[0], &r1cs_polynomial_factory);
