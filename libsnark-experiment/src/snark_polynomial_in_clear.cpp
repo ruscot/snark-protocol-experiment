@@ -637,7 +637,7 @@ void test_update_random_index(uint64_t polynomial_degree, int random_index_to_up
 void test_raise_error_for_wrong_r1cs_construction(uint64_t polynomial_degree){
     typedef libff::Fr<default_r1cs_ppzksnark_pp> FieldT;
     //Container of our R1CS with our function on it 
-    R1CS_Polynomial_factory<FieldT, default_r1cs_ppzksnark_pp> r1cs_polynomial_factory(polynomial_degree, 0);
+    R1CS_Polynomial_factory<FieldT, default_r1cs_ppzksnark_pp> r1cs_polynomial_factory(polynomial_degree, 1);
     libff::enter_block("test_polynomial_in_clear");
 
     // Initialize the curve parameters

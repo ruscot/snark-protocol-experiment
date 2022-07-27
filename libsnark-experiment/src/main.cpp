@@ -193,11 +193,12 @@ int main(int argc, char * argv[])
             } 
         }
 
-        printf("We'll try to update 100 random coefficient on the same polynomial and see if everything is correct\n\n");
+        printf("We'll try to update 100 random coefficient on the same polynomial of degree 10 and see if everything is correct\n\n");
         vector<int> index_to_update_list;
+        uint64_t current_polynomial_degree = 10;
         old_stdout = dup(fileno(stdout));
         for(int i = 0; i < 100; i++){
-            random_index_to_update = rand() % (polynomial_degree-1) + 2;
+            random_index_to_update = rand() % (current_polynomial_degree-1) + 2;
             if(random_index_to_update < 10){
                 printf("\tCoefficient index to update \"0%d\" \n", random_index_to_update);
             } else {
@@ -208,7 +209,7 @@ int main(int argc, char * argv[])
         fclose(stdout);
         try{
             //Try to do another update to see if it works too
-            test_update_multiple_index(polynomial_degree, index_to_update_list);
+            test_update_multiple_index(current_polynomial_degree, index_to_update_list);
             stdout = fdopen(old_stdout, "w");
             printf("\t\t\t\t\t\t\t.........PASS\n\n");
         }catch(std::runtime_error& e) {
