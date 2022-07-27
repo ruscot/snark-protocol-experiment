@@ -184,10 +184,13 @@ void R1CS_Polynomial_factory<FieldT, ppT>::update_constraint_horner_method(uint6
 
     if(constraint_a_d_5_j.b.terms[0].coeff*constraint_a_d_4_j.b.terms[0].coeff != libff::Fr<ppT>::one()){
         constraint_a_d_4_j.a.terms[1].coeff = constraint_a_d_4_j.a.terms[1].coeff * random_k +
-                                    delta * random_k * constraint_a_d_4_j.b.terms[0].coeff.inverse() *constraint_a_d_5_j.b.terms[0].coeff.inverse();
+                                    delta * random_k ;
+    } else if(constraint_a_d_5_j.b.terms[0].coeff*constraint_a_d_4_j.b.terms[0].coeff != libff::Fr<ppT>::one()){
+        constraint_a_d_4_j.a.terms[1].coeff = constraint_a_d_4_j.a.terms[1].coeff * random_k +
+                                    delta * random_k * constraint_a_d_4_j.b.terms[0].coeff.inverse();//  *constraint_a_d_5_j.b.terms[0].coeff.inverse();
     } else {
         constraint_a_d_4_j.a.terms[1].coeff = constraint_a_d_4_j.a.terms[1].coeff * random_k +
-                                    delta * random_k * constraint_a_d_4_j.b.terms[0].coeff.inverse() * 
+                                    delta * random_k * constraint_a_d_4_j.b.terms[0].coeff.inverse() *
                                     constraint_a_d_5_j.b.terms[0].coeff.inverse();
     }
 

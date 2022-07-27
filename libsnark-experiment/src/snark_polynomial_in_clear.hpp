@@ -104,14 +104,6 @@ void test_update_index_1(uint64_t polynomial_degree);
 void test_update_random_index(uint64_t polynomial_degree, int random_index_to_update);
 
 /**
- * @brief This function will test our protocol on a polynomial of degree 'polynomial_degree'. And we'll
- * try to update different coefficient 'random_index_to_update' of our polynomial.
- * 
- * @param polynomial_degree 
- */
-void test_update_multiple_index(uint64_t polynomial_degree, vector<int> random_index_to_update);
-
-/**
  * @brief This function will raised an error because the r1cs will not be generated correctly
  * on a polynomial of degree 'polynomial_degree'.
  * 
@@ -137,5 +129,14 @@ void test_raise_error_for_wrong_r1cs_update(uint64_t polynomial_degree, int rand
  * @param random_index_to_update 
  */
 void test_raise_error_for_wrong_keys_update(uint64_t polynomial_degree, int random_index_to_update);
+
+/**
+ * @brief This function try to update a list of random coefficients 'random_index_to_update'.
+ * We shall not have any errors.
+ * 
+ * @param polynomial_degree 
+ * @param random_index_to_update 
+ */
+void test_update_multiple_index(uint64_t polynomial_degree, vector<int> random_index_to_update);
 
 #endif
