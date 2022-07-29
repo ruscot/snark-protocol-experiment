@@ -1,6 +1,6 @@
 include_directories(.)
 
-set(MySourcesList "main.cpp")# "r1cs_evaluation.cpp")
+set(MySourcesList "snark_polynomial_in_clear.cpp" "snark_tests.cpp" "main.cpp")
 
 add_executable(
   snark_polynomial_in_clear ${MySourcesList}

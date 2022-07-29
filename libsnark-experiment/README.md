@@ -64,7 +64,7 @@ The library have the following directory structure:
 * [__depends__](depends): dependency libraries
 
 ## Doxygen documentation
-You can generate the doxygen documentation with the two command line :
+You can generate the doxygen documentation with the two command line in the `src` directory :
 ```bash
 doxygen -g doxygenfile
 ```
