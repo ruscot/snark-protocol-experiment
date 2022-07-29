@@ -12,6 +12,10 @@ Some time computation of the evaluation are given in order to compare with some 
   - [Compilation Framework](#compilation-framework)
 - [Doxygen documentation](#doxygen-documentation)
 - [Compilation](#compilation)
+- [Run the code](#run-the-code)
+  - [Launch tests](#launch-tests)
+  - [Launch the program](#launch-the-program)
+  - [Use script](#use-script)
 
 ## Build Guide
 
@@ -107,7 +111,24 @@ Lastly, compile the library.
 make
 ```
 
+## Run the code
+### Launch tests
+You can check if all the tests on the code passes with this command in the `build` diretory :
+```bash
+./src/snark_polynomial_in_clear <polynomial_degree> 1 0  
+```
+If you want to have all the outputs given by the program you can run this in the same directory :
+```bash
+./src/snark_polynomial_in_clear <polynomial_degree> 1 0 1
+```
+### Launch the program
 To run the application, use the following command from the `build` directory:
 ```bash
-./src/snark_polynomial_in_clear
+./src/snark_polynomial_in_clear <polynomial_degree> <number_of_try_to_do> 1
+```
+The parameter `number_of_try_to_do` is used to repeat the protocol a number of time to do the mean of the computation time
+### Use script
+The script `launch_protocol_on_different_poly_degree.sh` is used to launch our code on different polynomial degree to get the benchmark.
+```bash
+./launch_protocol_on_different_poly_degree.sh
 ```
