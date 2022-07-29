@@ -250,12 +250,12 @@ public:
      * @return random_container_key<ppT> 
      */
     random_container_key<ppT> get_random_container();
-
+    
     /**
-     * @brief Clear all the polynomial (this->poly) of our factory 
+     * @brief Clear all informations of the previous round of the protocol
      * 
      */
-    void clear_polynomial();
+    void clear_informations();
 
     /**
      * @brief Function to generate the pk and vk for the protocol
@@ -301,23 +301,89 @@ public:
     r1cs_ppzksnark_verification_key<ppT> get_verification_key();
 
 private:
+    
+    /**
+     * @brief Current coefficient of the polynomial
+     * 
+     */
     vector<libff::Fr<ppT>> poly;
+   
+    /**
+     * @brief For the update we need to store some coefficient
+     * 
+     */
     vector<libff::Fr<ppT>> poly_special_save;
+    
+    /**
+     * @brief Degree of our polynomial
+     * 
+     */
     uint64_t polynomial_degree;
+    
+    /**
+     * @brief Current R1CS of the polynomial 
+     * 
+     */
     r1cs_constraint_system<FieldT> constraint_system;
-
+    
+    /**
+     * @brief y variable corresponding to the output of our computation
+     * 
+     */
     pb_variable<FieldT> y;
+    
+    /**
+     * @brief x variable corresponding to the evaluation point
+     * 
+     */
     pb_variable<FieldT> x;
+    
+    /**
+     * @brief protoboard that store our polynomial
+     * 
+     */
     protoboard<FieldT>* protoboard_for_poly;
+    
+    /**
+     * @brief container for the update
+     * 
+     */
     random_container_key<ppT> random_container;
     
+    /**
+     * @brief coefficient 0 new value after update
+     * 
+     */
     libff::Fr<ppT> coefficient_zero_updated;
+
+    /**
+     * @brief coefficient 1 new value after update
+     * 
+     */
     libff::Fr<ppT> coefficient_one_updated;
 
+    /**
+     * @brief last coefficient 0 value after update
+     * 
+     */
     libff::Fr<ppT> save_coefficient_zero;
+
+    /**
+     * @brief last coefficient 1 value after update
+     * 
+     */
     libff::Fr<ppT> save_coefficient_one;
+
+    /**
+     * @brief Value of the evaluation point 
+     * 
+     */
     libff::Fr<ppT> x_value;
 
+    /**
+     * @brief New and old constraints value for the update
+     * 
+     */
     libff::Fr<ppT> save_constraint_a_d_3_j_b_terms;
     libff::Fr<ppT> save_constraint_a_d_4_j_b_terms;
     libff::Fr<ppT> save_constraint_a_d_4_j_a_terms;
@@ -328,6 +394,10 @@ private:
     libff::Fr<ppT> new_constraint_a_d_4_j_a_terms;
     libff::Fr<ppT> new_constraint_a_d_5_j_a_terms;
 
+    /**
+     * @brief current key pair corresponding to our R1CS
+     * 
+     */
     r1cs_ppzksnark_keypair<ppT> *current_key_pair;
 
     /**
@@ -339,6 +409,10 @@ private:
      */
     int insert_error_for_test;
 
+    /**
+     * @brief boolean for the update
+     * 
+     */
     bool already_changed_one_time;
 };
 

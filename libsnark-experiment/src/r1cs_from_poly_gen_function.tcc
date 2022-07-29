@@ -330,8 +330,10 @@ random_container_key<ppT> R1CS_Polynomial_factory<FieldT, ppT>::get_random_conta
 }
 
 template<typename FieldT, typename ppT>
-void R1CS_Polynomial_factory<FieldT, ppT>::clear_polynomial() {
+void R1CS_Polynomial_factory<FieldT, ppT>::clear_informations() {
     this->poly.clear();
+    this->poly_special_save.clear();
+    this->already_changed_one_time = false;
 }
 
 template<typename FieldT, typename ppT>

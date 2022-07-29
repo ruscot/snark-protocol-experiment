@@ -7,5 +7,5 @@ make -j16
 for i in "${poly_coef[@]}"
 do
 	echo "$i"
-    ./src/snark_polynomial_in_clear $i 10 > output$i
+    ./src/snark_polynomial_in_clear $i 10 1 > output$i
 done

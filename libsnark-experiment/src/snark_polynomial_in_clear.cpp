@@ -63,6 +63,7 @@ vector<double> test_polynomial_in_clear_update(
         /*Change one polynomial coefficient*/
         libff::Fr<default_r1cs_ppzksnark_pp> new_coef = libff::Fr<default_r1cs_ppzksnark_pp>::random_element();
         libff::Fr<default_r1cs_ppzksnark_pp> save_last_value_of_the_coef = r1cs_polynomial_factory->get_polynomial_coefficients(index_of_the_coef_to_update);
+
         if(index_of_the_coef_to_update == 1) {
             r1cs_polynomial_factory->update_coefficient_one(new_coef, save_last_value_of_the_coef);
         } else {
@@ -190,8 +191,8 @@ vector<double> test_polynomial_in_clear_update(
 }
 
 void test_polynomial_in_clear(uint64_t polynomial_degree, int number_of_try) {
-    double time_i_sum=0., time_client_sum=0., time_server_sum=0., time_polynomial_coef_update_sum=0., 
-        time_key_update_sum=0., time_polynomial_horner_update_sum=0., sum_update_timing_sum=0. ;
+    vector<double> time_i_vector, time_client_vector, time_server_vector, time_polynomial_coef_update_vector, 
+        time_key_update_vector, time_polynomial_horner_update_vector, sum_update_timing_vector;
     //Create the timer to evaluate our function computation time
     Chrono c_setup; 
     //Some variables to calculate the time of our computations for one turn
@@ -234,10 +235,10 @@ void test_polynomial_in_clear(uint64_t polynomial_degree, int number_of_try) {
         return_container_key_generator_for_update<default_r1cs_ppzksnark_pp> element_for_update = 
                 r1cs_polynomial_factory.r1cs_ppzksnark_key_generator_for_update();
 
-        r1cs_ppzksnark_keypair<default_r1cs_ppzksnark_pp> keypair = element_for_update.get_key_pair();
+        r1cs_ppzksnark_keypair<default_r1cs_ppzksnark_pp>* keypair = element_for_update.get_key_pair();
         //timer of the setup stop
         time_i = c_setup.stop();
-        time_i_sum += time_i;
+        time_i_vector.push_back(time_i);
 
         /**
          * SERVER PHASES
@@ -245,22 +246,23 @@ void test_polynomial_in_clear(uint64_t polynomial_degree, int number_of_try) {
         const r1cs_constraint_system<FieldT> constraint_system = protoboard_for_poly.get_constraint_system();
 
         c_setup.start();
-        compute_polynomial_witness_output<FieldT, default_r1cs_ppzksnark_pp>(protoboard_for_poly, keypair.pk);
+        compute_polynomial_witness_output<FieldT, default_r1cs_ppzksnark_pp>(protoboard_for_poly, keypair->pk);
 
         //From our witnes and input output compute the proof for the client
         const r1cs_ppzksnark_proof<default_r1cs_ppzksnark_pp> proof = r1cs_ppzksnark_prover<default_r1cs_ppzksnark_pp>(
-                keypair.pk, protoboard_for_poly.primary_input(), protoboard_for_poly.auxiliary_input());
+                keypair->pk, protoboard_for_poly.primary_input(), protoboard_for_poly.auxiliary_input());
         //server part end
         time_server = c_setup.stop();
-        time_server_sum += time_server;
+        time_server_vector.push_back(time_server);
+
         /**
          * CLIENT START
          */
         c_setup.start();
         //Check that the proof send by the server is correct
-        bool verified = r1cs_ppzksnark_verifier_strong_IC<default_r1cs_ppzksnark_pp>(keypair.vk, protoboard_for_poly.primary_input(), proof);
+        bool verified = r1cs_ppzksnark_verifier_strong_IC<default_r1cs_ppzksnark_pp>(keypair->vk, protoboard_for_poly.primary_input(), proof);
         time_client = c_setup.stop();
-        time_client_sum += time_client;
+        time_client_vector.push_back(time_client);
 
         if(verified == 0) {
             throw std::runtime_error("The proof is not correct abort");
@@ -277,16 +279,16 @@ void test_polynomial_in_clear(uint64_t polynomial_degree, int number_of_try) {
             throw std::runtime_error("Result for the polynomial didn't match");
         }
         //Data store by the client 
-        cout << "Data store by the client " << keypair.vk.size_in_bits()  << endl;
+        cout << "Data store by the client " << keypair->vk.size_in_bits()  << endl;
         //Data store by the server
         cout << "Data store by the server " << endl;
-        cout << "   - Keys " << keypair.pk.size_in_bits() << endl;
-        cout << "   - Total " <<  keypair.pk.size_in_bits() << endl;
+        cout << "   - Keys " << keypair->pk.size_in_bits() << endl;
+        cout << "   - Total " <<  keypair->pk.size_in_bits() << endl;
 
         //Data sends by the client to the server at Init
         cout << "Data sends by the client to the server at Init " << endl;
-        cout << "   - Keys " << keypair.pk.size_in_bits() << endl;
-        cout << "   - Total " << keypair.pk.size_in_bits() << endl;
+        cout << "   - Keys " << keypair->pk.size_in_bits() << endl;
+        cout << "   - Total " << keypair->pk.size_in_bits() << endl;
         //Data sends at eval
         cout << "Data sends at eval " << endl;
         cout << "   - Input value " << libff::size_in_bits(protoboard_for_poly.primary_input()) << endl;
@@ -295,34 +297,37 @@ void test_polynomial_in_clear(uint64_t polynomial_degree, int number_of_try) {
         cout << "   - proof " << proof.size_in_bits() << endl;
         cout << "   - result " << libff::size_in_bits(protoboard_for_poly.primary_input()) << endl;
         cout << "   - Total " << libff::size_in_bits(protoboard_for_poly.primary_input()) +  proof.size_in_bits() << endl;
+
         r1cs_polynomial_factory.set_constraint_system(constraint_system);
         r1cs_polynomial_factory.set_random_container(element_for_update.get_random_container());
-        vector<int> coefficient_to_update = {4,4,3,4,6,3,3,3,2,2,6,5,4};
-        r1cs_polynomial_factory.set_current_key_pair(&keypair);
-        vector<double> timings_for_update = test_polynomial_in_clear_update<FieldT>( 
-                element_for_update, coefficient_to_update[0], &r1cs_polynomial_factory);
-        for(size_t i = 1; i < coefficient_to_update.size(); i++) {
-            try{
-                //Try to do another update to see if it works too
-                test_polynomial_in_clear_update<FieldT>( 
-                        element_for_update, coefficient_to_update[i], &r1cs_polynomial_factory);
-            }catch(std::runtime_error& e) {
-                string error_msg = e.what();
-                throw std::runtime_error("Error catch during the " + to_string(i) + "th update for coefficient index " + to_string(coefficient_to_update[i]) + " \"" + error_msg + "\"");
-            }
-        }
-        //Get the timing of the update to perform a mean
-        time_polynomial_coef_update_sum += timings_for_update[0];
-        time_key_update_sum += timings_for_update[1];
-        time_polynomial_horner_update_sum += timings_for_update[2];
-        sum_update_timing_sum += timings_for_update[3];
         
-        r1cs_polynomial_factory.clear_polynomial();
+        int coefficient_to_update = rand() % (polynomial_degree-1);
+        r1cs_polynomial_factory.set_current_key_pair(keypair);
+
+        vector<double> timings_for_update = test_polynomial_in_clear_update<FieldT>( 
+                element_for_update, coefficient_to_update, &r1cs_polynomial_factory);
+        
+        //Get the timing of the update to perform a mean
+        time_polynomial_coef_update_vector.push_back(timings_for_update[0]);
+        time_key_update_vector.push_back(timings_for_update[1]);
+        time_polynomial_horner_update_vector.push_back(timings_for_update[2]);
+        sum_update_timing_vector.push_back(timings_for_update[3]);
+        
+        r1cs_polynomial_factory.clear_informations();
         libff::leave_block("test_polynomial_in_clear");
     }
+    //We get the mean of our computation time
+    sort(time_i_vector.begin(), time_i_vector.end());
+    sort(time_client_vector.begin(), time_client_vector.end());
+    sort(time_server_vector.begin(), time_server_vector.end());
+    sort(time_polynomial_coef_update_vector.begin(), time_polynomial_coef_update_vector.end()); 
+    sort(time_key_update_vector.begin(), time_key_update_vector.end());
+    sort(time_polynomial_horner_update_vector.begin(), time_polynomial_horner_update_vector.end());
+    sort(sum_update_timing_vector.begin(), sum_update_timing_vector.end());
+
     printf("[TIMINGS MOY] | %lu | setup : %f | audit-client : %f | audit-server : %f \n=== end ===\n\n", 
-            polynomial_degree+1, time_i_sum/number_of_try, time_client_sum/number_of_try, time_server_sum/number_of_try);
+            polynomial_degree+1, time_i_vector[number_of_try/2], time_client_vector[number_of_try/2], time_server_vector[number_of_try/2]);
     printf("[TIMINGS MOY for update] | %lu | polynomial coef update : %f | key update : %f | time_polynomial_horner_update : %f | total : %f \n=== end ===\n\n", 
-            polynomial_degree+1, time_polynomial_coef_update_sum/number_of_try, time_key_update_sum/number_of_try, 
-            time_polynomial_horner_update_sum/number_of_try, sum_update_timing_sum/number_of_try);
+            polynomial_degree+1, time_polynomial_coef_update_vector[number_of_try/2], time_key_update_vector[number_of_try/2], 
+            time_polynomial_horner_update_vector[number_of_try/2], sum_update_timing_vector[number_of_try/2]);
 }

@@ -44,19 +44,19 @@ void test_update_index_0(uint64_t polynomial_degree) {
     return_container_key_generator_for_update<default_r1cs_ppzksnark_pp> element_for_update = 
             r1cs_polynomial_factory.r1cs_ppzksnark_key_generator_for_update();
 
-    r1cs_ppzksnark_keypair<default_r1cs_ppzksnark_pp> keypair = element_for_update.get_key_pair();
+    r1cs_ppzksnark_keypair<default_r1cs_ppzksnark_pp>* keypair = element_for_update.get_key_pair();
 
     const r1cs_constraint_system<FieldT> constraint_system = protoboard_for_poly.get_constraint_system();
 
     //Commpute the witness and output of our R1CS (all the a_i)
-    compute_polynomial_witness_output<FieldT, default_r1cs_ppzksnark_pp>(protoboard_for_poly, keypair.pk);
+    compute_polynomial_witness_output<FieldT, default_r1cs_ppzksnark_pp>(protoboard_for_poly, keypair->pk);
 
     //From our witnes and input output compute the proof for the client
     const r1cs_ppzksnark_proof<default_r1cs_ppzksnark_pp> proof = r1cs_ppzksnark_prover<default_r1cs_ppzksnark_pp>(
-            keypair.pk, protoboard_for_poly.primary_input(), protoboard_for_poly.auxiliary_input());
+            keypair->pk, protoboard_for_poly.primary_input(), protoboard_for_poly.auxiliary_input());
 
     //Check that the proof send by the server is correct
-    bool verified = r1cs_ppzksnark_verifier_strong_IC<default_r1cs_ppzksnark_pp>(keypair.vk, protoboard_for_poly.primary_input(), proof);
+    bool verified = r1cs_ppzksnark_verifier_strong_IC<default_r1cs_ppzksnark_pp>(keypair->vk, protoboard_for_poly.primary_input(), proof);
 
     if(verified == 0) {
         throw std::runtime_error("The proof is not correct abort");
@@ -72,7 +72,7 @@ void test_update_index_0(uint64_t polynomial_degree) {
     //Add our R1CS, the current keypair, and the element to update the R1CS to our factory
     r1cs_polynomial_factory.set_constraint_system(constraint_system);
     r1cs_polynomial_factory.set_random_container(element_for_update.get_random_container());
-    r1cs_polynomial_factory.set_current_key_pair(&keypair);
+    r1cs_polynomial_factory.set_current_key_pair(keypair);
     try {
         //Try to update the index 0 of our polynomial
         test_polynomial_in_clear_update<FieldT>( 
@@ -91,7 +91,6 @@ void test_update_index_0(uint64_t polynomial_degree) {
         throw std::runtime_error("Error catch during second update \"" + error_msg + "\"");
     }
     
-    r1cs_polynomial_factory.clear_polynomial();
     libff::leave_block("test_update_index_0");
 }
 
@@ -129,19 +128,19 @@ void test_update_index_1(uint64_t polynomial_degree) {
     return_container_key_generator_for_update<default_r1cs_ppzksnark_pp> element_for_update = 
             r1cs_polynomial_factory.r1cs_ppzksnark_key_generator_for_update();
 
-    r1cs_ppzksnark_keypair<default_r1cs_ppzksnark_pp> keypair = element_for_update.get_key_pair();
+    r1cs_ppzksnark_keypair<default_r1cs_ppzksnark_pp>* keypair = element_for_update.get_key_pair();
 
     const r1cs_constraint_system<FieldT> constraint_system = protoboard_for_poly.get_constraint_system();
     
     //Commpute the witness and output of our R1CS (all the a_i)
-    compute_polynomial_witness_output<FieldT, default_r1cs_ppzksnark_pp>(protoboard_for_poly, keypair.pk);
+    compute_polynomial_witness_output<FieldT, default_r1cs_ppzksnark_pp>(protoboard_for_poly, keypair->pk);
 
     //From our witnes and input output compute the proof for the client
     const r1cs_ppzksnark_proof<default_r1cs_ppzksnark_pp> proof = r1cs_ppzksnark_prover<default_r1cs_ppzksnark_pp>(
-            keypair.pk, protoboard_for_poly.primary_input(), protoboard_for_poly.auxiliary_input());
+            keypair->pk, protoboard_for_poly.primary_input(), protoboard_for_poly.auxiliary_input());
 
     //Check that the proof send by the server is correct
-    bool verified = r1cs_ppzksnark_verifier_strong_IC<default_r1cs_ppzksnark_pp>(keypair.vk, protoboard_for_poly.primary_input(), proof);
+    bool verified = r1cs_ppzksnark_verifier_strong_IC<default_r1cs_ppzksnark_pp>(keypair->vk, protoboard_for_poly.primary_input(), proof);
 
     if(verified == 0) {
         throw std::runtime_error("The proof is not correct abort");
@@ -157,7 +156,7 @@ void test_update_index_1(uint64_t polynomial_degree) {
     //Add our R1CS, the current keypair, and the element to update the R1CS to our factory
     r1cs_polynomial_factory.set_constraint_system(constraint_system);
     r1cs_polynomial_factory.set_random_container(element_for_update.get_random_container());
-    r1cs_polynomial_factory.set_current_key_pair(&keypair);
+    r1cs_polynomial_factory.set_current_key_pair(keypair);
     try {
         //Try to update the index 1 of our polynomial
         test_polynomial_in_clear_update<FieldT>( 
@@ -176,7 +175,6 @@ void test_update_index_1(uint64_t polynomial_degree) {
         throw std::runtime_error("Error catch during second update \"" + error_msg + "\"");
     }
     
-    r1cs_polynomial_factory.clear_polynomial();
     libff::leave_block("test_update_index_1");
 }
 
@@ -214,19 +212,19 @@ void test_update_random_index(uint64_t polynomial_degree, int random_index_to_up
     return_container_key_generator_for_update<default_r1cs_ppzksnark_pp> element_for_update = 
             r1cs_polynomial_factory.r1cs_ppzksnark_key_generator_for_update();
 
-    r1cs_ppzksnark_keypair<default_r1cs_ppzksnark_pp> keypair = element_for_update.get_key_pair();
+    r1cs_ppzksnark_keypair<default_r1cs_ppzksnark_pp>* keypair = element_for_update.get_key_pair();
 
     const r1cs_constraint_system<FieldT> constraint_system = protoboard_for_poly.get_constraint_system();
 
     //Commpute the witness and output of our R1CS (all the a_i)
-    compute_polynomial_witness_output<FieldT, default_r1cs_ppzksnark_pp>(protoboard_for_poly, keypair.pk);
+    compute_polynomial_witness_output<FieldT, default_r1cs_ppzksnark_pp>(protoboard_for_poly, keypair->pk);
 
     //From our witnes and input output compute the proof for the client
     const r1cs_ppzksnark_proof<default_r1cs_ppzksnark_pp> proof = r1cs_ppzksnark_prover<default_r1cs_ppzksnark_pp>(
-            keypair.pk, protoboard_for_poly.primary_input(), protoboard_for_poly.auxiliary_input());
+            keypair->pk, protoboard_for_poly.primary_input(), protoboard_for_poly.auxiliary_input());
 
     //Check that the proof send by the server is correct
-    bool verified = r1cs_ppzksnark_verifier_strong_IC<default_r1cs_ppzksnark_pp>(keypair.vk, protoboard_for_poly.primary_input(), proof);
+    bool verified = r1cs_ppzksnark_verifier_strong_IC<default_r1cs_ppzksnark_pp>(keypair->vk, protoboard_for_poly.primary_input(), proof);
 
     if(verified == 0) {
         throw std::runtime_error("The proof is not correct abort");
@@ -242,7 +240,7 @@ void test_update_random_index(uint64_t polynomial_degree, int random_index_to_up
     //Add our R1CS, the current keypair, and the element to update the R1CS to our factory
     r1cs_polynomial_factory.set_constraint_system(constraint_system);
     r1cs_polynomial_factory.set_random_container(element_for_update.get_random_container());
-    r1cs_polynomial_factory.set_current_key_pair(&keypair);
+    r1cs_polynomial_factory.set_current_key_pair(keypair);
     try {
         //Try to update the index random_index_to_update of our polynomial
         test_polynomial_in_clear_update<FieldT>( 
@@ -261,7 +259,6 @@ void test_update_random_index(uint64_t polynomial_degree, int random_index_to_up
         throw std::runtime_error("Error catch during second update \"" + error_msg + "\"");
     }
     
-    r1cs_polynomial_factory.clear_polynomial();
     libff::leave_block("test_update_random_index");
 }
 
@@ -299,19 +296,19 @@ void test_raise_error_for_wrong_r1cs_construction(uint64_t polynomial_degree) {
     return_container_key_generator_for_update<default_r1cs_ppzksnark_pp> element_for_update = 
             r1cs_polynomial_factory.r1cs_ppzksnark_key_generator_for_update();
 
-    r1cs_ppzksnark_keypair<default_r1cs_ppzksnark_pp> keypair = element_for_update.get_key_pair();
+    r1cs_ppzksnark_keypair<default_r1cs_ppzksnark_pp>* keypair = element_for_update.get_key_pair();
 
     const r1cs_constraint_system<FieldT> constraint_system = protoboard_for_poly.get_constraint_system();
 
     //Commpute the witness and output of our R1CS (all the a_i)
-    compute_polynomial_witness_output<FieldT, default_r1cs_ppzksnark_pp>(protoboard_for_poly, keypair.pk);
+    compute_polynomial_witness_output<FieldT, default_r1cs_ppzksnark_pp>(protoboard_for_poly, keypair->pk);
 
     //From our witnes and input output compute the proof for the client
     const r1cs_ppzksnark_proof<default_r1cs_ppzksnark_pp> proof = r1cs_ppzksnark_prover<default_r1cs_ppzksnark_pp>(
-            keypair.pk, protoboard_for_poly.primary_input(), protoboard_for_poly.auxiliary_input());
+            keypair->pk, protoboard_for_poly.primary_input(), protoboard_for_poly.auxiliary_input());
 
     //Check that the proof send by the server is correct
-    bool verified = r1cs_ppzksnark_verifier_strong_IC<default_r1cs_ppzksnark_pp>(keypair.vk, protoboard_for_poly.primary_input(), proof);
+    bool verified = r1cs_ppzksnark_verifier_strong_IC<default_r1cs_ppzksnark_pp>(keypair->vk, protoboard_for_poly.primary_input(), proof);
 
     if(verified == 0) {
         throw std::runtime_error("The proof is not correct abort");
@@ -327,7 +324,7 @@ void test_raise_error_for_wrong_r1cs_construction(uint64_t polynomial_degree) {
     //Add our R1CS, the current keypair, and the element to update the R1CS to our factory
     r1cs_polynomial_factory.set_constraint_system(constraint_system);
     r1cs_polynomial_factory.set_random_container(element_for_update.get_random_container());
-    r1cs_polynomial_factory.set_current_key_pair(&keypair);
+    r1cs_polynomial_factory.set_current_key_pair(keypair);
     try {
         //Try to update the index 0 of our polynomial
         vector<double> timings_for_update = test_polynomial_in_clear_update<FieldT>( 
@@ -346,7 +343,6 @@ void test_raise_error_for_wrong_r1cs_construction(uint64_t polynomial_degree) {
         throw std::runtime_error("Error catch during second update \"" + error_msg + "\"");
     }
     
-    r1cs_polynomial_factory.clear_polynomial();
     libff::leave_block("test_raise_error_for_wrong_r1cs_construction");
 }
 
@@ -384,19 +380,19 @@ void test_raise_error_for_wrong_r1cs_update(uint64_t polynomial_degree, int rand
     return_container_key_generator_for_update<default_r1cs_ppzksnark_pp> element_for_update = 
             r1cs_polynomial_factory.r1cs_ppzksnark_key_generator_for_update();
 
-    r1cs_ppzksnark_keypair<default_r1cs_ppzksnark_pp> keypair = element_for_update.get_key_pair();
+    r1cs_ppzksnark_keypair<default_r1cs_ppzksnark_pp>* keypair = element_for_update.get_key_pair();
 
     const r1cs_constraint_system<FieldT> constraint_system = protoboard_for_poly.get_constraint_system();
 
     //Commpute the witness and output of our R1CS (all the a_i)
-    compute_polynomial_witness_output<FieldT, default_r1cs_ppzksnark_pp>(protoboard_for_poly, keypair.pk);
+    compute_polynomial_witness_output<FieldT, default_r1cs_ppzksnark_pp>(protoboard_for_poly, keypair->pk);
 
     //From our witnes and input output compute the proof for the client
     const r1cs_ppzksnark_proof<default_r1cs_ppzksnark_pp> proof = r1cs_ppzksnark_prover<default_r1cs_ppzksnark_pp>(
-            keypair.pk, protoboard_for_poly.primary_input(), protoboard_for_poly.auxiliary_input());
+            keypair->pk, protoboard_for_poly.primary_input(), protoboard_for_poly.auxiliary_input());
 
     //Check that the proof send by the server is correct
-    bool verified = r1cs_ppzksnark_verifier_strong_IC<default_r1cs_ppzksnark_pp>(keypair.vk, protoboard_for_poly.primary_input(), proof);
+    bool verified = r1cs_ppzksnark_verifier_strong_IC<default_r1cs_ppzksnark_pp>(keypair->vk, protoboard_for_poly.primary_input(), proof);
 
     if(verified == 0) {
         throw std::runtime_error("The proof is not correct abort");
@@ -412,7 +408,7 @@ void test_raise_error_for_wrong_r1cs_update(uint64_t polynomial_degree, int rand
     //Add our R1CS, the current keypair, and the element to update the R1CS to our factory
     r1cs_polynomial_factory.set_constraint_system(constraint_system);
     r1cs_polynomial_factory.set_random_container(element_for_update.get_random_container());
-    r1cs_polynomial_factory.set_current_key_pair(&keypair);
+    r1cs_polynomial_factory.set_current_key_pair(keypair);
     try { 
         //Try to update the index random_index_to_update of our polynomial
         test_polynomial_in_clear_update<FieldT>( 
@@ -431,7 +427,6 @@ void test_raise_error_for_wrong_r1cs_update(uint64_t polynomial_degree, int rand
         throw std::runtime_error("Error catch during second update \"" + error_msg + "\"");
     }
 
-    r1cs_polynomial_factory.clear_polynomial();
     libff::leave_block("test_raise_error_for_wrong_r1cs_update");
 }
 
@@ -469,19 +464,19 @@ void test_raise_error_for_wrong_keys_update(uint64_t polynomial_degree, int rand
     return_container_key_generator_for_update<default_r1cs_ppzksnark_pp> element_for_update = 
             r1cs_polynomial_factory.r1cs_ppzksnark_key_generator_for_update();
 
-    r1cs_ppzksnark_keypair<default_r1cs_ppzksnark_pp> keypair = element_for_update.get_key_pair();
+    r1cs_ppzksnark_keypair<default_r1cs_ppzksnark_pp>* keypair = element_for_update.get_key_pair();
 
     const r1cs_constraint_system<FieldT> constraint_system = protoboard_for_poly.get_constraint_system();
 
     //Commpute the witness and output of our R1CS (all the a_i)
-    compute_polynomial_witness_output<FieldT, default_r1cs_ppzksnark_pp>(protoboard_for_poly, keypair.pk);
+    compute_polynomial_witness_output<FieldT, default_r1cs_ppzksnark_pp>(protoboard_for_poly, keypair->pk);
 
     //From our witnes and input output compute the proof for the client
     const r1cs_ppzksnark_proof<default_r1cs_ppzksnark_pp> proof = r1cs_ppzksnark_prover<default_r1cs_ppzksnark_pp>(
-            keypair.pk, protoboard_for_poly.primary_input(), protoboard_for_poly.auxiliary_input());
+            keypair->pk, protoboard_for_poly.primary_input(), protoboard_for_poly.auxiliary_input());
 
     //Check that the proof send by the server is correct
-    bool verified = r1cs_ppzksnark_verifier_strong_IC<default_r1cs_ppzksnark_pp>(keypair.vk, protoboard_for_poly.primary_input(), proof);
+    bool verified = r1cs_ppzksnark_verifier_strong_IC<default_r1cs_ppzksnark_pp>(keypair->vk, protoboard_for_poly.primary_input(), proof);
 
     if(verified == 0) {
         throw std::runtime_error("The proof is not correct abort");
@@ -497,7 +492,7 @@ void test_raise_error_for_wrong_keys_update(uint64_t polynomial_degree, int rand
     //Add our R1CS, the current keypair, and the element to update the R1CS to our factory
     r1cs_polynomial_factory.set_constraint_system(constraint_system);
     r1cs_polynomial_factory.set_random_container(element_for_update.get_random_container());
-    r1cs_polynomial_factory.set_current_key_pair(&keypair);
+    r1cs_polynomial_factory.set_current_key_pair(keypair);
     try {
         //Try to update the index random_index_to_update of our polynomial
         test_polynomial_in_clear_update<FieldT>( 
@@ -516,7 +511,6 @@ void test_raise_error_for_wrong_keys_update(uint64_t polynomial_degree, int rand
         throw std::runtime_error("Error catch during second update \"" + error_msg + "\"");
     }
     
-    r1cs_polynomial_factory.clear_polynomial();
     libff::leave_block("test_raise_error_for_wrong_keys_update");
 }
 
@@ -554,19 +548,19 @@ void test_update_multiple_index(uint64_t polynomial_degree, vector<int> random_i
     return_container_key_generator_for_update<default_r1cs_ppzksnark_pp> element_for_update = 
             r1cs_polynomial_factory.r1cs_ppzksnark_key_generator_for_update();
 
-    r1cs_ppzksnark_keypair<default_r1cs_ppzksnark_pp> keypair = element_for_update.get_key_pair();
+    r1cs_ppzksnark_keypair<default_r1cs_ppzksnark_pp>* keypair = element_for_update.get_key_pair();
 
     const r1cs_constraint_system<FieldT> constraint_system = protoboard_for_poly.get_constraint_system();
 
     //Commpute the witness and output of our R1CS (all the a_i)
-    compute_polynomial_witness_output<FieldT, default_r1cs_ppzksnark_pp>(protoboard_for_poly, keypair.pk);
+    compute_polynomial_witness_output<FieldT, default_r1cs_ppzksnark_pp>(protoboard_for_poly, keypair->pk);
 
     //From our witnes and input output compute the proof for the client
     const r1cs_ppzksnark_proof<default_r1cs_ppzksnark_pp> proof = r1cs_ppzksnark_prover<default_r1cs_ppzksnark_pp>(
-            keypair.pk, protoboard_for_poly.primary_input(), protoboard_for_poly.auxiliary_input());
+            keypair->pk, protoboard_for_poly.primary_input(), protoboard_for_poly.auxiliary_input());
 
     //Check that the proof send by the server is correct
-    bool verified = r1cs_ppzksnark_verifier_strong_IC<default_r1cs_ppzksnark_pp>(keypair.vk, protoboard_for_poly.primary_input(), proof);
+    bool verified = r1cs_ppzksnark_verifier_strong_IC<default_r1cs_ppzksnark_pp>(keypair->vk, protoboard_for_poly.primary_input(), proof);
 
     if(verified == 0) {
         throw std::runtime_error("The proof is not correct abort");
@@ -582,7 +576,7 @@ void test_update_multiple_index(uint64_t polynomial_degree, vector<int> random_i
     //Add our R1CS, the current keypair, and the element to update the R1CS to our factory
     r1cs_polynomial_factory.set_constraint_system(constraint_system);
     r1cs_polynomial_factory.set_random_container(element_for_update.get_random_container());
-    r1cs_polynomial_factory.set_current_key_pair(&keypair);
+    r1cs_polynomial_factory.set_current_key_pair(keypair);
     for(size_t i = 0; i < random_index_to_update.size(); i++) {
         try {
             //Try to update the index random_index_to_update[i] of our polynomial
@@ -594,6 +588,5 @@ void test_update_multiple_index(uint64_t polynomial_degree, vector<int> random_i
         }
     }
     
-    r1cs_polynomial_factory.clear_polynomial();
     libff::leave_block("test_update_multiple_index");
 }

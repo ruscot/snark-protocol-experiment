@@ -107,8 +107,8 @@ public:
     random_container_key<ppT> get_random_container(){
         return random_container;
     }
-    r1cs_ppzksnark_keypair<ppT> get_key_pair(){
-        return key_pair;
+    r1cs_ppzksnark_keypair<ppT>* get_key_pair(){
+        return &key_pair;
     }
 };
 
