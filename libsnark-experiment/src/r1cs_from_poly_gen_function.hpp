@@ -309,10 +309,16 @@ private:
     vector<libff::Fr<ppT>> poly;
    
     /**
-     * @brief For the update we need to store some coefficient
+     * @brief For the update we need to store if we have changed it before
      * 
      */
-    vector<libff::Fr<ppT>> poly_special_save;
+    vector<bool> poly_special_save;
+
+    /**
+     * @brief For the update we need to store if we have changed it before
+     * 
+     */
+    vector<bool> poly_coef_changed;
     
     /**
      * @brief Degree of our polynomial

@@ -18,6 +18,10 @@ R1CS_Polynomial_factory<FieldT, ppT>::R1CS_Polynomial_factory(uint64_t degree, i
     this->protoboard_for_poly = NULL;
     this->already_changed_one_time = false;
     this->coefficient_one_updated = libff::Fr<ppT>::zero();
+    for(uint64_t i = 0; i < degree; i++){
+        this->poly_special_save.push_back(true);
+        this->poly_coef_changed.push_back(false);
+    }
     this->coefficient_zero_updated = libff::Fr<ppT>::zero();
 }
 
@@ -94,7 +98,6 @@ template<typename FieldT, typename ppT>
 void R1CS_Polynomial_factory<FieldT, ppT>::create_random_coefficients_for_polynomial() {
     for(size_t i = 0; i <= this->polynomial_degree; ++i) {
         this->poly.push_back(libff::Fr<ppT>::random_element());
-        this->poly_special_save.push_back(libff::Fr<ppT>::one());
     }
 }
 
@@ -164,7 +167,11 @@ template<typename FieldT, typename ppT>
 void R1CS_Polynomial_factory<FieldT, ppT>::update_constraint_horner_method(uint64_t index_of_the_coefficient, libff::Fr<ppT> delta) {
     libff::enter_block("Update constraint horner method");
     uint64_t index_in_the_r1cs = this->polynomial_degree - index_of_the_coefficient;
-    FieldT random_k = libff::Fr<ppT>::random_element();
+    //FieldT random_k = libff::Fr<ppT>::random_element();
+    FieldT random_k = libff::Fr<ppT>::one() * index_of_the_coefficient;
+    if(! this->poly_special_save[index_of_the_coefficient]){
+        random_k = random_k.inverse();
+    }
     r1cs_constraint<FieldT> constraint_a_d_3_j = (*this->protoboard_for_poly).get_specific_constraint_in_r1cs(index_in_the_r1cs);
     if(this->insert_error_for_test == 1) {
         this->save_constraint_a_d_3_j_b_terms = constraint_a_d_3_j.b.terms[0].coeff;
@@ -177,28 +184,35 @@ void R1CS_Polynomial_factory<FieldT, ppT>::update_constraint_horner_method(uint6
     }
     r1cs_constraint<FieldT> constraint_a_d_4_j = (*this->protoboard_for_poly).get_specific_constraint_in_r1cs(index_in_the_r1cs + 1);
     r1cs_constraint<FieldT> constraint_a_d_5_j = (*this->protoboard_for_poly).get_specific_constraint_in_r1cs(index_in_the_r1cs + 2);
+
     this->save_constraint_a_d_4_j_a_terms = constraint_a_d_4_j.a.terms[1].coeff;
-    if(this->poly_special_save[index_of_the_coefficient-1] != libff::Fr<ppT>::zero() && this->poly_special_save[index_of_the_coefficient-2] != libff::Fr<ppT>::zero() 
-            && this->poly_special_save[index_of_the_coefficient] != libff::Fr<ppT>::zero()) {
-        constraint_a_d_4_j.a.terms[1].coeff = constraint_a_d_4_j.a.terms[1].coeff * random_k +
-                delta * random_k * this->poly_special_save[index_in_the_r1cs + 1] ;
-        this->poly_special_save[index_in_the_r1cs + 1] *= random_k;
-    } else if(this->poly_special_save[index_of_the_coefficient-1] != libff::Fr<ppT>::zero() && this->poly_special_save[index_of_the_coefficient-2] != libff::Fr<ppT>::zero()){
-        this->poly_special_save[index_in_the_r1cs + 1] *= random_k;
+    if(this->poly_coef_changed[index_of_the_coefficient-1] && this->poly_coef_changed[index_of_the_coefficient-2]
+            && this->poly_coef_changed[index_of_the_coefficient]) {
+        if(this->poly_special_save[index_of_the_coefficient]){
+            constraint_a_d_4_j.a.terms[1].coeff = constraint_a_d_4_j.a.terms[1].coeff * random_k +
+                    delta * random_k;
+        } else {
+            constraint_a_d_4_j.a.terms[1].coeff = constraint_a_d_4_j.a.terms[1].coeff * random_k +
+                    delta;
+        }
+        /*constraint_a_d_4_j.a.terms[1].coeff = constraint_a_d_4_j.a.terms[1].coeff * random_k +
+                delta * random_k * this->poly_special_save[index_in_the_r1cs + 1] ;*/
+        /*cout << random_k * this->poly_special_save[index_in_the_r1cs + 1] << endl;
+        cout << random_k << endl;
+        cout <<  this->poly_special_save[index_in_the_r1cs + 1] << endl;
+        exit(0);*/
+    } else if(this->poly_coef_changed[index_of_the_coefficient-1] && this->poly_coef_changed[index_of_the_coefficient-2]){
         constraint_a_d_4_j.a.terms[1].coeff = constraint_a_d_4_j.a.terms[1].coeff * random_k +
                 delta * random_k ;
-    } else if(this->poly_special_save[index_of_the_coefficient-1] != libff::Fr<ppT>::zero()) {
-        this->poly_special_save[index_in_the_r1cs + 1] *= random_k;
+    } else if(this->poly_coef_changed[index_of_the_coefficient-1]) {
         constraint_a_d_4_j.a.terms[1].coeff = constraint_a_d_4_j.a.terms[1].coeff * random_k +
                 delta * random_k * constraint_a_d_4_j.b.terms[0].coeff.inverse() * constraint_a_d_5_j.b.terms[0].coeff.inverse();
 
     } else {
-        this->poly_special_save[index_in_the_r1cs + 1] *= random_k;
         constraint_a_d_4_j.a.terms[1].coeff = constraint_a_d_4_j.a.terms[1].coeff * random_k +
                 delta * random_k * constraint_a_d_4_j.b.terms[0].coeff.inverse() ;
-
     }
-
+    this->poly_special_save[index_of_the_coefficient] = ! this->poly_special_save[index_of_the_coefficient];
     this->new_constraint_a_d_4_j_a_terms = constraint_a_d_4_j.a.terms[1].coeff;
 
     this->save_constraint_a_d_4_j_b_terms = constraint_a_d_4_j.b.terms[0].coeff;
@@ -212,6 +226,8 @@ void R1CS_Polynomial_factory<FieldT, ppT>::update_constraint_horner_method(uint6
 
     this->new_constraint_a_d_5_j_a_terms = constraint_a_d_5_j.a.terms[1].coeff;
     
+    this->poly_coef_changed[index_of_the_coefficient] = true;
+
     (*this->protoboard_for_poly).protoboard_update_r1cs_constraint(constraint_a_d_3_j, index_in_the_r1cs);
     (*this->protoboard_for_poly).protoboard_update_r1cs_constraint(constraint_a_d_4_j, index_in_the_r1cs + 1);
     (*this->protoboard_for_poly).protoboard_update_r1cs_constraint(constraint_a_d_5_j, index_in_the_r1cs + 2);

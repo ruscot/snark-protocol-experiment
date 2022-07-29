@@ -168,6 +168,7 @@ vector<double> test_polynomial_in_clear_update(
 
         if(test == 0) {
             throw std::runtime_error("The result for polynomial eval is not correct after the update");
+            exit(0);
         }
 
         //Test after update to check if our key is correct

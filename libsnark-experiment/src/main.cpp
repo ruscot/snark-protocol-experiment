@@ -70,7 +70,7 @@ int main(int argc, char * argv[]) {
         srand (time(NULL));
         for(int i = 0; i < 10; i++) {
             old_stdout = dup(fileno(stdout));
-            random_index_to_update = rand() % (polynomial_degree-1) + 2;
+            random_index_to_update = rand() % (polynomial_degree-2) + 2;
             if(random_index_to_update < 10) {
                 printf("\tCoefficient index to update \"0%d\" ", random_index_to_update);
             } else {
@@ -138,7 +138,7 @@ int main(int argc, char * argv[]) {
         printf("We'll do 10 test with random index to update and see if we alway raised an error when the R1CS is wrongly updated\n\n"); 
         for(int i = 0; i < 10; i++) {
             old_stdout = dup(fileno(stdout));
-            random_index_to_update = rand() % (polynomial_degree-1) + 2;
+            random_index_to_update = rand() % (polynomial_degree-2) + 2;
             if(random_index_to_update < 10) {
                 printf("\tCoefficient index to update \"0%d\" ", random_index_to_update);
             } else {
@@ -194,7 +194,7 @@ int main(int argc, char * argv[]) {
         printf("We'll do 10 test with random index to update and see if we alway raised an error when the keys is wrongly updated\n\n"); 
         for(int i = 0; i < 10; i++) {
             old_stdout = dup(fileno(stdout));
-            random_index_to_update = rand() % (polynomial_degree-1) + 2;
+            random_index_to_update = rand() % (polynomial_degree-2) + 2;
             if(random_index_to_update < 10) {
                 printf("\tCoefficient index to update \"0%d\" ", random_index_to_update);
             } else {
@@ -219,7 +219,7 @@ int main(int argc, char * argv[]) {
         uint64_t current_polynomial_degree = 10;
         old_stdout = dup(fileno(stdout));
         for(int i = 0; i < 100; i++) {
-            random_index_to_update = rand() % (current_polynomial_degree-1) + 2;
+            random_index_to_update = rand() % (current_polynomial_degree-2) + 2;
             if(random_index_to_update < 10) {
                 printf("\tCoefficient index to update \"0%d\" \n", random_index_to_update);
             } else {
@@ -275,7 +275,7 @@ int main(int argc, char * argv[]) {
         int random_index_to_update;
         srand (time(NULL));
         for(int i = 0; i < 10; i++) {
-            random_index_to_update = rand() % (polynomial_degree-1) + 2;
+            random_index_to_update = rand() % (polynomial_degree-2) + 2;
             if(random_index_to_update < 10) {
                 printf("\tCoefficient index to update \"0%d\" ", random_index_to_update);
             } else {
@@ -325,7 +325,7 @@ int main(int argc, char * argv[]) {
 
         printf("We'll do 10 test with random index to update and see if we alway raised an error when the R1CS is wrongly updated\n\n"); 
         for(int i = 0; i < 10; i++) {
-            random_index_to_update = rand() % (polynomial_degree-1) + 2;
+            random_index_to_update = rand() % (polynomial_degree-2) + 2;
             if(random_index_to_update < 10) {
                 printf("\tCoefficient index to update \"0%d\" ", random_index_to_update);
             } else {
@@ -364,7 +364,7 @@ int main(int argc, char * argv[]) {
         }
         printf("We'll do 10 test with random index to update and see if we alway raised an error when the keys is wrongly updated\n\n"); 
         for(int i = 0; i < 10; i++) {
-            random_index_to_update = rand() % (polynomial_degree-1) + 2;
+            random_index_to_update = rand() % (polynomial_degree-2) + 2;
             if(random_index_to_update < 10) {
                 printf("\tCoefficient index to update \"0%d\" ", random_index_to_update);
             } else {
@@ -383,7 +383,7 @@ int main(int argc, char * argv[]) {
         vector<int> index_to_update_list;
         uint64_t current_polynomial_degree = 10;
         for(int i = 0; i < 100; i++) {
-            random_index_to_update = rand() % (current_polynomial_degree-1) + 2;
+            random_index_to_update = rand() % (current_polynomial_degree-2) + 2;
             if(random_index_to_update < 10) {
                 printf("\tCoefficient index to update \"0%d\" \n", random_index_to_update);
             } else {
