@@ -1,3 +1,13 @@
+/**
+ * @file snark_tests.cpp
+ * @author Martinez Anthony 
+ * @brief Definition of the function to tests our protocol
+ * @version 0.1
+ * @date 2022-07-29
+ * 
+ * @copyright Copyright (c) 2022
+ * 
+ */
 #include "snark_tests.hpp"
 
 void test_update_index_0(uint64_t polynomial_degree) {

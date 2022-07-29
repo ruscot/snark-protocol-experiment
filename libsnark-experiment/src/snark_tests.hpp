@@ -1,3 +1,13 @@
+/**
+ * @file snark_tests.hpp
+ * @author Martinez Anthony 
+ * @brief Function to tests our protocol
+ * @version 0.1
+ * @date 2022-07-29
+ * 
+ * @copyright Copyright (c) 2022
+ * 
+ */
 #ifndef SNARK_TESTS_HPP
 #define SNARK_TESTS_HPP
 

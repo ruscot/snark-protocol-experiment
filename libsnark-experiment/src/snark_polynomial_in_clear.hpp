@@ -1,5 +1,16 @@
+/**
+ * @file snark_polynomial_in_clear.hpp
+ * @author Martinez Anthony
+ * @brief File with the function to simulate our protocol
+ * @version 0.1
+ * @date 2022-07-29
+ * 
+ * @copyright Copyright (c) 2022
+ * 
+ */
 #ifndef SNARK_POLYNOMIAL_IN_CLEAR_HPP
 #define SNARK_POLYNOMIAL_IN_CLEAR_HPP
+
 
 #include <stdlib.h>
 #include <iostream>

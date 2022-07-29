@@ -1,3 +1,13 @@
+/**
+ * @file snark_polynomial_in_clear.cpp
+ * @author Martinez Anthony
+ * @brief Defintion of the function to simulate our protocol
+ * @version 0.1
+ * @date 2022-07-29
+ * 
+ * @copyright Copyright (c) 2022
+ * 
+ */
 #include "snark_polynomial_in_clear.hpp"
 
 template<typename FieldT, typename default_r1cs_ppzksnark_pp>

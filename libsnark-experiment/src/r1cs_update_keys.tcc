@@ -1,5 +1,15 @@
-#ifndef R1CS_UPDATE_KEYS_CPP_
-#define R1CS_UPDATE_KEYS_CPP_
+/**
+ * @file r1cs_update_keys.tcc
+ * @author Martinez Anthony
+ * @brief Contained the defintion of the function to check the update of the key
+ * @version 0.1
+ * @date 2022-07-29
+ * 
+ * @copyright Copyright (c) 2022
+ * 
+ */
+#ifndef R1CS_UPDATE_KEYS_TCC_
+#define R1CS_UPDATE_KEYS_TCC_
 
 #include "r1cs_update_keys.tcc"
 

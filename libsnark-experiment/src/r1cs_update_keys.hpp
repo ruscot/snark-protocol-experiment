@@ -1,3 +1,14 @@
+/**
+ * @file r1cs_update_keys.hpp
+ * @author Martinez Anthony
+ * @brief Contained the defintion of the random_container_key class 
+ * and some function to check the update of the key
+ * @version 0.1
+ * @date 2022-07-29
+ * 
+ * @copyright Copyright (c) 2022
+ * 
+ */
 #ifndef R1CS_UPDATE_KEYS_HPP
 #define R1CS_UPDATE_KEYS_HPP
 #include <stdlib.h>
@@ -101,6 +112,16 @@ public:
     }
 };
 
+/**
+ * @brief Function used to generate a key that we can
+ * compare to a key updated. 
+ * 
+ * @tparam ppT 
+ * @param cs 
+ * @param FFT_evaluation_point 
+ * @param random_container 
+ * @return r1cs_ppzksnark_keypair<ppT> 
+ */
 template <typename ppT>
 r1cs_ppzksnark_keypair<ppT> r1cs_ppzksnark_generator_with_FFT_evaluation_point_and_random_values(const r1cs_ppzksnark_constraint_system<ppT> &cs, 
         const libff::Fr<ppT> FFT_evaluation_point, random_container_key<ppT> random_container);

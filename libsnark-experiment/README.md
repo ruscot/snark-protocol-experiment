@@ -10,6 +10,7 @@ Some time computation of the evaluation are given in order to compare with some 
 - [Development Environment](#development-environment)
   - [Directory Structure](#directory-structure)
   - [Compilation Framework](#compilation-framework)
+- [Doxygen documentation](#doxygen-documentation)
 - [Compilation](#compilation)
 
 ## Build Guide
@@ -58,6 +59,14 @@ The library have the following directory structure:
   <!-- * [__tests__](src/tests): collection of GTests -->
 * [__depends__](depends): dependency libraries
 
+## Doxygen documentation
+You can generate the doxygen documentation with the two command line :
+```bash
+doxygen -g doxygenfile
+```
+```bash
+doxygen doxygenfile
+```
 ## Compilation
 
 Create a dependency directory, called depends, and add libsnark as a submodule.

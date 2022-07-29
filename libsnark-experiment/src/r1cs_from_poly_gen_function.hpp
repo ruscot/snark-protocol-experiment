@@ -1,3 +1,14 @@
+/**
+ * @file r1cs_from_poly_gen_function.hpp
+ * @author Martinez Anthony
+ * @brief File that contain the R1CS_Polynomial_factory to run the function 
+ * of our protocol
+ * @version 0.1
+ * @date 2022-07-29
+ * 
+ * @copyright Copyright (c) 2022
+ * 
+ */
 #ifndef R1CS_FROM_POLY_GEN_FUNCTION_CPP
 #define R1CS_FROM_POLY_GEN_FUNCTION_CPP
 

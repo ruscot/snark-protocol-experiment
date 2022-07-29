@@ -1,3 +1,13 @@
+/**
+ * @file main.cpp
+ * @author Martinez Anthony
+ * @brief Main program to run our protocol or the tests
+ * @version 0.1
+ * @date 2022-07-29
+ * 
+ * @copyright Copyright (c) 2022
+ * 
+ */
 #include "snark_polynomial_in_clear.hpp"
 #include "snark_tests.hpp"
 #include <unistd.h>

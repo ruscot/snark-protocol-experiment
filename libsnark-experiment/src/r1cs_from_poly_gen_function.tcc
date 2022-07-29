@@ -1,3 +1,16 @@
+/**
+ * @file r1cs_from_poly_gen_function.tcc
+ * @author Martinez Anthony
+ * @brief File that contain the definition of the function 
+ * contained in the R1CS_Polynomial_factory class
+ * @version 0.1
+ * @date 2022-07-29
+ * 
+ * @copyright Copyright (c) 2022
+ * 
+ */
+
+
 template<typename FieldT, typename ppT>
 R1CS_Polynomial_factory<FieldT, ppT>::R1CS_Polynomial_factory(uint64_t degree, int insert_error_for_test) {
     this->polynomial_degree = degree;
