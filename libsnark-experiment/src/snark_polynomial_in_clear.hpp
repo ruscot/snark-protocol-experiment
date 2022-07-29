@@ -17,8 +17,6 @@
 #include "r1cs_from_poly_gen_function.hpp"
 #include "r1cs_update_keys.hpp"
 
-//#include "r1cs_evaluation.hpp"
-
 #include <stdexcept>
 #include <tuple>
 #include <string> 
@@ -36,25 +34,20 @@ using namespace std;
  * @return r1cs_variable_assignment<FieldT> 
  */
 template<typename FieldT, typename default_r1cs_ppzksnark_pp>
-void compute_polynomial_witness_output(protoboard<FieldT> &protoboard_for_poly, 
-    r1cs_ppzksnark_proving_key<default_r1cs_ppzksnark_pp> pk);
+void compute_polynomial_witness_output(protoboard<FieldT> &protoboard_for_poly, r1cs_ppzksnark_proving_key<default_r1cs_ppzksnark_pp> pk);
 
 /**
  * @brief Simulate the update phase in our protocol
  * 
  * @tparam FieldT 
- * @param full_variable_assignment_update 
  * @param container_for_update 
- * @param last_keypair 
  * @param index_of_the_coef_to_update 
  * @param r1cs_polynomial_factory 
  * @return vector<double> return the different computing time during the update
  */
 template<typename FieldT>
-vector<double> test_polynomial_in_clear_update(
-    return_container_key_generator_for_update<default_r1cs_ppzksnark_pp> container_for_update, 
-    r1cs_ppzksnark_keypair<default_r1cs_ppzksnark_pp> last_keypair, uint64_t index_of_the_coef_to_update,
-    R1CS_Polynomial_factory<FieldT, default_r1cs_ppzksnark_pp> *r1cs_polynomial_factory);
+vector<double> test_polynomial_in_clear_update(return_container_key_generator_for_update<default_r1cs_ppzksnark_pp> container_for_update,  
+        uint64_t index_of_the_coef_to_update, R1CS_Polynomial_factory<FieldT, default_r1cs_ppzksnark_pp> *r1cs_polynomial_factory);
 
 /**
  * @brief Evaluate a R1CS cosntraint with the current variable assignment
@@ -67,7 +60,7 @@ vector<double> test_polynomial_in_clear_update(
  * @return FieldT corresponding to the value of C 
  */
 template<typename FieldT>
-FieldT evaluation_on_linear_combination(linear_combination<FieldT> a, linear_combination<FieldT> b, std::vector<FieldT> &assignment) ; 
+FieldT evaluation_on_linear_combination(linear_combination<FieldT> a, linear_combination<FieldT> b, std::vector<FieldT> &assignment); 
 
 /**
  * @brief This function will execute the different phases of our protocol on a polynomial
@@ -78,65 +71,5 @@ FieldT evaluation_on_linear_combination(linear_combination<FieldT> a, linear_com
  * @param number_of_try 
  */
 void test_polynomial_in_clear(uint64_t polynomial_degree, int number_of_try);
-
-/**
- * @brief This function will test our protocol on a polynomial of degree 'polynomial_degree'. And we'll
- * try to update the coefficient 0 of our polynomial 2 times.
- * 
- * @param polynomial_degree 
- */
-void test_update_index_0(uint64_t polynomial_degree);
-
-/**
- * @brief This function will test our protocol on a polynomial of degree 'polynomial_degree'. And we'll
- * try to update the coefficient 1 of our polynomial 2 times.
- * 
- * @param polynomial_degree 
- */
-void test_update_index_1(uint64_t polynomial_degree);
-
-/**
- * @brief This function will test our protocol on a polynomial of degree 'polynomial_degree'. And we'll
- * try to update the coefficient 'random_index_to_update' of our polynomial 2 times.
- * 
- * @param polynomial_degree 
- */
-void test_update_random_index(uint64_t polynomial_degree, int random_index_to_update);
-
-/**
- * @brief This function will raised an error because the r1cs will not be generated correctly
- * on a polynomial of degree 'polynomial_degree'.
- * 
- * @param polynomial_degree 
- */
-void test_raise_error_for_wrong_r1cs_construction(uint64_t polynomial_degree);
-
-/**
- * @brief This function will raised an error because the r1cs will not be update correctly
- * on a polynomial of degree 'polynomial_degree' for the updated index 'random_index_to_update'
- * 
- * @param polynomial_degree 
- * @param random_index_to_update 
- */
-void test_raise_error_for_wrong_r1cs_update(uint64_t polynomial_degree, int random_index_to_update);
-
-/**
- * @brief This function will raised an error because the key will not be update correctly (if
- * the updated index 'random_index_to_update' > 1) on a polynomial of degree 'polynomial_degree' 
- * for the updated index 'random_index_to_update'.
- * 
- * @param polynomial_degree 
- * @param random_index_to_update 
- */
-void test_raise_error_for_wrong_keys_update(uint64_t polynomial_degree, int random_index_to_update);
-
-/**
- * @brief This function try to update a list of random coefficients 'random_index_to_update'.
- * We shall not have any errors.
- * 
- * @param polynomial_degree 
- * @param random_index_to_update 
- */
-void test_update_multiple_index(uint64_t polynomial_degree, vector<int> random_index_to_update);
 
 #endif

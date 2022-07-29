@@ -30,6 +30,12 @@
 using namespace libsnark;
 using namespace std;
 
+/**
+ * @brief This container is used to store needed informations 
+ * for the update
+ * 
+ * @tparam ppT 
+ */
 template<typename ppT>
 class random_container_key {
 public:
@@ -44,30 +50,33 @@ public:
     libff::Fr<ppT> Bt_save;
     libff::Fr<ppT> Kt_save;
     random_container_key(libff::Fr<ppT> alphaA,
-        libff::Fr<ppT> alphaB,
-        libff::Fr<ppT> alphaC,
-        libff::Fr<ppT> rA,
-        libff::Fr<ppT> rB,
-        libff::Fr<ppT> beta,
-        libff::Fr<ppT> gamma,
-        libff::Fr<ppT> At_save,
-        libff::Fr<ppT> Bt_save,
-        libff::Fr<ppT> Kt_save) :
-        alphaA(alphaA),
-        alphaB(alphaB),
-        alphaC(alphaC),
-        rA(rA),
-        rB(rB),
-        beta(beta),
-        gamma(gamma),
-        At_save(At_save),
-        Bt_save(Bt_save),
-        Kt_save(Kt_save)
-    {};
-    random_container_key()
-    {};
+            libff::Fr<ppT> alphaB,
+            libff::Fr<ppT> alphaC,
+            libff::Fr<ppT> rA,
+            libff::Fr<ppT> rB,
+            libff::Fr<ppT> beta,
+            libff::Fr<ppT> gamma,
+            libff::Fr<ppT> At_save,
+            libff::Fr<ppT> Bt_save,
+            libff::Fr<ppT> Kt_save) :
+            alphaA(alphaA),
+            alphaB(alphaB),
+            alphaC(alphaC),
+            rA(rA),
+            rB(rB),
+            beta(beta),
+            gamma(gamma),
+            At_save(At_save),
+            Bt_save(Bt_save),
+            Kt_save(Kt_save){};
+    random_container_key(){};
 };
 
+/**
+ * @brief Container used to return element 
+ * 
+ * @tparam ppT 
+ */
 template< typename ppT >
 class return_container_key_generator_for_update {
 private: 
@@ -76,12 +85,11 @@ private:
     r1cs_ppzksnark_keypair<ppT> key_pair;
 public:
     return_container_key_generator_for_update(libff::Fr<ppT> FFT_evaluation_point,
-        random_container_key<ppT> random_container,
-        r1cs_ppzksnark_keypair<ppT> key_pair):
-        FFT_evaluation_point(FFT_evaluation_point),
-        random_container(random_container),
-        key_pair(key_pair)
-    {};
+            random_container_key<ppT> random_container,
+            r1cs_ppzksnark_keypair<ppT> key_pair):
+            FFT_evaluation_point(FFT_evaluation_point),
+            random_container(random_container),
+            key_pair(key_pair){};
     libff::Fr<ppT> get_FFT_evaluation_point(){
         return FFT_evaluation_point;
     }
@@ -94,12 +102,20 @@ public:
 };
 
 template <typename ppT>
-r1cs_ppzksnark_keypair<ppT> r1cs_ppzksnark_generator_with_FFT_evaluation_point_and_random_values(const r1cs_ppzksnark_constraint_system<ppT> &cs, const libff::Fr<ppT> FFT_evaluation_point, 
-                    random_container_key<ppT> random_container);
+r1cs_ppzksnark_keypair<ppT> r1cs_ppzksnark_generator_with_FFT_evaluation_point_and_random_values(const r1cs_ppzksnark_constraint_system<ppT> &cs, 
+        const libff::Fr<ppT> FFT_evaluation_point, random_container_key<ppT> random_container);
 
+/**
+ * @brief Function used to compare the content of 2 keys
+ * we have used it to see which elements of the key were 
+ * updated
+ * 
+ * @tparam ppT 
+ * @param ref_keypair 
+ * @param new_keypair 
+ */
 template < typename ppT >
 void compare_keypair(r1cs_ppzksnark_keypair<ppT> ref_keypair, r1cs_ppzksnark_keypair<ppT> new_keypair);
-
 
 #include "r1cs_update_keys.tcc"
 
