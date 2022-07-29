@@ -1,12 +1,7 @@
-# snark-protocol-experiment
+# jsnark-experiment
 
-The aim of this project is too give a simulation of a polynomial evaluation on a remote server with a proof of the result based on zkSNARK and FHE (fully homomorphic encryption). And compare different methods.
-
-The library have the following directory structure:
-
-* [__libsnark-experiment__](libsnark-experiment): protocol with libsnark on a clear polynomial
-* [__report__](report): contain a report that explain the different methods
-* [__homomorphic-authentication-fhe__](homomorphic-authentication-fhe): todo
+This part of the project give a simulation of a polynomial evaluation with his coefficientciphered on a remote server with a proof of the result based on zkSNARK.
+Some time computation of the evaluation are given in order to compare with other protocols. 
 
 
 For jsnark install and dependencies :
@@ -50,8 +45,13 @@ sudo apt-get install junit4
 ```
 	
 ### jsnark Installation Instructions
+You can run the script `install_for_jsnark.sh` to do the installation or you can follow the instructions below step by step :
 
-- Run 
+```bash
+./install_for_jsnark.sh
+```
+
+- To do the installation yourself run the following command :
 ```bash
 git clone --recursive https://github.com/akosba/jsnark.git
 ```
@@ -77,7 +77,7 @@ make
 ```
  
 ```bash
-cd ../../.. && ./install_for_jsnark.sh
+cd ../../..
 ```
 
 - After the install for jsnark script we need to run cmake .. and make again in libsnark :
